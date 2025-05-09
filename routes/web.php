@@ -39,6 +39,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/order/create', [OrderController::class, 'createOrder'])->name('admin.order.create');
     Route::post('/order/store', [OrderController::class, 'storeOrder'])->name('admin.order.store');
     Route::delete('/order/delete/{id}', [OrderController::class, 'deleteOrder'])->name('admin.order.destroy');
+    Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
 
 
 

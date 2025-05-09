@@ -83,4 +83,16 @@ class OrderController extends Controller
         return redirect()->route('admin.order')
             ->with('success', 'Order deleted successfully.');
     }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'order_status' => 'required|in:Pending,Shipped,Delivered,Returned',
+        ]);
+
+        $order->order_status = $request->order_status;
+        $order->save();
+
+        return back()->with('success', 'Order status updated successfully!');
+    }
 }
