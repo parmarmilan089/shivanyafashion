@@ -4,12 +4,32 @@
     <div class="container-fluid py-4">
         <h3 class="text-dark mb-3">Order Details - #{{ $order->order_number }}</h3>
 
+        {{-- Success message after status update --}}
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="card mb-4">
             <div class="card-body">
                 <p><strong>Platform:</strong> {{ $order->sold_on }}</p>
                 <p><strong>Order Date:</strong> {{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</p>
-                <p><strong>Status:</strong> <span class="badge bg-info">{{ $order->order_status }}</span></p>
-                <p><strong>Total Amount:</strong> ₹{{ number_format($order->total_amount, 2) }}</p>
+
+                {{-- Updated status dropdown form --}}
+                <form action="{{ route('admin.order.updateStatus', $order->id) }}" method="POST" class="w-100 d-flex align-items-center" style="max-width: 300px;">
+                    @csrf
+                    @method('PATCH')
+                    <label for="order_status" class="me-2 fw-bold">Status:</label>
+                    <select name="order_status" onchange="this.form.submit()" class="form-select form-select-sm">
+                        <option value="Pending" {{ $order->order_status == 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Shipped" {{ $order->order_status == 'Shipped' ? 'selected' : '' }}>Shipped</option>
+                        <option value="Delivered" {{ $order->order_status == 'Delivered' ? 'selected' : '' }}>Delivered</option>
+                        <option value="Returned" {{ $order->order_status == 'Returned' ? 'selected' : '' }}>Returned</option>
+                    </select>
+                </form>
+
+                <p class="mt-3"><strong>Total Amount:</strong> ₹{{ number_format($order->total_amount, 2) }}</p>
             </div>
         </div>
 

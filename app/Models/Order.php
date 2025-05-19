@@ -12,10 +12,18 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'sold_on',
+        'sub_order_id',
+        'shipping',
         'order_status',
         'total_amount',
         'purchase_date',
     ];
+
+    protected $casts = [
+        'purchase_date' => 'datetime',  // or 'datetime' if time included
+    ];
+
+    protected $dates = ['purchase_date'];
 
     public function details()
     {
@@ -25,7 +33,7 @@ class Order extends Model
     public function product()
     {
         return $this->belongsToMany(Product::class, 'order_products')
-            ->withPivot('price', 'quantity', 'subtotal')
+            ->withPivot('price', 'quantity', 'base_price', 'subtotal')
             ->withTimestamps();
     }
 }

@@ -27,8 +27,9 @@ class ProductController extends Controller
             'sku' => 'required|string|unique:products,platform_sku',
             'price' => 'required|numeric|min:0',
             'status' => 'required|in:active,deactive',
+            'base_price' => 'required|numeric',
             'selling_platform' => 'required|in:Amazon,Meesho',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg',
         ]);
 
         $imagePath = null;
@@ -41,6 +42,7 @@ class ProductController extends Controller
             'seller_name' => $request->seller_name,
             'platform_sku' => $request->sku,
             'price' => $request->price,
+            'base_price' => $request->base_price,
             'status' => $request->status,
             'selling_platform' => $request->selling_platform,
             'image' => $imagePath,
@@ -67,10 +69,11 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'seller_name' => 'required|string|max:255',
             'sku' => 'required|string|max:255|unique:products,platform_sku,' . $id,
+            'base_price' => 'required|numeric',
             'price' => 'required|numeric',
             'status' => 'required|in:active,deactive',
             'selling_platform' => 'required|in:Amazon,Meesho',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Image validation
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', // Image validation
         ]);
 
         // Find the product by ID
@@ -81,6 +84,7 @@ class ProductController extends Controller
         $product->seller_name = $request->input('seller_name');
         $product->platform_sku = $request->input('sku');
         $product->price = $request->input('price');
+        $product->base_price = $request->input('base_price');
         $product->status = $request->input('status');
         $product->selling_platform = $request->input('selling_platform');
 

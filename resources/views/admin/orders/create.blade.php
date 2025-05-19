@@ -28,11 +28,8 @@
                                     <label for="">Select Sold On Platform</label>
                                     <div class="input-group input-group-outline my-2">
                                         <select name="sold_on" class="form-control" required>
-                                            <option disabled selected>Select Platform</option>
-                                            <option value="Amazon" {{ old('sold_on') == 'Amazon' ? 'selected' : '' }}>Amazon
-                                            </option>
-                                            <option value="Meesho" {{ old('sold_on') == 'Meesho' ? 'selected' : '' }}>Meesho
-                                            </option>
+                                            <option value="Meesho" {{ old('sold_on') == 'Meesho' ? 'selected' : '' }}>Meesho</option>
+                                            <option value="Amazon" {{ old('sold_on') == 'Amazon' ? 'selected' : '' }}>Amazon</option>
                                         </select>
                                     </div>
                                     @error('sold_on')
@@ -44,9 +41,34 @@
                                     <label for="">Order Date</label>
                                     <div class="input-group input-group-outline my-2">
                                         <input type="date" name="purchase_date" class="form-control"
-                                            value="{{ old('purchase_date') }}" required>
+                                            value="{{ old('purchase_date') ? old('purchase_date') : \Carbon\Carbon::today()->format('Y-m-d') }}" required>
                                     </div>
                                     @error('purchase_date')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="">Enter Sub Order Id</label>
+                                    <div class="input-group input-group-outline my-2">
+                                        <input type="text" name="sub_order_id" class="form-control"
+                                            value="{{ old('sub_order_id') }}" placeholder="Enter Sub Order Id" required>
+                                    </div>
+                                    @error('sub_order_id')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="">Select Shipping</label>
+                                    <div class="input-group input-group-outline my-2">
+                                        <select name="shipping" class="form-control" required>
+                                            <option disabled selected>Select Shipping</option>
+                                            <option value="delhivery" {{ old('shipping') == 'delhivery' ? 'selected' : '' }}>Delhivery</option>
+                                            <option value="ecomexpress" {{ old('shipping') == 'ecomexpress' ? 'selected' : '' }}>Ecom express</option>
+                                            <option value="shadowfax" {{ old('shipping') == 'shadowfax' ? 'selected' : '' }}>Shadowfax</option>
+                                            <option value="xpressbees" {{ old('shipping') == 'xpressbees' ? 'selected' : '' }}>Xpress bees</option>
+                                        </select>
+                                    </div>
+                                    @error('shipping')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -62,8 +84,10 @@
                                         <select id="product-select" class="form-control select2">
                                             <option disabled selected>Select Product</option>
                                             @foreach($products as $product)
-                                                <option value="{{ $product->id }}" data-name="{{ $product->name }}-{{ $product->platform_sku }}"
+                                                <option value="{{ $product->id }}"
+                                                    data-name="{{ $product->name }}-{{ $product->platform_sku }}"
                                                     data-price="{{ $product->price }}"
+                                                    data-base_price="{{ $product->base_price }}"
                                                     data-image="{{ asset('storage/' . $product->image) }}">
                                                     {{ $product->name }}-{{ $product->platform_sku }}
                                                 </option>
@@ -167,7 +191,7 @@
         $(document).ready(function () {
             $('.select2').select2();
             let index = 0;
-            let editingRow = null; // to track if editing
+            let editingRow = null;
 
             function calculateTotal() {
                 let total = 0;
@@ -195,40 +219,42 @@
                 editingRow = null;
             }
 
-            function addProductRow(productId, name, image, price, qty, rowIndex = null) {
+            function addProductRow(productId, name, image, price, qty, rowIndex = null, basePrice = 0) {
+                console.log(basePrice,'basePrice');
+                
                 const subtotal = (price * qty).toFixed(2);
                 const rowId = rowIndex !== null ? rowIndex : index;
 
                 const rowHtml = `
-                    <tr data-index="${rowId}">
-                        <td>
-                            <div class="d-flex px-2 py-1">
-                                <div><img src="${image}" class="avatar avatar-sm me-3 border-radius-lg" alt="${name}"></div>
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-sm">${name}</h6>
-                                    <input type="hidden" name="products[${rowId}][product_id]" value="${productId}">
-                                </div>
+                <tr data-index="${rowId}">
+                    <td>
+                        <div class="d-flex px-2 py-1">
+                            <div><img src="${image}" class="avatar avatar-sm me-3 border-radius-lg" alt="${name}"></div>
+                            <div class="d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-sm">${name}</h6>
+                                <input type="hidden" name="products[${rowId}][product_id]" value="${productId}">
                             </div>
-                        </td>
-                        <td>
-                            ₹<span class="view-price">${price.toFixed(2)}</span>
-                            <input type="hidden" name="products[${rowId}][price]" value="${price}">
-                        </td>
-                        <td class="text-center">
-                            <input type="number" name="products[${rowId}][quantity]" class="form-control edit-qty text-center" min="1" value="${qty}">
-                        </td>
-                        <td class="text-center">
-                            ₹<span class="view-subtotal">${subtotal}</span>
-                            <input type="hidden" name="products[${rowId}][subtotal]" class="subtotal" value="${subtotal}">
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-secondary edit-row">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger remove-row">X</button>
-                        </td>
-                    </tr>
-                `;
+                        </div>
+                    </td>
+                    <td>
+                        ₹<span class="view-price">${price.toFixed(2)}</span>
+                        <input type="hidden" name="products[${rowId}][price]" value="${price}">
+                        <input type="hidden" name="products[${rowId}][base_price]" value="${basePrice}">
+                    </td>
+                    <td class="text-center">
+                        <input type="number" name="products[${rowId}][quantity]" class="form-control edit-qty text-center" min="1" value="${qty}">
+                    </td>
+                    <td class="text-center">
+                        ₹<span class="view-subtotal">${subtotal}</span>
+                        <input type="hidden" name="products[${rowId}][subtotal]" class="subtotal" value="${subtotal}">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-secondary edit-row">Edit</button>
+                        <button type="button" class="btn btn-sm btn-danger remove-row">X</button>
+                    </td>
+                </tr>
+            `;
 
-                // If editing, replace the row
                 if (rowIndex !== null) {
                     $(`tr[data-index="${rowIndex}"]`).replaceWith(rowHtml);
                 } else {
@@ -246,6 +272,9 @@
                 const productId = selected.val();
                 const name = selected.data('name');
                 const price = parseFloat(selected.data('price'));
+                const basePrice = parseFloat(selected.data('base_price')) || 0;
+                console.log(basePrice,'basePrice1');
+                
                 const image = selected.data('image');
                 const qty = parseInt($('#product-qty').val()) || 1;
 
@@ -255,9 +284,9 @@
                 }
 
                 if (editingRow !== null) {
-                    addProductRow(productId, name, image, price, qty, editingRow);
+                    addProductRow(productId, name, image, price, qty, editingRow, basePrice);
                 } else {
-                    addProductRow(productId, name, image, price, qty);
+                    addProductRow(productId, name, image, price, qty, null, basePrice);
                 }
 
                 resetForm();
@@ -270,13 +299,11 @@
                 const price = parseFloat($row.find('input[name$="[price]"]').val());
                 const qty = parseInt($row.find('input[name$="[quantity]"]').val());
 
-                // Set fields
                 $('#product-select').val(productId).trigger('change');
                 $('#product-qty').val(qty);
                 $('#product-price').val(price.toFixed(2));
                 $('#product-subtotal').val((price * qty).toFixed(2));
 
-                // Toggle edit state
                 editingRow = rowId;
                 $('#add-product').text('Update Product').removeClass('btn-outline-primary').addClass('btn-warning');
             });

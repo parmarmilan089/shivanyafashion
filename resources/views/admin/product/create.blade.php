@@ -32,7 +32,16 @@
         <div class="text-danger text-sm mt-1">{{ $message }}</div>
       @enderror
           </div>
-
+          <div class="col-md-6">
+          <div
+            class="input-group input-group-outline my-2 {{ old('base_price') ? 'is-filled' : '' }} @error('base_price') is-invalid @enderror">
+            <label class="form-label">Base Price</label>
+            <input type="number" name="base_price" class="form-control" value="{{ old('base_price') }}" required>
+          </div>
+          @error('base_price')
+        <div class="text-danger text-sm mt-1">{{ $message }}</div>
+      @enderror
+          </div>
           <div class="col-md-6">
           <div
             class="input-group input-group-outline my-2 {{ old('price') ? 'is-filled' : '' }} @error('price') is-invalid @enderror">
@@ -43,6 +52,7 @@
         <div class="text-danger text-sm mt-1">{{ $message }}</div>
       @enderror
           </div>
+
 
           <div class="col-md-6">
           <div
@@ -109,18 +119,18 @@
     </div>
     </div>
     <script>
-  function previewImage(event) {
-    const input = event.target;
-    const preview = document.getElementById('imagePreview');
+    function previewImage(event) {
+      const input = event.target;
+      const preview = document.getElementById('imagePreview');
 
-    if (input.files && input.files[0]) {
+      if (input.files && input.files[0]) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         preview.src = e.target.result;
         preview.style.display = 'block';
       };
       reader.readAsDataURL(input.files[0]);
+      }
     }
-  }
-</script>
+    </script>
   @endsection

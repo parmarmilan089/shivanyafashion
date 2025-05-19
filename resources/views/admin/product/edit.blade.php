@@ -37,6 +37,17 @@
           {{-- Price --}}
           <div class="col-md-6">
           <div
+            class="input-group input-group-outline my-2 {{ old('base_price', $product->base_price) ? 'is-filled' : '' }}">
+            <label class="form-label">Base Price</label>
+            <input type="number" name="base_price" class="form-control" value="{{ old('base_price', $product->base_price) }}"
+            required>
+          </div>
+          @error('base_price')
+        <div class="text-danger text-sm mt-1">{{ $message }}</div>
+      @enderror
+          </div>
+          <div class="col-md-6">
+          <div
             class="input-group input-group-outline my-2 {{ old('price', $product->price) ? 'is-filled' : '' }}">
             <label class="form-label">Price</label>
             <input type="number" name="price" class="form-control" value="{{ old('price', $product->price) }}"

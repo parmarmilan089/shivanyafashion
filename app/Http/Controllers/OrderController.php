@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Product;
 use DB;
 use Illuminate\Http\Request;
@@ -11,10 +13,33 @@ use Str;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('product')->latest()->get();
+        $query = Order::with('product');
+
+        if ($request->filled('platform')) {
+            $query->where('sold_on', $request->platform);
+        }
+        if ($request->filled('order_status')) {
+            $query->where('order_status', $request->order_status);
+        }
+        if ($request->filled('from_date')) {
+            $query->whereDate('purchase_date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('purchase_date', '<=', $request->to_date);
+        }
+
+        $orders = $query->paginate(15);
+
         return view('admin.orders.index', compact('orders'));
+    }
+
+    public function export(Request $request)
+    {
+        // You can handle custom date filters here with $request->start_date, $request->end_date
+
+        return Excel::download(new OrdersExport($request->start_date, $request->end_date), 'orders.xlsx');
     }
 
     public function createOrder()
@@ -27,15 +52,17 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'sold_on' => 'required|in:Amazon,Meesho',
+            'sub_order_id' => 'required',
+            'shipping' => 'required',
             'purchase_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.price' => 'required|numeric|min:0',
+            'products.*.base_price' => 'required|numeric|min:0',
             'products.*.subtotal' => 'required|numeric|min:0',
         ]);
-
 
         DB::beginTransaction();
         try {
@@ -44,6 +71,8 @@ class OrderController extends Controller
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(uniqid()),
                 'sold_on' => $validated['sold_on'],
+                'sub_order_id' => $validated['sub_order_id'],
+                'shipping' => $validated['shipping'],
                 'purchase_date' => $validated['purchase_date'],
                 'total_amount' => $validated['total_amount'],
             ]);
@@ -51,6 +80,7 @@ class OrderController extends Controller
             foreach ($validated['products'] as $product) {
                 $order->product()->attach($product['product_id'], [ // ✅ Correct key
                     'price' => $product['price'],
+                    'base_price' => $product['base_price'],
                     'quantity' => $product['quantity'],
                     'subtotal' => $product['subtotal'],
                 ]);

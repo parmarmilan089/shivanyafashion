@@ -40,6 +40,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/order/store', [OrderController::class, 'storeOrder'])->name('admin.order.store');
     Route::delete('/order/delete/{id}', [OrderController::class, 'deleteOrder'])->name('admin.order.destroy');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
 
 
 

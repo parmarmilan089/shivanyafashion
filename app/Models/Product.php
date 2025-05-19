@@ -13,6 +13,7 @@ class Product extends Model
         'seller_name',
         'platform_sku',
         'price',
+        'base_price',
         'status',
         'image',
         'selling_platform',
