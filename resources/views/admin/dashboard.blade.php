@@ -157,7 +157,8 @@
 
 		</div>
 		<div class="row mt-2">
-			<h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho</h3>
+			<h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho </h3>
+			<!-- <h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho <label for="" class="text-success"><b>₹{{$meeshoBaseProfit}}</b></label><label for="" class="text-danger"><b>₹{{$meeshoBaseReturnsProfit}}</b></label></h3> -->
 
 			{{-- Today's Money --}}
 			<div class="col-md-3 col-sm-6 mb-3">
@@ -282,7 +283,7 @@
 						<div class="d-flex justify-content-between">
 							<div>
 								<p class="text-sm mb-0 text-capitalize">Base Sales</p>
-								<h4 class="mb-0">₹{{ $meeshoBaseSales }}</h4>
+								<h4 class="mb-0 text-success">₹{{ $meeshoBaseProfit }}</h4>
 							</div>
 							<div
 								class="icon icon-md icon-shape bg-gradient-info shadow-info shadow text-center border-radius-lg">
@@ -301,7 +302,7 @@
 						<div class="d-flex justify-content-between">
 							<div>
 								<p class="text-sm mb-0 text-capitalize">Base Returns</p>
-								<h4 class="mb-0">₹{{ $meeshoBaseReturns }}</h4>
+								<h4 class="mb-0 text-danger">₹{{ $meeshoBaseReturnsProfit }}</h4>
 							</div>
 							<div
 								class="icon icon-md icon-shape bg-gradient-secondary shadow-secondary shadow text-center border-radius-lg">
@@ -317,6 +318,21 @@
 
 
 		<div class="row">
+			<div class="col-lg-6 col-md-8 mt-4 mb-4">
+				<div class="card mb-4 shadow-sm">
+					<div class="card-header bg-gradient-secondary text-center">
+						<h5 class="mb-0 text-white">Order Place</h5>
+					</div>
+					<div class="card-body">
+						<form action="{{ route('meesho.label.upload') }}" method="POST" enctype="multipart/form-data">
+							@csrf
+							<input type="file" name="label_pdf" accept=".pdf" required>
+							<button type="submit" class="btn bg-gradient-secondary">Upload</button>
+						</form>
+
+					</div>
+				</div>
+			</div>
 			<div class="col-lg-6 col-md-8 mt-4 mb-4">
 				<div class="card mb-4 shadow-sm">
 					<div class="card-header bg-gradient-primary text-center">

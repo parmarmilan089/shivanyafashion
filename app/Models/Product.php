@@ -14,6 +14,7 @@ class Product extends Model
         'platform_sku',
         'price',
         'base_price',
+        'gst_price',
         'status',
         'image',
         'selling_platform',

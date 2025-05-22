@@ -30,16 +30,14 @@ class OrderController extends Controller
             $query->whereDate('purchase_date', '<=', $request->to_date);
         }
 
-        $orders = $query->paginate(15);
-
+        $orders = $query->latest()->get();
         return view('admin.orders.index', compact('orders'));
     }
 
     public function export(Request $request)
     {
-        // You can handle custom date filters here with $request->start_date, $request->end_date
-
-        return Excel::download(new OrdersExport($request->start_date, $request->end_date), 'orders.xlsx');
+        $filename = "orders_{$request->from_date}_to_{$request->to_date}.xlsx";
+        return Excel::download(new OrdersExport($request->from_date, $request->to_date), $filename);
     }
 
     public function createOrder()
@@ -81,6 +79,7 @@ class OrderController extends Controller
                 $order->product()->attach($product['product_id'], [ // ✅ Correct key
                     'price' => $product['price'],
                     'base_price' => $product['base_price'],
+                    'gst_price' => round($product['base_price'] * 1.05, 2),
                     'quantity' => $product['quantity'],
                     'subtotal' => $product['subtotal'],
                 ]);
@@ -88,7 +87,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.order')->with('success', 'Order placed successfully.');
+            return redirect()->route('admin.order.create')->with('success', 'Order placed successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();

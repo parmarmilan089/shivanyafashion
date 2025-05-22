@@ -43,6 +43,7 @@ class ProductController extends Controller
             'platform_sku' => $request->sku,
             'price' => $request->price,
             'base_price' => $request->base_price,
+            'gst_price' => round($request->base_price * 1.05, 2),
             'status' => $request->status,
             'selling_platform' => $request->selling_platform,
             'image' => $imagePath,

@@ -17,23 +17,25 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
     protected $toDate;
     protected $rowCount = 0; // Track for totals
 
-    public function __construct($fromDate = null, $toDate = null)
+    public function __construct($start_date = null, $end_date = null)
     {
-        $this->fromDate = $fromDate;
-        $this->toDate = $toDate;
+        $this->fromDate = $start_date;
+        $this->toDate = $end_date;
     }
 
     public function collection()
     {
         $query = Order::with('product')
-        ->where('sold_on', 'Meesho');
+            ->where('sold_on', 'Meesho');
 
         if ($this->fromDate) {
-            $query->whereDate('purchase_date', '>=', $this->fromDate);
+            \Log::info('From Date: ' . $this->fromDate);
+            $query->whereDate('purchase_date', '>=', date('Y-m-d', strtotime($this->fromDate)));
         }
 
         if ($this->toDate) {
-            $query->whereDate('purchase_date', '<=', $this->toDate);
+            \Log::info('To Date: ' . $this->toDate);
+            $query->whereDate('purchase_date', '<=', date('Y-m-d', strtotime($this->toDate)));
         }
 
         $orders = $query->get();
@@ -63,10 +65,10 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
     public function map($order): array
     {
         $product = $order->product->first();
-        $basePrice = $product ? $product->base_price : 0;
+        $getPrice = $product ? $product->gst_price : 0;
         $totalAmount = $order->total_amount ?? 0;
 
-        $profit = $totalAmount - $basePrice;
+        $profit = $totalAmount - $getPrice;
 
         return [
             $order->order_number,
@@ -75,7 +77,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
             $order->shipping ?? '',
             $order->purchase_date ? $order->purchase_date->format('Y-m-d') : '',
             $totalAmount,
-            $basePrice,
+            $getPrice,
             $product ? $product->name : '',
             $product ? $product->platform_sku : '',
             $order->order_status ?? '',

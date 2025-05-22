@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::post('/meesho-label-upload', [AdminController::class, 'upload'])->name('meesho.label.upload');
 
     Route::get('/order', [OrderController::class, 'index'])->name('admin.order');
     Route::get('/order/show/{id}', [OrderController::class, 'showOrder'])->name('admin.order.show');
