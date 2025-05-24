@@ -50,7 +50,7 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'sold_on' => 'required|in:Amazon,Meesho',
-            'sub_order_id' => 'required',
+            'sub_order_id' => 'required|unique:orders,sub_order_id',
             'shipping' => 'required',
             'purchase_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
