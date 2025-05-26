@@ -254,7 +254,7 @@ class AdminController extends Controller
         return back()->with('success', 'Order placed successfully for SKU: ' . $sku);
     }
 
-    public function upload(Request $request)
+    public function upload2(Request $request)
     {
         $request->validate([
             'label_pdf' => 'required|mimes:pdf|max:5120',
@@ -263,10 +263,12 @@ class AdminController extends Controller
         $parser = new Parser();
         $pdf = $parser->parseFile($request->file('label_pdf')->getPathname());
         $lines = preg_split("/\r\n|\n|\r/", $pdf->getText());
+        // echo '<pre>';print_r($lines); echo '</pre>';die;
 
         $labels = [];
-        $labelLines = [];
+        $shippings = $labelLines = [];
         $shipping = 'Unknown';
+
         $collecting = false;
 
         for ($i = 1; $i < count($lines); $i++) {
@@ -274,12 +276,21 @@ class AdminController extends Controller
 
             // ✅ Detect 'Pickup' even if merged (e.g., "PickupSKU Size Qty...")
             if (Str::contains(Str::lower($line), 'pickup')) {
+            // echo '<pre>2222';print_r($line); echo '</pre>';
                 // Capture the previous line as the shipping partner
                 $shippingLine = trim($lines[$i - 1] ?? '');
                 $shipping = $shippingLine;
-                echo "<pre>3243"; print_r($labelLines); echo "</pre>";
+                // echo '<pre>000';print_r($shipping); echo '</pre>';
+                $shippings = array(
+                    'purchase_date' => null,
+                    'shipping' => $shipping,
+                    'products' => [],
+                );
+
+                // echo "<pre>3243"; print_r($labelLines); echo "</pre>";
+                // echo '<pre>';print_r($shippings); echo '</pre>';
                 if (!empty($labelLines)) {
-                    echo "<pre>andar "; print_r($shipping); echo "</pre>";
+                    // echo "<pre>andar "; print_r($shipping); echo "</pre>";
                     $labels[] = $this->parseLabelBlock($labelLines, $shipping);
                     $labelLines = [];
                 }
@@ -354,4 +365,140 @@ class AdminController extends Controller
             'products' => $products,
         ];
     }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'label_pdf' => 'required|mimes:pdf|max:5120',
+        ]);
+
+        $parser = new Parser();
+        $pdf = $parser->parseFile($request->file('label_pdf')->getPathname());
+        $lines = preg_split("/\r\n|\n|\r/", $pdf->getText());
+        // echo '<pre>';print_r($lines); echo '</pre>';die;
+        $order = [];
+        $labels = [];
+        $shippings = $labelLines = [];
+        $shipping = 'Unknown';
+
+        $collecting = false;
+
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = trim($lines[$i]);
+
+            // ✅ Detect 'Pickup' even if merged (e.g., "PickupSKU Size Qty...")
+            if (Str::contains(Str::lower($line), 'pickup')) {
+            // echo '<pre>2222';print_r($line); echo '</pre>';
+                // Capture the previous line as the shipping partner
+                $shippingLine = trim($lines[$i - 1] ?? '');
+                $shipping = $shippingLine;
+                // echo '<pre>000';print_r($shipping); echo '</pre>';
+                $order[] = array(
+                    'purchase_date' => null,
+                    'shipping' => $shipping,
+                    'products' => [],
+                );
+
+                // // echo "<pre>3243"; print_r($labelLines); echo "</pre>";
+                // // echo '<pre>';print_r($shippings); echo '</pre>';
+                // if (!empty($labelLines)) {
+                //     // echo "<pre>andar "; print_r($shipping); echo "</pre>";
+                //     $labels[] = $this->parseLabelBlock($labelLines, $shipping);
+                //     $labelLines = [];
+                // }
+
+                // // Split current line in case it's merged: "PickupSKU Size Qty Color Order No."
+                // $pickupParts = preg_split('/pickup/i', $line);
+                // if (isset($pickupParts[1]) && trim($pickupParts[1]) !== '') {
+                //     $labelLines[] = 'SKU ' . trim($pickupParts[1]);
+                // }
+
+                // $collecting = true;
+                // continue; // Skip re-adding this line
+            }
+
+            if (Str::contains($line, 'SKU') && Str::contains($line, 'Order No')) {
+                // ✅ Extract product details
+                preg_match_all(
+                    '/([A-Z0-9\-\s]+)\s+([0-9A-Za-z\- ]+)\s+(\d+)\s+([A-Za-z ]+)\s+(\d{15,}_\d+)/',
+                    $lines[$i + 1],
+                    $matches,
+                    PREG_SET_ORDER
+                );
+
+                $products = [];
+
+                foreach ($matches as $match) {
+                    $products[] = [
+                        'sku' => str_replace(' ', '', trim($match[1])),
+                        'size' => trim($match[2]),
+                        'quantity' => (int) $match[3],
+                        'color' => trim($match[4]),
+                        'order_no' => trim($match[5]),
+                    ];
+                }
+
+                $order[count($order)-1]['products'] = $products;
+            }
+
+            // if ($collecting) {
+                // $labelLines[] = $line;
+            // }/
+        }die;
+
+        // ✅ Final label block
+        if (!empty($labelLines)) {
+            $labels[] = $this->parseLabelBlock($labelLines, $shipping);
+        }
+
+        // ✅ Output the result
+        echo "<pre>";
+        print_r($labels);
+        echo "</pre>";
+        die;
+    }
+
+    // private function parseLabelBlock(array $labelLines, string $shipping)
+    // {
+    //     $purchaseDate = null;
+
+    //     // Join and normalize label lines
+    //     $joined = implode(' ', $labelLines);
+    //     $joined = preg_replace('/\s+/', ' ', $joined);
+
+    //     // ✅ Extract purchase/order date
+    //     if (preg_match('/Order Date\s+(\d{2}\.\d{2}\.\d{4})/', $joined, $dateMatch)) {
+    //         try {
+    //             $purchaseDate = Carbon::createFromFormat('d.m.Y', $dateMatch[1])->format('Y-m-d');
+    //         } catch (\Exception $e) {
+    //             $purchaseDate = null;
+    //         }
+    //     }
+
+    //     // ✅ Extract product details
+    //     preg_match_all(
+    //         '/([A-Z0-9\-\s]+)\s+([0-9A-Za-z\- ]+)\s+(\d+)\s+([A-Za-z ]+)\s+(\d{15,}_\d+)/',
+    //         $joined,
+    //         $matches,
+    //         PREG_SET_ORDER
+    //     );
+
+    //     $products = [];
+
+    //     foreach ($matches as $match) {
+    //         $products[] = [
+    //             'sku' => str_replace(' ', '', trim($match[1])),
+    //             'size' => trim($match[2]),
+    //             'quantity' => (int) $match[3],
+    //             'color' => trim($match[4]),
+    //             'order_no' => trim($match[5]),
+    //         ];
+    //     }
+
+    //     return [
+    //         'shipping' => $shipping,
+    //         'purchase_date' => $purchaseDate,
+    //         'products' => $products,
+    //     ];
+    // }
 }
