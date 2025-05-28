@@ -324,6 +324,28 @@
 						<h5 class="mb-0 text-white">Order Place</h5>
 					</div>
 					<div class="card-body">
+
+						{{-- ✅ Success Message --}}
+						@if (session('success'))
+							<div class="alert alert-success">
+								{{ session('success') }}
+							</div>
+						@endif
+
+						{{-- ✅ Error Message --}}
+						@if (session('error'))
+							<div class="alert alert-danger">
+								{{ session('error') }}
+							</div>
+						@endif
+
+						{{-- ✅ Missing SKUs if passed --}}
+						@if (session('missing_skus'))
+							<div class="alert alert-warning">
+								<strong>Missing SKUs:</strong> {{ implode(', ', session('missing_skus')) }}
+							</div>
+						@endif
+
 						<form action="{{ route('meesho.label.upload') }}" method="POST" enctype="multipart/form-data">
 							@csrf
 							<input type="file" name="label_pdf" accept=".pdf" required>

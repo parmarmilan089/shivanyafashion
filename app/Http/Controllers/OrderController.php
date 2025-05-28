@@ -30,7 +30,7 @@ class OrderController extends Controller
             $query->whereDate('purchase_date', '<=', $request->to_date);
         }
 
-        $orders = $query->latest()->get();
+        $orders = $query->orderBy('id', 'desc')->get();
         return view('admin.orders.index', compact('orders'));
     }
 

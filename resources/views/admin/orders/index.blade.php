@@ -63,20 +63,18 @@
         <thead>
         <tr>
           <th>Order ID</th>
-          <th>Platform</th>
           <th>Products</th>
-          <th>Order Date</th>
           <th>Purchase Date</th>
           <th>Total Amount</th>
-          <th>Status</th>
+          <th>Shipping</th>
+          <th>Sub Order Id</th>
           <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         @foreach($orders as $order)
         <tr>
-        <td>#{{ $order->id }}</td>
-        <td>{{ $order->platform }}</td>
+        <td>{{ $order->id }}</td>
         <td>
         <div class="d-flex flex-column gap-2 mt-2">
           @foreach($order->product as $product)
@@ -86,16 +84,18 @@
         <div>
         <div style="font-size: 0.85rem;">{{ Str::limit($product->name, 30) }}</div>
         <small class="text-muted">SKU: {{ $product->platform_sku }}</small>
+        <small class="text-muted">SKU: {{ $product->size }}</small>
         </div>
         </div>
         @endforeach
         </div>
         <span class="badge bg-secondary mt-2">{{ $order->product->count() }} Product(s)</span>
         </td>
-        <td>{{ $order->sold_on }}</td>
         <td>{{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</td>
         <td>₹{{ number_format($order->total_amount, 2) }}</td>
-        <td>
+        <td>{{ $order->shipping}}</td>
+        <td>{{ $order->sub_order_id}}</td>
+        <!-- <td>
         @if($order->order_status == 'Pending')
         <span class="badge bg-warning">{{ ucfirst($order->order_status) }}</span>
       @elseif($order->order_status == 'Returned')
@@ -105,7 +105,7 @@
       @else
         <span class="badge bg-success">{{ ucfirst($order->order_status) }}</span>
       @endif
-        </td>
+        </td> -->
         <td>
         <div class="d-flex flex-column gap-2">
           {{-- Order Status Dropdown --}}
@@ -146,21 +146,21 @@
 @endsection
 
 @push('scripts')
-  <script>
+<script>
     $(document).ready(function () {
-    let table = $('#order-table').DataTable({
-      responsive: true,
-      language: {
-      search: "Search Orders:",
-      emptyTable: "No orders found"
-      },
-      info: true, // ✅ Show "Showing X to Y of Z entries"
-      lengthChange: true, // ✅ Show row selection dropdown
-      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] // ✅ Dropdown values
-    });
+      let table = $('#order-table').DataTable({
+        responsive: true,
+        language: {
+          search: "Search Orders:",
+          emptyTable: "No orders found"
+        },
+        info: true,
+        lengthChange: true,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        order: [[0, 'desc']] // 👈 Sort by first column (Order ID) descending
+      });
 
-    // Optional: ensure the search box is visible
-    $('#order-table_filter').css('display', 'block');
+      $('#order-table_filter').css('display', 'block');
     });
   </script>
 @endpush
