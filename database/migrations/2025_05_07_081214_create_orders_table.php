@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->id();
             $table->string('order_number')->unique();
             $table->enum('sold_on', ['Amazon', 'Meesho']);
-            $table->enum('order_status', ['Pending', 'Shipped', 'Delivered', 'Returned', 'Cancelled'])->default('Delivered');
+            $table->enum('order_status', ['Pending', 'Shipped', 'Delivered', 'Returned','RTO-Return','Cancelled'])->default('Delivered');
             $table->decimal('total_amount', 10, 2);
             $table->date('purchase_date');
             $table->timestamps();

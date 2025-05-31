@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,6 +53,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.destroy');
     Route::post('/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
 });
-
+Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
+    Route::resource('payment', PaymentController::class)->names('payment');
+});
 require __DIR__.'/auth.php';
 

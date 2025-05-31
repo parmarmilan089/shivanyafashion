@@ -61,7 +61,8 @@
                                     <label for="">Select Shipping</label>
                                     <div class="input-group input-group-outline my-2">
                                         <select name="shipping" class="form-control" required>
-                                            <option disabled selected>Select Shipping</option>
+                                            <!-- <option disabled selected>Select Shipping</option> -->
+                                            <option value="valmo" {{ old('shipping') == 'valmo' ? 'selected' : '' }}>Valmo</option>
                                             <option value="delhivery" {{ old('shipping') == 'delhivery' ? 'selected' : '' }}>Delhivery</option>
                                             <option value="ecomexpress" {{ old('shipping') == 'ecomexpress' ? 'selected' : '' }}>Ecom express</option>
                                             <option value="shadowfax" {{ old('shipping') == 'shadowfax' ? 'selected' : '' }}>Shadowfax</option>
@@ -71,6 +72,12 @@
                                     @error('shipping')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="">Order Description</label>
+                                    <div class="input-group input-group-outline my-2">
+                                        <textarea name="description" id="description" class="form-control">{{ old('description') }}</textarea>
+                                    </div>
                                 </div>
                             </div>
 

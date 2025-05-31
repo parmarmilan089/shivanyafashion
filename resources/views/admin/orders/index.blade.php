@@ -77,49 +77,70 @@
         <td>{{ $order->id }}</td>
         <td>
         <div class="d-flex flex-column gap-2 mt-2">
-          @foreach($order->product as $product)
+          @foreach($order->orderProducts as $op)
+        @php $product = $op->product; @endphp
+        @if($product)
         <div class="d-flex align-items-center gap-2">
         <img src="{{ asset('storage/' . $product->image) }}" alt="Product Image"
         style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
         <div>
         <div style="font-size: 0.85rem;">{{ Str::limit($product->name, 30) }}</div>
-        <small class="text-muted">SKU: {{ $product->platform_sku }}</small>
-        <small class="text-muted">SKU: {{ $product->size }}</small>
+        <small class="text-muted">SKU: {{ $product->platform_sku }}</small><br>
+        <small class="text-muted">Size: {{ $op->size ?? 'N/A' }}</small> {{-- SIZE FROM ORDER_PRODUCTS
+        --}}
         </div>
         </div>
-        @endforeach
+        @endif
         </div>
-        <span class="badge bg-secondary mt-2">{{ $order->product->count() }} Product(s)</span>
+        @if($op->quantity > 1)
+        <span class="badge bg-danger mt-2">{{ $op->quantity }} Product(s)</span>
+        @else
+        <span class="badge bg-secondary mt-2">{{ $op->quantity }} Product(s)</span>
+        @endif
+      @endforeach
         </td>
         <td>{{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</td>
         <td>₹{{ number_format($order->total_amount, 2) }}</td>
         <td>{{ $order->shipping}}</td>
         <td>{{ $order->sub_order_id}}</td>
         <!-- <td>
-        @if($order->order_status == 'Pending')
-        <span class="badge bg-warning">{{ ucfirst($order->order_status) }}</span>
+      @if($order->order_status == 'Pending')
+      <span class="badge bg-warning">{{ ucfirst($order->order_status) }}</span>
       @elseif($order->order_status == 'Returned')
-        <span class="badge bg-danger">{{ ucfirst($order->order_status) }}</span>
+      <span class="badge bg-danger">{{ ucfirst($order->order_status) }}</span>
       @elseif($order->order_status == 'Shipped')
-        <span class="badge bg-info">{{ ucfirst($order->order_status) }}</span>
+      <span class="badge bg-info">{{ ucfirst($order->order_status) }}</span>
       @else
-        <span class="badge bg-success">{{ ucfirst($order->order_status) }}</span>
+      <span class="badge bg-success">{{ ucfirst($order->order_status) }}</span>
       @endif
-        </td> -->
+      </td> -->
         <td>
         <div class="d-flex flex-column gap-2">
           {{-- Order Status Dropdown --}}
-          <form action="{{ route('admin.order.updateStatus', $order->id) }}" method="POST" class="w-100">
+          <form action="{{ route('admin.order.updateStatus', $order->id) }}" method="POST"
+          id="status-form-{{ $order->id }}">
           @csrf
           @method('PATCH')
-          <select name="order_status" onchange="this.form.submit()" class="form-select form-select-sm">
-          <option value="Pending" {{ $order->order_status == 'Pending' ? 'selected' : '' }}>Pending</option>
-          <option value="Shipped" {{ $order->order_status == 'Shipped' ? 'selected' : '' }}>Shipped</option>
+
+          <select name="order_status" onchange="toggleShippingInput(this, {{ $order->id }})"
+          class="form-select form-select-sm">
+          <option value="RTO-Return" {{ $order->order_status == 'RTO-Return' ? 'selected' : '' }}>RTO-Return
+          </option>
           <option value="Delivered" {{ $order->order_status == 'Delivered' ? 'selected' : '' }}>Delivered
           </option>
           <option value="Returned" {{ $order->order_status == 'Returned' ? 'selected' : '' }}>Returned
           </option>
           </select>
+
+          <div class="mt-2 shipping-charge-group" id="shipping-group-{{ $order->id }}"
+          style="display: {{ $order->order_status == 'Returned' ? 'block' : 'none' }};">
+
+          <div class="input-group input-group-outline my-2">
+          <input type="number" step="0.01" name="return_shipping_charge" class="form-control"
+            placeholder="Enter Return Shipping Charge" value="{{ $order->return_shipping_charge ?? '' }}"
+            onfocus="focused(this)" onfocusout="defocused(this)">
+          </div>
+          </div>
           </form>
 
           {{-- Action Buttons --}}
@@ -146,21 +167,34 @@
 @endsection
 
 @push('scripts')
-<script>
+  <script>
     $(document).ready(function () {
-      let table = $('#order-table').DataTable({
-        responsive: true,
-        language: {
-          search: "Search Orders:",
-          emptyTable: "No orders found"
-        },
-        info: true,
-        lengthChange: true,
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        order: [[0, 'desc']] // 👈 Sort by first column (Order ID) descending
-      });
-
-      $('#order-table_filter').css('display', 'block');
+    let table = $('#order-table').DataTable({
+      responsive: true,
+      language: {
+      search: "Search Orders:",
+      emptyTable: "No orders found"
+      },
+      info: true,
+      lengthChange: true,
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      order: [[0, 'desc']] // 👈 Sort by first column (Order ID) descending
     });
+
+    $('#order-table_filter').css('display', 'block');
+    });
+  </script>
+  <script>
+    function toggleShippingInput(select, orderId) {
+    const shippingGroup = document.getElementById('shipping-group-' + orderId);
+    const form = document.getElementById('status-form-' + orderId);
+
+    if (select.value === 'Returned') {
+      shippingGroup.style.display = 'block';
+    } else {
+      shippingGroup.style.display = 'none';
+      form.submit(); // Auto-submit for all other status types
+    }
+    }
   </script>
 @endpush

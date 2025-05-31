@@ -101,6 +101,29 @@
           </ul>
         </div>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('admin.payment.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}" data-bs-toggle="collapse" href="#paymentMenu" role="button" aria-expanded="false" aria-controls="paymentMenu">
+          <i class="material-symbols-rounded opacity-5">inventory_2</i>
+          <span class="nav-link-text ms-1">Payments</span>
+        </a>
+        <div class="collapse {{ request()->routeIs('admin.payment.*') ? 'show' : '' }}" id="paymentMenu">
+          <ul class="nav ms-4">
+            <li class="nav-item">
+              <a class="nav-link {{ request()->routeIs('admin.payment.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}" href="{{ route('admin.payment.index') }}">
+                <span class="sidenav-mini-icon">📄</span>
+                <span class="sidenav-normal ms-1">Payment List</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {{ request()->routeIs('admin.payment.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}" href="{{ route('admin.payment.create') }}">
+                <span class="sidenav-mini-icon">➕</span>
+                <span class="sidenav-normal ms-1">Add Payment</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
         <!-- <li class="nav-item">
           <a class="nav-link text-dark" href="../pages/tables.html">
             <i class="material-symbols-rounded opacity-5">table_view</i>

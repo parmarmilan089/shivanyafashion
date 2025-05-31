@@ -64,7 +64,7 @@ class AdminController extends Controller
         $meeshoSales = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->whereIn('order_products.order_id', $meeshoOrderIds)
-            ->where('orders.order_status', 'Delivered')
+            // ->where('orders.order_status', 'Delivered')
             ->sum(DB::raw('order_products.gst_price * order_products.quantity'));
         $meeshoReturns = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
@@ -214,11 +214,11 @@ class AdminController extends Controller
             //     $orders[count($orders) - 1]['purchase_date'] = $purchaseDate;
             // }
         }
-        echo "<pre>"; print_r($notinproduct); echo "</pre>";
-        echo "<pre>";
-        print_r($orders);
-        echo "</pre>";
-        die;
+        // echo "<pre>"; print_r($notinproduct); echo "</pre>";
+        // echo "<pre>";
+        // print_r($orders);
+        // echo "</pre>";
+        // die;
 
         if(count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {

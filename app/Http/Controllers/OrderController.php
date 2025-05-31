@@ -15,7 +15,7 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with('product');
+        $query = Order::with(['product', 'orderProducts.product']);
 
         if ($request->filled('platform')) {
             $query->where('sold_on', $request->platform);
@@ -73,6 +73,7 @@ class OrderController extends Controller
                 'shipping' => $validated['shipping'],
                 'purchase_date' => $validated['purchase_date'],
                 'total_amount' => $validated['total_amount'],
+                'description' => $request->description ?? '',
             ]);
 
             foreach ($validated['products'] as $product) {
@@ -116,7 +117,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'order_status' => 'required|in:Pending,Shipped,Delivered,Returned',
+            'order_status' => 'required|in:Pending,Shipped,Delivered,Returned,RTO-Return',
         ]);
 
         $order->order_status = $request->order_status;

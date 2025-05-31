@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,7 @@ class Order extends Model
         'order_status',
         'total_amount',
         'purchase_date',
+        'description',
     ];
 
     protected $casts = [
@@ -35,5 +37,10 @@ class Order extends Model
         return $this->belongsToMany(Product::class, 'order_products')
             ->withPivot('price', 'quantity', 'base_price', 'subtotal')
             ->withTimestamps();
+    }
+
+    public function orderProducts()
+    {
+        return $this->hasMany(OrderProduct::class, 'order_id');
     }
 }
