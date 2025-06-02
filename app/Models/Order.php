@@ -19,6 +19,7 @@ class Order extends Model
         'total_amount',
         'purchase_date',
         'description',
+        'return_charges',
     ];
 
     protected $casts = [

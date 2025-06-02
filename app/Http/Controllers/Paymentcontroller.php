@@ -18,6 +18,7 @@ class Paymentcontroller extends Controller
         return view('admin.payment.create');
     }
 
+
     public function store(Request $request)
     {
         $request->validate([
@@ -36,6 +37,19 @@ class Paymentcontroller extends Controller
         ];
         Payment::create($paymentdata);
 
-        return redirect()->route('payment.index')->with('success', 'Payment added successfully.');
+        return redirect()->route('admin.payment.index')->with('success', 'Payment added successfully.');
+    }
+
+    public function show($id)
+    {
+        $payment = Payment::findOrFail($id);
+        // Decode delivered sub order IDs from JSON
+        $deliveredSubOrderIds = json_decode($payment->delivered_sub_order_ids, true) ?? [];
+
+        // Fetch orders with those sub_order_ids and eager load related products
+        $orders = \App\Models\Order::with(['orderProducts.product'])
+            ->whereIn('sub_order_id', $deliveredSubOrderIds)
+            ->get();
+        return view('admin.payment.show', compact('payment', 'orders'));
     }
 }

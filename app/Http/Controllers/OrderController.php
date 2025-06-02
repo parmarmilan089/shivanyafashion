@@ -116,11 +116,31 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
+        // Validate the selected order status
         $request->validate([
-            'order_status' => 'required|in:Pending,Shipped,Delivered,Returned,RTO-Return',
+            'order_status' => 'required|in:Pending,Shipped,Delivered,Returned,RTO-Return,Wrong-RTO-Return,Wrong-Return,Missing-Return',
         ]);
 
+        // Update the status
         $order->order_status = $request->order_status;
+
+        // Define the statuses that require return charges
+        $statusesWithCharges = ['Returned', 'Wrong-Return', 'Missing-Return'];
+
+        // If the selected status is one that needs a return charge
+        if (in_array($request->order_status, $statusesWithCharges)) {
+            // Validate return shipping charge
+            $request->validate([
+                'return_shipping_charge' => 'required|numeric|min:0',
+            ]);
+
+            // Save the charge
+            $order->return_charges = $request->return_shipping_charge;
+        } else {
+            // Clear any previous return charges if not required
+            $order->return_charges = null;
+        }
+
         $order->save();
 
         return back()->with('success', 'Order status updated successfully!');

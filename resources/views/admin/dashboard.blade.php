@@ -159,8 +159,25 @@
 		<div class="row mt-2">
 			<h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho </h3>
 			<!-- <h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho <label for="" class="text-success"><b>₹{{$meeshoBaseProfit}}</b></label><label for="" class="text-danger"><b>₹{{$meeshoBaseReturnsProfit}}</b></label></h3> -->
-
-			{{-- Today's Money --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Total Payments Received</p>
+								<h4 class="mb-0 text-success">{{ '₹' . number_format($totalPayment, 2) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">payments</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+		</div>{{-- Today's Money --}}
+		<div class="row mt-2">
 			<div class="col-md-3 col-sm-6 mb-3">
 				<div class="card">
 					<div class="card-header p-2 ps-3">

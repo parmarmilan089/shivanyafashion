@@ -126,6 +126,12 @@
           class="form-select form-select-sm">
           <option value="RTO-Return" {{ $order->order_status == 'RTO-Return' ? 'selected' : '' }}>RTO-Return
           </option>
+          <option value="Wrong-RTO-Return" {{ $order->order_status == 'Wrong-RTO-Return' ? 'selected' : '' }}>Wrong-RTO-Return
+          </option>
+          <option value="Wrong-Return" {{ $order->order_status == 'Wrong-Return' ? 'selected' : '' }}>Wrong-Return
+          </option>
+          <option value="Missing-Return" {{ $order->order_status == 'Missing-Return' ? 'selected' : '' }}>Missing-Return
+          </option>
           <option value="Delivered" {{ $order->order_status == 'Delivered' ? 'selected' : '' }}>Delivered
           </option>
           <option value="Returned" {{ $order->order_status == 'Returned' ? 'selected' : '' }}>Returned
@@ -137,9 +143,10 @@
 
           <div class="input-group input-group-outline my-2">
           <input type="number" step="0.01" name="return_shipping_charge" class="form-control"
-            placeholder="Enter Return Shipping Charge" value="{{ $order->return_shipping_charge ?? '' }}"
+            placeholder="Enter Return Shipping Charge" value="{{ $order->return_charges ?? '' }}"
             onfocus="focused(this)" onfocusout="defocused(this)">
           </div>
+            <button type="submit" class="btn btn-sm btn-primary mt-2">Update Status</button>
           </div>
           </form>
 
@@ -189,11 +196,10 @@
     const shippingGroup = document.getElementById('shipping-group-' + orderId);
     const form = document.getElementById('status-form-' + orderId);
 
-    if (select.value === 'Returned') {
+    if (select.value === 'Returned' || select.value === 'Wrong-Return' || select.value === 'Missing-Return') {
       shippingGroup.style.display = 'block';
     } else {
       shippingGroup.style.display = 'none';
-      form.submit(); // Auto-submit for all other status types
     }
     }
   </script>

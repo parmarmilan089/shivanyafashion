@@ -107,6 +107,8 @@ class AdminController extends Controller
             ->where('orders.order_status', 'Returned')
             ->sum(DB::raw('(order_products.price - order_products.gst_price) * order_products.quantity'));
 
+        $totalPayment = DB::table('payments')->sum('amount');
+            
         return view('admin.dashboard', [
             // Amazon
             'amazonSales' => $amazonSales,
@@ -128,6 +130,8 @@ class AdminController extends Controller
             'meeshoBaseReturns' => $meeshoBaseReturns,
             'meeshoBaseProfit' => $meeshoBaseProfit,
             'meeshoBaseReturnsProfit' => $meeshoBaseReturnsProfit,
+
+            'totalPayment' => $totalPayment,
         ]);
     }
 
@@ -214,11 +218,11 @@ class AdminController extends Controller
             //     $orders[count($orders) - 1]['purchase_date'] = $purchaseDate;
             // }
         }
-        // echo "<pre>"; print_r($notinproduct); echo "</pre>";
-        // echo "<pre>";
-        // print_r($orders);
-        // echo "</pre>";
-        // die;
+        echo "<pre>"; print_r($notinproduct); echo "</pre>";
+        echo "<pre>";
+        print_r($orders);
+        echo "</pre>";
+        die;
 
         if(count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {
