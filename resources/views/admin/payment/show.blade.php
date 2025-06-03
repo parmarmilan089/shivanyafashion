@@ -7,7 +7,7 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Payment Invoice</h5>
+                    <h5 class="mb-0 text-white">Payment Invoice</h5>
                     <a href="{{ route('admin.payment.index') }}" class="btn btn-sm btn-light text-dark">← Back to List</a>
                 </div>
                 <div class="card-body">
@@ -33,6 +33,18 @@
                             </p>
                         </div>
                     </div>
+
+                    @if(!empty($missingSubOrderIds))
+                        <div class="alert alert-warning mt-4">
+                            <strong>Missing Sub Order IDs:</strong><br>
+                            <small>The following Delivered Sub Order IDs were not found in the orders table:</small>
+                            <div class="mt-2">
+                                @foreach($missingSubOrderIds as $missingId)
+                                    <span class="badge bg-warning text-dark me-1 mb-1">{{ $missingId }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -22,9 +22,10 @@ class Helper
 
     public static function getMeeshoTodayOrderAmount()
     {
-        return Order::where('sold_on', 'Meesho')
-            ->whereDate('purchase_date', Carbon::today())
-            ->sum('total_amount');
+        $amount = Order::where('sold_on', 'Meesho')
+        ->whereDate('purchase_date', Carbon::today())
+        ->sum('total_amount');
+        return self::formatIndianCurrency($amount);
     }
 
     public static function getAmazonTotalSales()
@@ -44,5 +45,23 @@ class Helper
         return Order::where('sold_on', 'Amazon')
             ->whereDate('purchase_date', Carbon::today())
             ->sum('total_amount');
+    }
+
+    public static function formatIndianCurrency($amount) {
+        $amount = number_format($amount, 2, '.', '');
+        $x = explode('.', $amount);
+        $integerPart = $x[0];
+        $decimalPart = $x[1];
+    
+        $lastThree = substr($integerPart, -3);
+        $restUnits = substr($integerPart, 0, -3);
+        if ($restUnits != '') {
+            $restUnits = preg_replace("/\B(?=(\d{2})+(?!\d))/", ",", $restUnits);
+            $formatted = $restUnits . "," . $lastThree;
+        } else {
+            $formatted = $lastThree;
+        }
+    
+        return $formatted . "." . $decimalPart;
     }
 }

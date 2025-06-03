@@ -3,11 +3,253 @@
 
 	<!-- End Navbar -->
 	<div class="container-fluid py-2">
-		<div class="row">
-			<div class="ms-3">
+
+		<div class="row mt-2">
+			<div class="ms-1">
 				<h3 class="mb-0 h4 font-weight-bolder">Dashboard</h3>
 				<p class="mb-4">Check the sales, value and bounce rate by country.</p>
 			</div>
+			<h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho </h3>
+			<!-- <h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho <label for="" class="text-success"><b>₹{{$meeshoBaseProfit}}</b></label><label for="" class="text-danger"><b>₹{{$meeshoBaseReturnsProfit}}</b></label></h3> -->
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Total Payments Received</p>
+								<h4 class="mb-0 text-success">{{ '₹' . number_format($totalPayment, 2) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">payments</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+		</div>{{-- Today's Money --}}
+		<div class="row">
+			
+		</div>
+		<div class="row mt-2">
+
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Today's Money</p>
+								<h4 class="mb-0">₹{{ \App\Helpers\Helper::getMeeshoTodayOrderAmount() }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">payments</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Today's Orders --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Today's Orders</p>
+								<h4 class="mb-0">{{ \App\Helpers\Helper::getMeeshoTodayOrderCount() }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">shopping_cart</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Total Orders --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Total Orders</p>
+								<h4 class="mb-0">{{ $meeshoOrderCount }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">list_alt</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Sales (₹) --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Sales</p>
+								<h4 class="mb-0">₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoSales) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-success shadow-success shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">trending_up</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+		</div>
+
+		{{-- Row 2 --}}
+		<div class="row">
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Returns</p>
+								<h4 class="mb-0">₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoReturns) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-danger shadow-danger shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">undo</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Return Orders Count --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Return Orders</p>
+								<h4 class="mb-0">{{ $meeshoReturnCount }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-warning shadow-warning shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">assignment_return</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Base Sales (₹) --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Base Sales</p>
+								<h4 class="mb-0 text-success">
+									₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoBaseProfit) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-info shadow-info shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">savings</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+
+			{{-- Base Returns (₹) --}}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Base Returns</p>
+								<h4 class="mb-0 text-danger">
+									₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoBaseReturnsProfit) }}</h4>
+							</div>
+							<div
+								class="icon icon-md icon-shape bg-gradient-secondary shadow-secondary shadow text-center border-radius-lg">
+								<i class="material-symbols-rounded opacity-10">unarchive</i>
+							</div>
+						</div>
+					</div>
+					<hr class="dark horizontal my-0">
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mt-4 mb-4">
+				<div class="card ">
+					<div class="card-body">
+						<h6 class="mb-0 "> Daily Sales </h6>
+						<p class="text-sm "> (<span class="font-weight-bolder">+15%</span>) increase in today sales. </p>
+						<div class="pe-2">
+							<div class="chart">
+								<canvas id="chart-line" class="chart-canvas" height="170" width="494"
+									style="display: block; box-sizing: border-box; height: 170px; width: 494px;"></canvas>
+							</div>
+						</div>
+						<!-- <hr class="dark horizontal">
+				  <div class="d-flex ">
+					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+					<p class="mb-0 text-sm"> updated 4 min ago </p>
+				  </div> -->
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mt-4 mb-4">
+				<div class="card">
+					<div class="card-body">
+						<h6 class="mb-0 ">Website Views</h6>
+						<p class="text-sm ">Last Campaign Performance</p>
+						<div class="pe-2">
+							<div class="chart">
+								<canvas id="chart-bars" class="chart-canvas" height="170" width="494"
+									style="display: block; box-sizing: border-box; height: 170px; width: 494px;"></canvas>
+							</div>
+						</div>
+						<!-- <hr class="dark horizontal">
+				  <div class="d-flex ">
+					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+					<p class="mb-0 text-sm"> campaign sent 2 days ago </p>
+				  </div> -->
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 mt-4 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<h6 class="mb-0 ">Completed Tasks</h6>
+						<p class="text-sm ">Last Campaign Performance</p>
+						<div class="pe-2">
+							<div class="chart">
+								<canvas id="chart-line-tasks" class="chart-canvas" height="170" width="494"
+									style="display: block; box-sizing: border-box; height: 170px; width: 494px;"></canvas>
+							</div>
+						</div>
+						<!-- <hr class="dark horizontal">
+				  <div class="d-flex ">
+					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+					<p class="mb-0 text-sm">just updated</p>
+				  </div> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+
 			<h3 class="mb-0 h4 font-weight-bolder">Amazon</h3>
 			<div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
 				<div class="card">
@@ -156,184 +398,6 @@
 			</div>
 
 		</div>
-		<div class="row mt-2">
-			<h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho </h3>
-			<!-- <h3 class="mb-0 h4 font-weight-bolder mt-2">Meesho <label for="" class="text-success"><b>₹{{$meeshoBaseProfit}}</b></label><label for="" class="text-danger"><b>₹{{$meeshoBaseReturnsProfit}}</b></label></h3> -->
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Total Payments Received</p>
-								<h4 class="mb-0 text-success">{{ '₹' . number_format($totalPayment, 2) }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">payments</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-		</div>{{-- Today's Money --}}
-		<div class="row mt-2">
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Today's Money</p>
-								<h4 class="mb-0">₹{{ \App\Helpers\Helper::getMeeshoTodayOrderAmount() }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">payments</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Today's Orders --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Today's Orders</p>
-								<h4 class="mb-0">{{ \App\Helpers\Helper::getMeeshoTodayOrderCount() }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">shopping_cart</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Total Orders --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Total Orders</p>
-								<h4 class="mb-0">{{ $meeshoOrderCount }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">list_alt</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Sales (₹) --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Sales</p>
-								<h4 class="mb-0">₹{{ $meeshoSales }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-success shadow-success shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">trending_up</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-		</div>
-
-		{{-- Row 2 --}}
-		<div class="row">
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Returns</p>
-								<h4 class="mb-0">₹{{ $meeshoReturns }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-danger shadow-danger shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">undo</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Return Orders Count --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Return Orders</p>
-								<h4 class="mb-0">{{ $meeshoReturnCount }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-warning shadow-warning shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">assignment_return</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Base Sales (₹) --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Base Sales</p>
-								<h4 class="mb-0 text-success">₹{{ $meeshoBaseProfit }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-info shadow-info shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">savings</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-			{{-- Base Returns (₹) --}}
-			<div class="col-md-3 col-sm-6 mb-3">
-				<div class="card">
-					<div class="card-header p-2 ps-3">
-						<div class="d-flex justify-content-between">
-							<div>
-								<p class="text-sm mb-0 text-capitalize">Base Returns</p>
-								<h4 class="mb-0 text-danger">₹{{ $meeshoBaseReturnsProfit }}</h4>
-							</div>
-							<div
-								class="icon icon-md icon-shape bg-gradient-secondary shadow-secondary shadow text-center border-radius-lg">
-								<i class="material-symbols-rounded opacity-10">unarchive</i>
-							</div>
-						</div>
-					</div>
-					<hr class="dark horizontal my-0">
-				</div>
-			</div>
-
-		</div>
-
-
 		<div class="row">
 			<div class="col-lg-6 col-md-8 mt-4 mb-4">
 				<div class="card mb-4 shadow-sm">
@@ -434,86 +498,12 @@
 @endsection
 @push('scripts')
 	<script>
-		var ctx = document.getElementById("chart-bars").getContext("2d");
-
-		new Chart(ctx, {
-			type: "bar",
-			data: {
-				labels: ["M", "T", "W", "T", "F", "S", "S"],
-				datasets: [{
-					label: "Views",
-					tension: 0.4,
-					borderWidth: 0,
-					borderRadius: 4,
-					borderSkipped: false,
-					backgroundColor: "#43A047",
-					data: [50, 45, 22, 28, 50, 60, 76],
-					barThickness: 'flex'
-				},],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				plugins: {
-					legend: {
-						display: false,
-					}
-				},
-				interaction: {
-					intersect: false,
-					mode: 'index',
-				},
-				scales: {
-					y: {
-						grid: {
-							drawBorder: false,
-							display: true,
-							drawOnChartArea: true,
-							drawTicks: false,
-							borderDash: [5, 5],
-							color: '#e5e5e5'
-						},
-						ticks: {
-							suggestedMin: 0,
-							suggestedMax: 500,
-							beginAtZero: true,
-							padding: 10,
-							font: {
-								size: 14,
-								lineHeight: 2
-							},
-							color: "#737373"
-						},
-					},
-					x: {
-						grid: {
-							drawBorder: false,
-							display: false,
-							drawOnChartArea: false,
-							drawTicks: false,
-							borderDash: [5, 5]
-						},
-						ticks: {
-							display: true,
-							color: '#737373',
-							padding: 10,
-							font: {
-								size: 14,
-								lineHeight: 2
-							},
-						}
-					},
-				},
-			},
-		});
-
-
-		var ctx2 = document.getElementById("chart-line").getContext("2d");
-
-		new Chart(ctx2, {
+		// Chart: Sales Line Chart
+		const salesCtx = document.getElementById("chart-line").getContext("2d");
+		new Chart(salesCtx, {
 			type: "line",
 			data: {
-				labels: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+				labels: {!! $salesLabels !!},
 				datasets: [{
 					label: "Sales",
 					tension: 0,
@@ -524,10 +514,9 @@
 					borderColor: "#43A047",
 					backgroundColor: "transparent",
 					fill: true,
-					data: [120, 230, 130, 440, 250, 360, 270, 180, 90, 300, 310, 220],
+					data: {!! $salesData !!},
 					maxBarThickness: 6
-
-				}],
+				}]
 			},
 			options: {
 				responsive: true,
@@ -591,12 +580,85 @@
 			},
 		});
 
-		var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+		// Chart: Views Bar Chart
+		const viewsCtx = document.getElementById("chart-bars").getContext("2d");
+		new Chart(viewsCtx, {
+			type: "bar",
+			data: {
+				labels: {!! $viewsLabels !!},
+				datasets: [{
+					label: "Views",
+					tension: 0.4,
+					borderWidth: 0,
+					borderRadius: 4,
+					borderSkipped: false,
+					backgroundColor: "#43A047",
+					data: {!! $viewsData !!},
+					barThickness: 'flex'
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false,
+					}
+				},
+				interaction: {
+					intersect: false,
+					mode: 'index',
+				},
+				scales: {
+					y: {
+						grid: {
+							drawBorder: false,
+							display: true,
+							drawOnChartArea: true,
+							drawTicks: false,
+							borderDash: [5, 5],
+							color: '#e5e5e5'
+						},
+						ticks: {
+							suggestedMin: 0,
+							suggestedMax: 500,
+							beginAtZero: true,
+							padding: 10,
+							font: {
+								size: 14,
+								lineHeight: 2
+							},
+							color: "#737373"
+						},
+					},
+					x: {
+						grid: {
+							drawBorder: false,
+							display: false,
+							drawOnChartArea: false,
+							drawTicks: false,
+							borderDash: [5, 5]
+						},
+						ticks: {
+							display: true,
+							color: '#737373',
+							padding: 10,
+							font: {
+								size: 14,
+								lineHeight: 2
+							},
+						}
+					},
+				},
+			},
+		});
 
-		new Chart(ctx3, {
+		// Chart: Tasks Line Chart
+		const tasksCtx = document.getElementById("chart-line-tasks").getContext("2d");
+		new Chart(tasksCtx, {
 			type: "line",
 			data: {
-				labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+				labels: {!! $tasksLabels !!},
 				datasets: [{
 					label: "Tasks",
 					tension: 0,
@@ -607,10 +669,9 @@
 					borderColor: "#43A047",
 					backgroundColor: "transparent",
 					fill: true,
-					data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+					data: {!! $tasksData !!},
 					maxBarThickness: 6
-
-				}],
+				}]
 			},
 			options: {
 				responsive: true,

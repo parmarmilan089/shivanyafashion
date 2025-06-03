@@ -78,7 +78,7 @@ class AdminController extends Controller
 
         // Return orders count
         $meeshoReturnCount = Order::where('sold_on', 'meesho')
-            ->where('order_status', 'Returned') // again, adjust if needed
+            ->whereIn('order_status', ['Returned','RTO-Return','Wrong-RTO-Return','Wrong-Return','Missing-Return']) // again, adjust if needed
             ->count();
 
         // Meesho base returns
@@ -108,6 +108,31 @@ class AdminController extends Controller
             ->sum(DB::raw('(order_products.price - order_products.gst_price) * order_products.quantity'));
 
         $totalPayment = DB::table('payments')->sum('amount');
+
+        // Example 1: Monthly Sales (last 12 months)
+        $sales = DB::table('orders')
+            ->selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->pluck('total', 'month');
+
+        $months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        $salesLabels = [];
+        $salesData = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $salesLabels[] = $months[$i - 1];
+            $salesData[] = $sales[$i] ?? 0;
+        }
+
+        // Example 2: Daily Website Views (Dummy/static example; replace with real analytics if available)
+        $viewsLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        $viewsData = [120, 150, 130, 170, 140, 200, 220]; // Replace with actual DB data if needed
+
+        // Example 3: Monthly Tasks Completed (Dummy)
+        $tasksLabels = ["Apr", "May", "Jun", "Jul", "Aug"];
+        $tasksData = [15, 22, 18, 30, 25]; // Replace with actual DB queries if needed
+        
             
         return view('admin.dashboard', [
             // Amazon
@@ -132,6 +157,13 @@ class AdminController extends Controller
             'meeshoBaseReturnsProfit' => $meeshoBaseReturnsProfit,
 
             'totalPayment' => $totalPayment,
+
+            'salesLabels' => json_encode($salesLabels),
+            'salesData' => json_encode($salesData),
+            'viewsLabels' => json_encode($viewsLabels),
+            'viewsData' => json_encode($viewsData),
+            'tasksLabels' => json_encode($tasksLabels),
+            'tasksData' => json_encode($tasksData),
         ]);
     }
 
@@ -218,11 +250,11 @@ class AdminController extends Controller
             //     $orders[count($orders) - 1]['purchase_date'] = $purchaseDate;
             // }
         }
-        echo "<pre>"; print_r($notinproduct); echo "</pre>";
-        echo "<pre>";
-        print_r($orders);
-        echo "</pre>";
-        die;
+        // echo "<pre>"; print_r($notinproduct); echo "</pre>";
+        // echo "<pre>";
+        // print_r($orders);
+        // echo "</pre>";
+        // die;
 
         if(count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {

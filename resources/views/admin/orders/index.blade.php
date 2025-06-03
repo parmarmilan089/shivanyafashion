@@ -67,6 +67,7 @@
           <th>Purchase Date</th>
           <th>Total Amount</th>
           <th>Shipping</th>
+          <th>Payment</th>
           <th>Sub Order Id</th>
           <th>Actions</th>
         </tr>
@@ -102,18 +103,13 @@
         <td>{{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</td>
         <td>₹{{ number_format($order->total_amount, 2) }}</td>
         <td>{{ $order->shipping}}</td>
-        <td>{{ $order->sub_order_id}}</td>
-        <!-- <td>
-      @if($order->order_status == 'Pending')
-      <span class="badge bg-warning">{{ ucfirst($order->order_status) }}</span>
-      @elseif($order->order_status == 'Returned')
-      <span class="badge bg-danger">{{ ucfirst($order->order_status) }}</span>
-      @elseif($order->order_status == 'Shipped')
-      <span class="badge bg-info">{{ ucfirst($order->order_status) }}</span>
+        <td>
+        @if($order->payment_status)
+        <span class="badge bg-success mt-2">Received</span>
       @else
-      <span class="badge bg-success">{{ ucfirst($order->order_status) }}</span>
+        <span class="badge bg-danger mt-2">Pending</span>
       @endif
-      </td> -->
+        <td>{{ $order->sub_order_id}}</td>
         <td>
         <div class="d-flex flex-column gap-2">
           {{-- Order Status Dropdown --}}
@@ -126,11 +122,14 @@
           class="form-select form-select-sm">
           <option value="RTO-Return" {{ $order->order_status == 'RTO-Return' ? 'selected' : '' }}>RTO-Return
           </option>
-          <option value="Wrong-RTO-Return" {{ $order->order_status == 'Wrong-RTO-Return' ? 'selected' : '' }}>Wrong-RTO-Return
+          <option value="Wrong-RTO-Return" {{ $order->order_status == 'Wrong-RTO-Return' ? 'selected' : '' }}>
+          Wrong-RTO-Return
           </option>
-          <option value="Wrong-Return" {{ $order->order_status == 'Wrong-Return' ? 'selected' : '' }}>Wrong-Return
+          <option value="Wrong-Return" {{ $order->order_status == 'Wrong-Return' ? 'selected' : '' }}>
+          Wrong-Return
           </option>
-          <option value="Missing-Return" {{ $order->order_status == 'Missing-Return' ? 'selected' : '' }}>Missing-Return
+          <option value="Missing-Return" {{ $order->order_status == 'Missing-Return' ? 'selected' : '' }}>
+          Missing-Return
           </option>
           <option value="Delivered" {{ $order->order_status == 'Delivered' ? 'selected' : '' }}>Delivered
           </option>
@@ -146,7 +145,7 @@
             placeholder="Enter Return Shipping Charge" value="{{ $order->return_charges ?? '' }}"
             onfocus="focused(this)" onfocusout="defocused(this)">
           </div>
-            <button type="submit" class="btn btn-sm btn-primary mt-2">Update Status</button>
+          <button type="submit" class="btn btn-sm btn-primary mt-2">Update Status</button>
           </div>
           </form>
 
@@ -200,6 +199,7 @@
       shippingGroup.style.display = 'block';
     } else {
       shippingGroup.style.display = 'none';
+      form.submit();
     }
     }
   </script>
