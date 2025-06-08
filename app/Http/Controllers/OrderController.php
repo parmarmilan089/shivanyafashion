@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\OrderDetail;
 use App\Exports\OrdersExport;
+use App\Models\OrderProduct;
+use App\Models\Payment;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Product;
 use DB;
 use Illuminate\Http\Request;
-use Str;
 
 class OrderController extends Controller
 {
@@ -31,7 +31,19 @@ class OrderController extends Controller
         }
 
         $orders = $query->orderBy('id', 'desc')->get();
-        return view('admin.orders.index', compact('orders'));
+
+        // Total Calculation
+        $totalBasePrice = 0;
+        $totalPrice = 0;
+
+        foreach ($orders as $order) {
+            foreach ($order->orderProducts as $op) {
+                $totalBasePrice += $op->base_price;
+                $totalPrice += $op->price;
+            }
+        }
+
+        return view('admin.orders.index', compact('orders', 'totalBasePrice', 'totalPrice'));
     }
 
     public function export(Request $request)
@@ -98,8 +110,14 @@ class OrderController extends Controller
 
     public function showOrder($id)
     {
-        $order = Order::with('product')->findOrFail($id);
-        return view('admin.orders.show', compact('order'));
+        $order = Order::with(['product', 'orderProducts.product'])->findOrFail($id);
+
+        $payment = Payment::where(function ($query) use ($order) {
+            $query->whereJsonContains('delivered_sub_order_ids', $order->sub_order_id)
+                ->orWhereJsonContains('return_sub_order_ids', $order->sub_order_id);
+        })->first();
+
+        return view('admin.orders.show', compact('order', 'payment'));
     }
 
     public function deleteOrder($id)
@@ -144,5 +162,46 @@ class OrderController extends Controller
         $order->save();
 
         return back()->with('success', 'Order status updated successfully!');
+    }
+
+    public function updatePaymentStatusForReturns()
+    {
+        $updated = Order::whereIn('order_status', ['Return', 'RTO-Return'])
+            ->where('payment_status', 0)
+            ->update(['payment_status' => 2]);
+
+        return back()->with('success', "orders updated successfully.");
+    }
+
+    public function updateProductPrice($productId, $newPrice)
+    {
+        DB::transaction(function () use ($productId, $newPrice) {
+            // Step 1: Update the price in the product table
+            $product = Product::findOrFail($productId);
+            $product->price = $newPrice;
+            $product->save();
+
+            // // Step 2: Update price in all related order_products
+            OrderProduct::where('product_id', $productId)->update([
+                'price' => $newPrice
+            ]);
+
+            // // Step 3: Recalculate order total_amounts
+            $affectedOrderIds = OrderProduct::where('product_id', $productId)
+                ->pluck('order_id')
+                ->unique();
+            echo "<pre>"; print_r($affectedOrderIds); echo "</pre>";die;
+            foreach ($affectedOrderIds as $orderId) {
+                $newTotal = OrderProduct::where('order_id', $orderId)
+                    ->selectRaw('SUM(price * quantity) as total')
+                    ->value('total');
+                $orderProductdata = OrderProduct::where('order_id', $orderId)->first();
+                $orderProductdata->subtotal = $newTotal;
+                $orderProductdata->save();
+                Order::where('id', $orderId)->update([
+                    'total_amount' => $newTotal
+                ]);
+            }
+        });
     }
 }

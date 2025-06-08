@@ -30,7 +30,7 @@
 			</div>
 		</div>{{-- Today's Money --}}
 		<div class="row">
-			
+
 		</div>
 		<div class="row mt-2">
 
@@ -117,8 +117,9 @@
 					<div class="card-header p-2 ps-3">
 						<div class="d-flex justify-content-between">
 							<div>
-								<p class="text-sm mb-0 text-capitalize">Returns</p>
-								<h4 class="mb-0">₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoReturns) }}</h4>
+								<p class="text-sm mb-0 text-capitalize">Return Charges</p>
+								<h4 class="mb-0">₹{{ \App\Helpers\Helper::formatIndianCurrency($meeshoShippingCharges) }}
+								</h4>
 							</div>
 							<div
 								class="icon icon-md icon-shape bg-gradient-danger shadow-danger shadow text-center border-radius-lg">
@@ -200,10 +201,10 @@
 							</div>
 						</div>
 						<!-- <hr class="dark horizontal">
-				  <div class="d-flex ">
-					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-					<p class="mb-0 text-sm"> updated 4 min ago </p>
-				  </div> -->
+					  <div class="d-flex ">
+						<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+						<p class="mb-0 text-sm"> updated 4 min ago </p>
+					  </div> -->
 					</div>
 				</div>
 			</div>
@@ -219,10 +220,10 @@
 							</div>
 						</div>
 						<!-- <hr class="dark horizontal">
-				  <div class="d-flex ">
-					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-					<p class="mb-0 text-sm"> campaign sent 2 days ago </p>
-				  </div> -->
+					  <div class="d-flex ">
+						<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+						<p class="mb-0 text-sm"> campaign sent 2 days ago </p>
+					  </div> -->
 					</div>
 				</div>
 			</div>
@@ -239,10 +240,10 @@
 							</div>
 						</div>
 						<!-- <hr class="dark horizontal">
-				  <div class="d-flex ">
-					<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-					<p class="mb-0 text-sm">just updated</p>
-				  </div> -->
+					  <div class="d-flex ">
+						<i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+						<p class="mb-0 text-sm">just updated</p>
+					  </div> -->
 					</div>
 				</div>
 			</div>
@@ -492,6 +493,53 @@
 				</div>
 			</div>
 		</div>
+		<h3 class="text-dark mb-4">📊 Meesho Product Snapshot</h3>
+
+  <div class="row g-4">
+    <!-- Best Sellers -->
+    <div class="col-md-6 col-xl-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom">
+          <h6 class="fw-bold text-success mb-0">🔥 Top 10 Best Sellers</h6>
+        </div>
+        <div class="card-body p-2">
+          <ul class="list-group list-group-flush">
+            @foreach($topSellingProducts as $product)
+            <li class="list-group-item d-flex justify-content-between align-items-center px-2 py-2">
+              <div class="d-flex align-items-center">
+                <img src="{{ asset('storage/' . $product->image) }}" width="40" class="rounded me-2" style="object-fit: cover; height: 40px;">
+                <span class="text-truncate" style="max-width: 200px;">{{ $product->platform_sku }}</span>
+              </div>
+              <span class="badge bg-success">{{ $product->total_orders }}</span>
+            </li>
+            @endforeach
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Poor Performers -->
+    <div class="col-md-6 col-xl-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom">
+          <h6 class="fw-bold text-danger mb-0">⚠️ Top 10 Returned</h6>
+        </div>
+        <div class="card-body p-2">
+          <ul class="list-group list-group-flush">
+            @foreach($badProducts as $product)
+            <li class="list-group-item d-flex justify-content-between align-items-center px-2 py-2">
+              <div class="d-flex align-items-center">
+                <img src="{{ asset('storage/' . $product->image) }}" width="40" class="rounded me-2" style="object-fit: cover; height: 40px;">
+                <span class="text-truncate" style="max-width: 200px;">{{ $product->platform_sku }}</span>
+              </div>
+              <span class="badge bg-danger">{{ $product->bad_orders }}</span>
+            </li>
+            @endforeach
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 	</div>
 	</div>
 	</main>

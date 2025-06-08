@@ -43,6 +43,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/order/delete/{id}', [OrderController::class, 'deleteOrder'])->name('admin.order.destroy');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
+    
+    //update the product price with the order data
+    Route::get('/orders/update-order/{productprice}/{product_id}', [OrderController::class, 'updateProductPrice']);
 
 
 
@@ -52,6 +55,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('admin.product.edit');
     Route::delete('/delete/{id}', [ProductController::class, 'delete'])->name('admin.product.destroy');
     Route::post('/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
+
+    Route::get('/update-payment-status', [OrderController::class, 'updatePaymentStatusForReturns'])->name('admin.updatePaymentStatusForReturns');
+    
 });
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
     Route::resource('payment', PaymentController::class)->names('payment');

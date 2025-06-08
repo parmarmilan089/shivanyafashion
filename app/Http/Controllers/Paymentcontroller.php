@@ -51,25 +51,31 @@ class Paymentcontroller extends Controller
     {
         $payment = Payment::findOrFail($id);
 
-        // Decode delivered sub order IDs from JSON
-        $deliveredSubOrderIds = json_decode($payment->delivered_sub_order_ids, true) ?? [];
+        $deliveredIds = json_decode($payment->delivered_sub_order_ids, true) ?? [];
+        $returnIds = json_decode($payment->return_sub_order_ids, true) ?? [];
 
-        // Fetch orders with those sub_order_ids and eager load related products
-        $orders = Order::with(['orderProducts.product'])
-            ->whereIn('sub_order_id', $deliveredSubOrderIds)
+        $deliveredOrders = Order::with(['orderProducts.product'])
+            ->whereIn('sub_order_id', $deliveredIds)
             ->get();
 
-        // Extract sub_order_ids found in DB
-        $foundSubOrderIds = $orders->pluck('sub_order_id')->toArray();
+        $returnOrders = Order::with(['orderProducts.product'])
+            ->whereIn('sub_order_id', $returnIds)
+            ->get();
 
-        // Determine which IDs were not found
-        $missingSubOrderIds = array_diff($deliveredSubOrderIds, $foundSubOrderIds);
-        
-        // Optionally update payment status only for found orders
+        $foundSubOrderIds = $deliveredOrders->pluck('sub_order_id')->toArray();
+        $missingSubOrderIds = array_diff($deliveredIds, $foundSubOrderIds);
+
+        // Optional auto-mark as paid
         Order::whereIn('sub_order_id', $foundSubOrderIds)->update(['payment_status' => 1]);
 
-        return view('admin.payment.show', compact('payment', 'orders', 'missingSubOrderIds'));
+        return view('admin.payment.show', compact(
+            'payment',
+            'deliveredOrders',
+            'returnOrders',
+            'missingSubOrderIds'
+        ));
     }
+
 
 
 }

@@ -64,8 +64,8 @@ class AdminController extends Controller
         $meeshoSales = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->whereIn('order_products.order_id', $meeshoOrderIds)
-            // ->where('orders.order_status', 'Delivered')
-            ->sum(DB::raw('order_products.gst_price * order_products.quantity'));
+            ->where('orders.order_status', 'Delivered')
+            ->sum(DB::raw('order_products.base_price * order_products.quantity'));
         $meeshoReturns = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->whereIn('order_products.order_id', $meeshoOrderIds)
@@ -78,7 +78,7 @@ class AdminController extends Controller
 
         // Return orders count
         $meeshoReturnCount = Order::where('sold_on', 'meesho')
-            ->whereIn('order_status', ['Returned','RTO-Return','Wrong-RTO-Return','Wrong-Return','Missing-Return']) // again, adjust if needed
+            ->whereIn('order_status', ['Returned', 'RTO-Return', 'Wrong-RTO-Return', 'Wrong-Return', 'Missing-Return']) // again, adjust if needed
             ->count();
 
         // Meesho base returns
@@ -101,6 +101,9 @@ class AdminController extends Controller
             ->where('orders.order_status', 'Delivered')
             ->sum(DB::raw('(order_products.price - order_products.gst_price) * order_products.quantity'));
 
+        $meeshoShippingCharges = DB::table('orders')
+            ->whereIn('order_status', ['Returned', 'Missing-Return', 'Wrong-Return'])
+            ->sum('return_charges');
         $meeshoBaseReturnsProfit = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->whereIn('order_products.order_id', $meeshoOrderIds)
@@ -108,6 +111,38 @@ class AdminController extends Controller
             ->sum(DB::raw('(order_products.price - order_products.gst_price) * order_products.quantity'));
 
         $totalPayment = DB::table('payments')->sum('amount');
+
+        $topSellingProducts = DB::table('order_products')
+            ->join('orders', 'order_products.order_id', '=', 'orders.id')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->where('orders.sold_on', 'Meesho')
+            // ->where('orders.payment_status', 1)
+            ->groupBy('order_products.product_id', 'products.name', 'products.image', 'products.platform_sku')
+            ->select(
+                'products.name',
+                'products.platform_sku',
+                'products.image',
+                DB::raw('COUNT(order_products.id) as total_orders')
+            )
+            ->orderByDesc('total_orders')
+            ->limit(10)
+            ->get();
+
+        $badProducts = DB::table('order_products')
+            ->join('orders', 'order_products.order_id', '=', 'orders.id')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->where('orders.sold_on', 'Meesho')
+            ->whereIn('orders.order_status', ['Returned', 'RTO-Return', 'Wrong-RTO-Return', 'Wrong-Return', 'Missing-Return'])
+            ->groupBy('order_products.product_id', 'products.name', 'products.image', 'products.platform_sku')
+            ->select(
+                'products.name',
+                'products.platform_sku',
+                'products.image',
+                DB::raw('COUNT(order_products.id) as bad_orders')
+            )
+            ->orderByDesc('bad_orders')
+            ->limit(10)
+            ->get();
 
         // Example 1: Monthly Sales (last 12 months)
         $sales = DB::table('orders')
@@ -132,8 +167,8 @@ class AdminController extends Controller
         // Example 3: Monthly Tasks Completed (Dummy)
         $tasksLabels = ["Apr", "May", "Jun", "Jul", "Aug"];
         $tasksData = [15, 22, 18, 30, 25]; // Replace with actual DB queries if needed
-        
-            
+
+
         return view('admin.dashboard', [
             // Amazon
             'amazonSales' => $amazonSales,
@@ -155,8 +190,11 @@ class AdminController extends Controller
             'meeshoBaseReturns' => $meeshoBaseReturns,
             'meeshoBaseProfit' => $meeshoBaseProfit,
             'meeshoBaseReturnsProfit' => $meeshoBaseReturnsProfit,
+            'meeshoShippingCharges' => $meeshoShippingCharges,
 
             'totalPayment' => $totalPayment,
+            'topSellingProducts' => $topSellingProducts,
+            'badProducts' => $badProducts,
 
             'salesLabels' => json_encode($salesLabels),
             'salesData' => json_encode($salesData),
@@ -178,7 +216,6 @@ class AdminController extends Controller
         $lines = preg_split("/\r\n|\n|\r/", $pdf->getText());
         // echo '<pre>';print_r($lines); echo '</pre>';die;
         $orders = [];
-        $purchaseDate = null;
         $notinproduct = [];
 
         for ($i = 1; $i < count($lines); $i++) {
@@ -204,6 +241,7 @@ class AdminController extends Controller
                     if (
                         Str::contains($nextLine, 'TAX INVOICE') ||
                         Str::contains($nextLine, 'BILL TO') ||
+                        Str::contains($nextLine, 'Customer Address') ||
                         Str::contains($nextLine, 'Order Date')
                     ) {
                         break;
@@ -230,7 +268,7 @@ class AdminController extends Controller
                         'order_no' => trim($match[5]),
                     ];
 
-                     // ✅ Check if this SKU exists in the products table
+                    // ✅ Check if this SKU exists in the products table
                     $productExists = Product::where('platform_sku', $sku)->exists();
 
                     if (!$productExists) {
@@ -256,10 +294,10 @@ class AdminController extends Controller
         // echo "</pre>";
         // die;
 
-        if(count($orders) > 0 && count($notinproduct) == 0) {
+        if (count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {
-                foreach($products['products'] as $product) {
-                    $productdetails = Product::where('platform_sku',$product['sku'])->first();
+                foreach ($products['products'] as $product) {
+                    $productdetails = Product::where('platform_sku', $product['sku'])->first();
                     if ($productdetails) {
                         // Create the order
                         $orderdata = [
@@ -283,7 +321,7 @@ class AdminController extends Controller
                         // echo "<pre>"; print_r($orderproductdata); echo "</pre>";
                         // echo "<pre>"; print_r('============================================'); echo "</pre>";
                         // Attach product to order
-                        $order->product()->attach($productdetails['id'],$orderproductdata);
+                        $order->product()->attach($productdetails['id'], $orderproductdata);
                     } else {
                         $notinproduct[] = $product['sku'];
                     }
