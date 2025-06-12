@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Exports\OrdersExport;
 use App\Models\OrderProduct;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Product;
 use DB;
@@ -159,6 +160,7 @@ class OrderController extends Controller
             $order->return_charges = null;
         }
 
+        $order->return_order_date = Carbon::today()->toDateString();
         $order->save();
 
         return back()->with('success', 'Order status updated successfully!');
@@ -190,7 +192,6 @@ class OrderController extends Controller
             $affectedOrderIds = OrderProduct::where('product_id', $productId)
                 ->pluck('order_id')
                 ->unique();
-            echo "<pre>"; print_r($affectedOrderIds); echo "</pre>";die;
             foreach ($affectedOrderIds as $orderId) {
                 $newTotal = OrderProduct::where('order_id', $orderId)
                     ->selectRaw('SUM(price * quantity) as total')

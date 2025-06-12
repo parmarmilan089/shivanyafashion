@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
@@ -61,6 +62,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
     Route::resource('payment', PaymentController::class)->names('payment');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+    Route::resource('banner', BannerController::class);
 });
 require __DIR__.'/auth.php';
 

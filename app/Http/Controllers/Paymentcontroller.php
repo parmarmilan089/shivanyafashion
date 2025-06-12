@@ -43,6 +43,10 @@ class Paymentcontroller extends Controller
             Order::whereIn('sub_order_id', explode(',', $request->delivered_sub_order_ids))
                 ->update(['payment_status' => 1]);
         }
+        if ($request->filled('return_sub_order_ids')) {
+            Order::whereIn('sub_order_id', explode(',', $request->return_sub_order_ids))
+                ->update(['payment_status' => 2]);
+        }
 
         return redirect()->route('admin.payment.index')->with('success', 'Payment added successfully.');
     }
@@ -63,10 +67,13 @@ class Paymentcontroller extends Controller
             ->get();
 
         $foundSubOrderIds = $deliveredOrders->pluck('sub_order_id')->toArray();
+        $returnfoundSubOrderIds = $returnOrders->pluck('sub_order_id')->toArray();
         $missingSubOrderIds = array_diff($deliveredIds, $foundSubOrderIds);
+        $returnmissingSubOrderIds = array_diff($returnIds, $returnfoundSubOrderIds);
 
         // Optional auto-mark as paid
         Order::whereIn('sub_order_id', $foundSubOrderIds)->update(['payment_status' => 1]);
+        Order::whereIn('sub_order_id', $returnmissingSubOrderIds)->update(['payment_status' => 2]);
 
         return view('admin.payment.show', compact(
             'payment',

@@ -71,6 +71,7 @@
                                         <th>Quantity</th>
                                         <th>Price (₹)</th>
                                         <th>Total</th>
+                                        <th>Payment</th>
                                         <th>Sub Order ID</th>
                                         <th>Purchase Date</th> {{-- ✅ New Column --}}
                                     </tr>
@@ -81,7 +82,7 @@
                                             @if($op->product)
                                                 @php $total = $op->product->price * $op->quantity; @endphp
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $key+1 }}</td>
                                                     <td>
                                                         <a href="{{ route('admin.product.edit', $op->product->id) }}">
                                                             <div class="d-flex align-items-center">
@@ -98,6 +99,15 @@
                                                     <td>{{ $op->quantity }}</td>
                                                     <td>{{ number_format($op->product->price, 2) }}</td>
                                                     <td><strong>₹{{ number_format($total, 2) }}</strong></td>
+                                                    <td>
+                                                        @if($order->payment_status == 1)
+                                                            <span class="badge bg-success mt-2">Received</span>
+                                                        @elseif($order->payment_status == 2)
+                                                            <span class="badge bg-danger mt-2">Rejected</span>
+                                                        @else
+                                                            <span class="badge bg-warning mt-2">Pending</span>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $order->sub_order_id }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</td> {{-- ✅
                                                     New --}}
@@ -137,6 +147,7 @@
                                         <th>Quantity</th>
                                         <th>Price (₹)</th>
                                         <th>Total</th>
+                                        <th>Payment</th>
                                         <th>Sub Order ID</th>
                                         <th>Purchase Date</th> {{-- ✅ New Column --}}
                                     </tr>
@@ -147,7 +158,7 @@
                                             @if($op->product)
                                                 @php $total = $op->product->price * $op->quantity; @endphp
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $key+1 }}</td>
                                                     <td>
                                                         <a href="{{ route('admin.product.edit', $op->product->id) }}">
                                                             <div class="d-flex align-items-center">
@@ -164,6 +175,15 @@
                                                     <td>{{ $op->quantity }}</td>
                                                     <td>{{ number_format($op->product->price, 2) }}</td>
                                                     <td><strong>₹{{ number_format($total, 2) }}</strong></td>
+                                                    <td>
+                                                        @if($order->payment_status == 1)
+                                                            <span class="badge bg-success mt-2">Received</span>
+                                                        @elseif($order->payment_status == 2)
+                                                            <span class="badge bg-danger mt-2">Rejected</span>
+                                                        @else
+                                                            <span class="badge bg-warning mt-2">Pending</span>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $order->sub_order_id }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($order->purchase_date)->format('d M Y') }}</td> {{-- ✅
                                                     New --}}

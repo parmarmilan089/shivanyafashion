@@ -25,23 +25,36 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
 
     public function collection()
     {
-        $query = Order::with('product')
-            ->where('sold_on', 'Meesho');
+        $query = Order::with(['orderProducts.product']) // load orderProducts + their product
+            ->where('sold_on', 'Meesho')
+            ->where('payment_status', 1);
 
         if ($this->fromDate) {
-            \Log::info('From Date: ' . $this->fromDate);
             $query->whereDate('purchase_date', '>=', date('Y-m-d', strtotime($this->fromDate)));
         }
 
         if ($this->toDate) {
-            \Log::info('To Date: ' . $this->toDate);
             $query->whereDate('purchase_date', '<=', date('Y-m-d', strtotime($this->toDate)));
         }
 
         $orders = $query->get();
-        $this->rowCount = $orders->count(); // Save for totals row
 
-        return $orders;
+        // Flatten to one row per order product
+        $flattened = collect();
+
+        foreach ($orders as $order) {
+            foreach ($order->orderProducts as $orderProduct) {
+                $flattened->push([
+                    'order' => $order,
+                    'orderProduct' => $orderProduct,
+                    'product' => $orderProduct->product,
+                ]);
+            }
+        }
+
+        $this->rowCount = $flattened->count();
+
+        return $flattened;
     }
 
     public function headings(): array
@@ -58,17 +71,29 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
             'Platform SKU',
             'Order Status',
             'Quantity',
+            'Shippng Charges',
+            'Payment Status',
             'Profit',
         ];
     }
 
-    public function map($order): array
+    public function map($row): array
     {
-        $product = $order->product->first();
-        $getPrice = $product ? $product->gst_price : 0;
-        $totalAmount = $order->total_amount ?? 0;
+        $order = $row['order'];
+        $orderProduct = $row['orderProduct'];
+        $product = $row['product'];
 
-        $profit = $totalAmount - $getPrice;
+        $totalAmount = $order->total_amount ?? 0;
+        $getPrice = $orderProduct->gst_price ?? 0;
+        $quantity = $orderProduct->quantity ?? 1;
+
+        $profit = ($orderProduct->price - $orderProduct->gst_price) * $quantity;
+
+        $payment_status = match ($order->payment_status) {
+            1 => 'Received',
+            2 => 'Cancel',
+            default => 'Pending',
+        };
 
         return [
             $order->order_number,
@@ -77,11 +102,13 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
             $order->shipping ?? '',
             $order->purchase_date ? $order->purchase_date->format('Y-m-d') : '',
             $totalAmount,
-            $getPrice,
-            $product ? $product->name : '',
-            $product ? $product->platform_sku : '',
+            $orderProduct->gst_price ?? 0,
+            $product->name ?? '',
+            $product->platform_sku ?? '',
             $order->order_status ?? '',
-            $product ? $product->pivot->quantity : '',
+            $quantity,
+            $order->return_charges,
+            $payment_status,
             $profit,
         ];
     }
@@ -93,7 +120,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
                 $sheet = $event->sheet;
 
                 // Make headers bold
-                $sheet->getStyle('A1:L1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:N1')->getFont()->setBold(true);
 
                 // Total row comes after all data
                 $totalRow = $this->rowCount + 2;
@@ -103,6 +130,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
 
                 // Excel formulas
                 $sheet->setCellValue("F{$totalRow}", "=SUM(F2:F" . ($totalRow - 1) . ")");
+                $sheet->setCellValue("N{$totalRow}", "=SUM(N2:N" . ($totalRow - 1) . ")");
                 $sheet->setCellValue("L{$totalRow}", "=SUM(L2:L" . ($totalRow - 1) . ")");
 
                 // Bold total row
