@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\CustomerAuthController;
 
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
+
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::post('/meesho-label-upload', [AdminController::class, 'upload'])->name('meesho.label.upload');
 
@@ -59,7 +61,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/order/delete/{id}', [OrderController::class, 'deleteOrder'])->name('admin.order.destroy');
     Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.order.updateStatus');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
-    
+
     //update the product price with the order data
     Route::get('/orders/update-order/{productprice}/{product_id}', [OrderController::class, 'updateProductPrice']);
 
@@ -73,7 +75,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/update/{id}', [ProductController::class, 'update'])->name('admin.product.update');
 
     Route::get('/update-payment-status', [OrderController::class, 'updatePaymentStatusForReturns'])->name('admin.updatePaymentStatusForReturns');
-    
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+
+        // Resourceful routes for category module
+        Route::resource('categories', CategoryController::class);
+
+        // AJAX route to get children of a category (for cascading dropdown)
+        Route::get('categories/children/{parent?}', function (?App\Models\Category $parent) {
+            return $parent
+                ? $parent->children()->select('id', 'name')->get()
+                : \App\Models\Category::main()->select('id', 'name')->get();
+        })->name('categories.children');
+
+    });
+
 });
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
     Route::resource('payment', PaymentController::class)->names('payment');
