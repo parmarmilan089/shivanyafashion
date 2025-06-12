@@ -322,7 +322,7 @@ class AdminController extends Controller
                         // echo "<pre>"; print_r('============================================'); echo "</pre>";
                         // Attach product to order
                         $order->product()->attach($productdetails['id'], $orderproductdata);
-                    } else {
+                        } else {
                         $notinproduct[] = $product['sku'];
                     }
                 }
