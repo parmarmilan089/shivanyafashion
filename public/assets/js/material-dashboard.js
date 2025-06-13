@@ -6,22 +6,18 @@
     // if we are on windows OS we activate the perfectScrollbar function
     if (document.getElementsByClassName('main-content')[0]) {
       var mainpanel = document.querySelector('.main-content');
-      var ps = new PerfectScrollbar(mainpanel);
     };
 
     if (document.getElementsByClassName('sidenav')[0]) {
       var sidebar = document.querySelector('.sidenav');
-      var ps1 = new PerfectScrollbar(sidebar);
     };
 
     if (document.getElementsByClassName('navbar-collapse')[0]) {
       var fixedplugin = document.querySelector('.navbar:not(.navbar-expand-lg) .navbar-collapse');
-      var ps2 = new PerfectScrollbar(fixedplugin);
     };
 
     if (document.getElementsByClassName('fixed-plugin')[0]) {
       var fixedplugin = document.querySelector('.fixed-plugin');
-      var ps3 = new PerfectScrollbar(fixedplugin);
     };
   };
 })();
@@ -61,6 +57,8 @@ function setAttributes(el, options) {
 // adding on inputs attributes for calling the focused and defocused functions
 if (document.querySelectorAll('.input-group').length != 0) {
   var allInputs = document.querySelectorAll('input.form-control');
+  console.log(allInputs,'milan');
+  
   allInputs.forEach(el => setAttributes(el, {
     "onfocus": "focused(this)",
     "onfocusout": "defocused(this)"
@@ -586,7 +584,7 @@ window.onload = function() {
 
 // Toggle Sidenav
 const iconNavbarSidenav = document.getElementById('iconNavbarSidenav');
-const iconSidenav = document.getElementById('iconSidenav');
+const iconSidenav  = document.getElementById('iconSidenav');
 const sidenav = document.getElementById('sidenav-main');
 let body = document.getElementsByTagName('body')[0];
 let className = 'g-sidenav-pinned';

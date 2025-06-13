@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Front\CustomerAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('customer/register', [CustomerAuthController::class, 'showRegisterForm']);
+Route::post('customer/register', [CustomerAuthController::class, 'register'])->name('customer.register');
+
+Route::get('customer/login', [CustomerAuthController::class, 'showLoginForm'])->name('customer.login');
+Route::post('customer/login', [CustomerAuthController::class, 'login']);
+
+Route::get('customer/logout', [CustomerAuthController::class, 'logout']);
+
+Route::middleware('auth:customer')->group(function () {
+    Route::get('/store', function () {
+        return view('front.store.index');
+    });
 });
 
 Route::get('/dashboard', function () {
