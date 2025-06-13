@@ -16,6 +16,160 @@
 <html lang="en">
 
 <head>
+<<<<<<< HEAD
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{{asset('assets/img/apple-icon.png')}}">
+  <link rel="icon" type="image/png" href="{{asset('assets/img/shivanya.png')}}">
+  <title>
+    Shivanya Fashion
+  </title>
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <!-- Nucleo Icons -->
+  <link href="{{asset('assets/css/nucleo-icons.css')}}" rel="stylesheet" />
+  <link href="{{asset('assets/css/nucleo-svg.css')}}" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- Material Icons -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="{{asset('assets/css/material-dashboard.css?v=3.2.0')}}" rel="stylesheet" />
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2"
+    id="sidenav-main">
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
+        aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand px-4 py-3 m-0 text-center"
+        href=" https://demos.creative-tim.com/material-dashboard/pages/dashboard " target="_blank">
+        <img src="{{asset('assets/img/logo-ct-dark.png')}}" class="navbar-brand-img" width="50px" alt="main_logo">
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+            href="{{ route('admin.dashboard') }}">
+            <i class="material-symbols-rounded opacity-5">dashboard</i>
+            <span class="nav-link-text ms-1">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.order*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+            data-bs-toggle="collapse" href="#orderMenu" role="button" aria-expanded="false" aria-controls="orderMenu">
+            <i class="material-symbols-rounded opacity-5">shopping_cart</i>
+            <span class="nav-link-text ms-1">Orders</span>
+          </a>
+          <div class="collapse {{ request()->routeIs('admin.order*') ? 'show' : '' }}" id="orderMenu">
+            <ul class="nav ms-4">
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.order') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.order') }}">
+                  <span class="sidenav-mini-icon">📄</span>
+                  <span class="sidenav-normal ms-1">Orders List</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.order.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.order.create') }}">
+                  <span class="sidenav-mini-icon">➕</span>
+                  <span class="sidenav-normal ms-1">Add Orders</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.product.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+            data-bs-toggle="collapse" href="#productMenu" role="button" aria-expanded="false"
+            aria-controls="productMenu">
+            <i class="material-symbols-rounded opacity-5">inventory_2</i>
+            <span class="nav-link-text ms-1">Products</span>
+          </a>
+          <div class="collapse {{ request()->routeIs('admin.product.*') ? 'show' : '' }}" id="productMenu">
+            <ul class="nav ms-4">
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.product.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.product.index') }}">
+                  <span class="sidenav-mini-icon">📄</span>
+                  <span class="sidenav-normal ms-1">Product List</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.product.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.product.create') }}">
+                  <span class="sidenav-mini-icon">➕</span>
+                  <span class="sidenav-normal ms-1">Add Product</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.payment.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+            data-bs-toggle="collapse" href="#paymentMenu" role="button" aria-expanded="false"
+            aria-controls="paymentMenu">
+            <i class="material-symbols-rounded opacity-5">inventory_2</i>
+            <span class="nav-link-text ms-1">Payments</span>
+          </a>
+          <div class="collapse {{ request()->routeIs('admin.payment.*') ? 'show' : '' }}" id="paymentMenu">
+            <ul class="nav ms-4">
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.payment.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.payment.index') }}">
+                  <span class="sidenav-mini-icon">📄</span>
+                  <span class="sidenav-normal ms-1">Payment List</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.payment.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.payment.create') }}">
+                  <span class="sidenav-mini-icon">➕</span>
+                  <span class="sidenav-normal ms-1">Add Payment</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+            data-bs-toggle="collapse" href="#bannerMenu" role="button"
+            aria-expanded="{{ request()->routeIs('admin.banner.*') ? 'true' : 'false' }}" aria-controls="bannerMenu">
+            <i class="material-symbols-rounded opacity-5">image</i>
+            <span class="nav-link-text ms-1">Banners</span>
+          </a>
+          <div class="collapse {{ request()->routeIs('admin.banner.*') ? 'show' : '' }}" id="bannerMenu">
+            <ul class="nav ms-4">
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.banner.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.banner.index') }}">
+                  <span class="sidenav-mini-icon">📄</span>
+                  <span class="sidenav-normal ms-1">Banner List</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.banner.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                  href="{{ route('admin.banner.create') }}">
+                  <span class="sidenav-mini-icon">➕</span>
+                  <span class="sidenav-normal ms-1">Add Banner</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- <li class="nav-item">
+=======
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}">
@@ -172,33 +326,8 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-            data-bs-toggle="collapse" href="#bannerMenu" role="button"
-            aria-expanded="{{ request()->routeIs('admin.banner.*') ? 'true' : 'false' }}" aria-controls="bannerMenu">
-            <i class="material-symbols-rounded opacity-5">image</i>
-            <span class="nav-link-text ms-1">Banners</span>
-          </a>
-          <div class="collapse {{ request()->routeIs('admin.banner.*') ? 'show' : '' }}" id="bannerMenu">
-            <ul class="nav ms-4">
-              <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.banner.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
-                  href="{{ route('admin.banner.index') }}">
-                  <span class="sidenav-mini-icon">📄</span>
-                  <span class="sidenav-normal ms-1">Banner List</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.banner.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
-                  href="{{ route('admin.banner.create') }}">
-                  <span class="sidenav-mini-icon">➕</span>
-                  <span class="sidenav-normal ms-1">Add Banner</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
                 <!-- <li class="nav-item">
+>>>>>>> a7b8198 (adding the category module)
           <a class="nav-link text-dark" href="../pages/tables.html">
             <i class="material-symbols-rounded opacity-5">table_view</i>
             <span class="nav-link-text ms-1">Tables</span>
