@@ -485,9 +485,7 @@
         <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
-        <<<<<<< HEAD <script src="{{ asset('assets/js/datatables.js') }}"></script>
-        =======
-        >>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
+        <script src="{{ asset('assets/js/datatables.js') }}"></script>
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
