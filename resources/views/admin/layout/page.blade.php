@@ -145,6 +145,33 @@
                         </ul>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.banner.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        data-bs-toggle="collapse" href="#bannerMenu" role="button"
+                        aria-expanded="{{ request()->routeIs('admin.banner.*') ? 'true' : 'false' }}"
+                        aria-controls="bannerMenu">
+                        <i class="material-symbols-rounded opacity-5">image</i>
+                        <span class="nav-link-text ms-1">Banners</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.banner.*') ? 'show' : '' }}" id="bannerMenu">
+                        <ul class="nav ms-4">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.banner.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.banner.index') }}">
+                                    <span class="sidenav-mini-icon">📄</span>
+                                    <span class="sidenav-normal ms-1">Banner List</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.banner.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.banner.create') }}">
+                                    <span class="sidenav-mini-icon">➕</span>
+                                    <span class="sidenav-normal ms-1">Add Banner</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.payment.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
@@ -422,13 +449,12 @@
                         </div>
                     </div>
                     <hr class="horizontal dark my-sm-4">
-                    <a class="btn bg-gradient-info w-100"
-<<<<<<< HEAD
+                    <a class="btn bg-gradient-info w-100" <<<<<<< HEAD
                         href="https://www.creative-tim.com/product/material-dashboard-pro">Free
                         Download</a>
-=======
-                        href="https://www.creative-tim.com/product/material-dashboard-pro">Free Download</a>
->>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
+                    =======
+                    href="https://www.creative-tim.com/product/material-dashboard-pro">Free Download</a>
+                    >>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
                     <a class="btn btn-outline-dark w-100"
                         href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard">View
                         documentation</a>
@@ -459,10 +485,9 @@
         <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
-<<<<<<< HEAD
-        <script src="{{ asset('assets/js/datatables.js') }}"></script>
-=======
->>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
+        <<<<<<< HEAD <script src="{{ asset('assets/js/datatables.js') }}"></script>
+        =======
+        >>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
