@@ -144,7 +144,7 @@
                       <option value="Returned" {{ $order->order_status == 'Returned' ? 'selected' : '' }}>Returned</option>
                     </select>
 
-                    <div class="mt-2 shipping-charge-group" id="shipping-group-{{ $order->id }}" style="display: {{ $order->order_status == 'Returned' ? 'block' : 'none' }};">
+                    <div class="mt-2 shipping-charge-group" id="shipping-group-{{ $order->id }}" style="display: {{ ($order->order_status == 'Returned' || $order->order_status == 'Missing-Return' || $order->order_status == 'Wrong-Return') ? 'block' : 'none' }};">
                       <div class="input-group input-group-outline my-2">
                         <input type="number" step="0.01" name="return_shipping_charge" class="form-control"
                           placeholder="Enter Return Shipping Charge" value="{{ $order->return_charges ?? '' }}"
