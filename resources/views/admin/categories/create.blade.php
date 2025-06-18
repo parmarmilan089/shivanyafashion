@@ -6,9 +6,8 @@
 
   <div class="card">
     <div class="card-body">
-      <form action="{{ route('admin.categories.store') }}" method="POST">
+    <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-
         <div class="row mb-3">
           <div class="col-md-6">
             <label>Enter Category Name <span class="text-danger">*</span></label>
@@ -87,7 +86,17 @@
               </div>
             </div>
           </div>
+          <div class="col-md-6">
+            <label>Category Image</label>
+            <div class="input-group input-group-outline my-2">
+              <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
+            @error('image')
+              <small class="text-danger">{{ $message }}</small>
+            @enderror
+          </div>
         </div>
+        
 
         <div class="mt-4">
           <button type="submit" class="btn btn-primary">Create Category</button>

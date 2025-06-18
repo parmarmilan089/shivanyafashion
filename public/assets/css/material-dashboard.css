@@ -198,6 +198,25 @@
   }
 }
 
+
+.icon-list{
+  line-height: 0px !important;
+}
+
+.icon-list li i:hover,.material-symbols-rounded:hover{
+  color: #fb5653 !important;
+}
+
+.swiper-invisible {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.first-section{
+  padding-top: 80px;
+}
+
+
 body {
   margin: 0;
   font-family: var(--bs-body-font-family);
@@ -24327,7 +24346,7 @@ html {
   box-shadow: inset 0px 0px 2px rgba(254, 254, 254, 0.8196078431);
   -webkit-backdrop-filter: saturate(100%) blur(16px);
   backdrop-filter: saturate(100%) blur(16px);
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgb(255 255 255 / 59%) !important;
 }
 
 .blur.saturation-less {

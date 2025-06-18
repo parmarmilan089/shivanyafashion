@@ -19,9 +19,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="{{ asset('assets/img/shivanya.png') }}">
   <title>
-    Material Dashboard 3 by Creative Tim
+    Shivanya Fashion
   </title>
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
@@ -31,91 +31,184 @@
   <!-- Font Awesome Icons -->
   <!-- <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script> -->
   <!-- Material Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <!-- CSS Files -->
   <link id="pagestyle" href="{{asset('assets/css/material-dashboard.css?v=3.2.0')}}" rel="stylesheet" />
+  <!-- Add to <head> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 </head>
 
 <body class="">
   <div class="container position-sticky z-index-sticky top-0">
     <div class="row">
       <div class="col-12">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 shadow position-absolute mt-4 py-2 start-0 end-0 mx-4">
+        <nav
+          class="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 shadow position-absolute mt-4 py-2 start-0 end-0 mx-4">
           <div class="container-fluid ps-2 pe-0">
-            <a class="navbar-brand font-weight-bolder ms-lg-0 ms-3 " href="../pages/dashboard.html">
-              Material Dashboard 3
+
+            <!-- Logo -->
+            <a class="navbar-brand ms-lg-0 ms-3 d-flex align-items-center" href="{{ url('/') }}">
+              <img src="{{ asset('assets/img/header-logo.png') }}" alt="Shivanya Fashion" style="height: 40px;">
             </a>
-            <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+
+            <!-- Toggler -->
+            <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false"
+              aria-label="Toggle navigation">
               <span class="navbar-toggler-icon mt-2">
                 <span class="navbar-toggler-bar bar1"></span>
                 <span class="navbar-toggler-bar bar2"></span>
                 <span class="navbar-toggler-bar bar3"></span>
               </span>
             </button>
+
+            <!-- Dynamic Navigation Menu -->
             <div class="collapse navbar-collapse" id="navigation">
               <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                  <a class="nav-link d-flex align-items-center me-2 active" aria-current="page" href="../pages/dashboard.html">
-                    <i class="fa fa-chart-pie opacity-6 text-dark me-1"></i>
-                    Dashboard
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link me-2" href="../pages/profile.html">
-                    <i class="fa fa-user opacity-6 text-dark me-1"></i>
-                    Profile
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link me-2" href="../pages/sign-up.html">
-                    <i class="fas fa-user-circle opacity-6 text-dark me-1"></i>
-                    Sign Up
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link me-2" href="../pages/sign-in.html">
-                    <i class="fas fa-key opacity-6 text-dark me-1"></i>
-                    Sign In
-                  </a>
-                </li>
+                @php
+          $categories = \App\Helpers\Helper::getMenuCategories();
+        @endphp
+
+                @foreach ($categories as $mainCategory)
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown{{ $mainCategory->id }}" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                {{ $mainCategory->name }}
+                </a>
+
+                @if ($mainCategory->children->isNotEmpty())
+              <ul class="dropdown-menu" aria-labelledby="dropdown{{ $mainCategory->id }}">
+              @foreach ($mainCategory->children as $child)
+              @if ($child->children->isNotEmpty())
+              <li class="dropdown-submenu position-relative">
+              <a class="dropdown-item dropdown-toggle" href="#">{{ $child->name }}</a>
+              <ul class="dropdown-menu shadow" style="top: 0; left: 100%; margin-top: -1px;">
+              @foreach ($child->children as $subChild)
+              <li>
+              <a class="dropdown-item" href="">
+              {{ $subChild->name }}
+              </a>
+              </li>
+              @endforeach
               </ul>
-              <ul class="navbar-nav d-lg-flex d-none">
-                <li class="nav-item d-flex align-items-center">
-                  <a class="btn btn-outline-primary btn-sm mb-0 me-2" target="_blank" href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard">Online Builder</a>
+              </li>
+              @else
+              <li>
+              <a class="dropdown-item" href="">
+              {{ $child->name }}
+              </a>
+              </li>
+              @endif
+            @endforeach
+              </ul>
+            @endif
+              </li>
+        @endforeach
+
+                <!-- Static Links -->
+                <li class="nav-item"><a class="nav-link" href="#">Offers</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">New Arrivals</a></li>
+              </ul>
+
+              <!-- Right Side Icons -->
+              <ul class="navbar-nav d-lg-flex flex-row align-items-center gap-3 pe-3 icon-list">
+                <!-- Search -->
+                <li class="nav-item d-none d-lg-block">
+                  <form method="GET" action="" class="d-flex align-items-center">
+                    <label for="searchInput" class="me-2 mb-0">
+                      <i class="material-symbols-rounded text-dark" style="font-size: 22px;">search</i>
+                    </label>
+                    <div class="input-group input-group-outline my-0">
+                      <input type="text" id="searchInput" name="q" class="form-control form-control-sm"
+                        placeholder="Search..." onfocus="focused(this)" onfocusout="defocused(this)">
+                    </div>
+                  </form>
                 </li>
+
+                <!-- Wishlist -->
                 <li class="nav-item">
-                  <a href="https://www.creative-tim.com/product/material-dashboard" class="btn btn-sm mb-0 me-1 bg-gradient-dark">Free download</a>
+                  <a href="" class="nav-link px-2">
+                    <i class="material-symbols-rounded" style="font-size: 26px;">favorite</i>
+                  </a>
+                </li>
+
+                <!-- Cart -->
+                <li class="nav-item position-relative">
+                  <a href="" class="nav-link px-2">
+                    <i class="material-symbols-rounded text-dark" style="font-size: 26px;">shopping_cart</i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ session('cart_count', 0) }}
+                    </span>
+                  </a>
+                </li>
+
+                <!-- Profile -->
+                <li class="nav-item">
+                  <a href="" class="nav-link px-2">
+                    <i class="material-symbols-rounded text-dark" style="font-size: 26px;">person</i>
+                  </a>
                 </li>
               </ul>
             </div>
           </div>
         </nav>
-        <!-- End Navbar -->
       </div>
     </div>
   </div>
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-      @yield('front-content')
-      
-    </main>
-  <!--   Core JS Files   -->
-   <!-- Include jQuery (necessary for DataTables.js) -->
-   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @yield('front-content')
 
-<!-- Include DataTables JS -->
-<script src="{{asset('assets/js/core/popper.min.js')}}"></script>
-<script src="{{asset('assets/js/core/bootstrap.min.js')}}"></script>
-<script src="{{asset('assets/js/plugins/perfect-scrollbar.min.js')}}"></script>
-<script src="{{asset('assets/js/plugins/smooth-scrollbar.min.js')}}"></script>
-<script src="{{asset('assets/js/plugins/chartjs.min.js')}}"></script>
-<script src="{{asset('assets/js/datatables.js')}}"></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  </main>
+  <footer class="bg-gradient-dark text-white mt-5 pt-5 pb-3">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <img src="{{ asset('assets/img/logo-white.png') }}" alt="Shivanya Fashion" style="height: 50px;">
+          <p class="text-sm">We bring the latest ethnic trends from across India, right to your doorstep.</p>
+        </div>
+        <div class="col-md-4 mb-3 mt-2">
+          <h6 class="text-uppercase text-white">Quick Links</h6>
+          <ul class="list-unstyled text-sm">
+            <li><a href="/" class="text-white">Home</a></li>
+            <li><a href="/store" class="text-white">Store</a></li>
+            <li><a href="/customer/login" class="text-white">Login</a></li>
+            <li><a href="/customer/register" class="text-white">Register</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h6 class="text-uppercase text-white">Contact</h6>
+          <p class="text-sm mb-1">Email: <a href="mailto:shivanyafs@gmail.com"
+              class="text-white">shivanyafs@gmail.com</a></p>
+          <p class="text-sm">WhatsApp: <a href="https://wa.me/919979944324" class="text-white">+91 99799 44324</a></p>
+        </div>
+      </div>
+      <hr class="border-light">
+      <p class="text-center text-sm mt-2">© {{ date('Y') }} Shivanya Fashion. All rights reserved.</p>
+    </div>
+  </footer>
+  <!--   Core JS Files   -->
+  <!-- Include jQuery (necessary for DataTables.js) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Include DataTables JS -->
+  <script src="{{asset('assets/js/core/popper.min.js')}}"></script>
+  <script src="{{asset('assets/js/choices.min.js')}}"></script>
+  <script src="{{asset('assets/js/core/bootstrap.min.js')}}"></script>
+  <script src="{{asset('assets/js/plugins/perfect-scrollbar.min.js')}}"></script>
+  <script src="{{asset('assets/js/plugins/smooth-scrollbar.min.js')}}"></script>
+  <script src="{{asset('assets/js/plugins/chartjs.min.js')}}"></script>
+  <script src="{{asset('assets/js/datatables.js')}}"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <!-- Add before </body> -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -124,6 +217,28 @@
       }
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
+  </script>
+  <script>
+    const swiper = new Swiper(".featuredSwiper", {
+      slidesPerView: 1,
+      spaceBetween: 15,
+      loop: true,
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev"
+      },
+      breakpoints: {
+        576: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        992: { slidesPerView: 4 },
+        1200: { slidesPerView: 5 }
+      },
+      on: {
+        init: function () {
+          document.querySelector('.featuredSwiper').classList.remove('swiper-invisible');
+        }
+      }
+    });
   </script>
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>

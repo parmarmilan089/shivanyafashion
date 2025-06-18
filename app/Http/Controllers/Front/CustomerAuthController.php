@@ -55,7 +55,7 @@ class CustomerAuthController extends Controller
                 'password' => $request->password,
             ])
         ) {
-            return redirect('/store');
+            return redirect('/');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials']);

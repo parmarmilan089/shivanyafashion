@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    protected $fillable = ['name','slug','parent_id','category_type','is_active'];
+    protected $fillable = ['name','slug','parent_id','category_type','is_active','image'];
 
     /* ---------- Relationships ---------- */
     // public function parent()   { return $this->belongsTo(self::class, 'parent_id'); }

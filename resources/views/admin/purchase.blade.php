@@ -1,4 +1,4 @@
-@extends('admin.layout.page')
+@extends('front.layout.page')
 @section('contect')
 
     <!-- End Navbar -->

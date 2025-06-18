@@ -172,6 +172,23 @@ class AdminController extends Controller
         $tasksLabels = ["Apr", "May", "Jun", "Jul", "Aug"];
         $tasksData = [15, 22, 18, 30, 25]; // Replace with actual DB queries if needed
 
+        $todayXpress = DB::table('orders')
+        ->where('shipping', 'Xpress Bees')
+        ->whereDate('purchase_date', Carbon::today())
+        ->count();
+        $todayShadowfax = DB::table('orders')
+        ->where('shipping', 'Shadowfax')
+        ->whereDate('purchase_date', Carbon::today())
+        ->count();
+        $todayValmo = DB::table('orders')
+        ->where('shipping', 'Valmo')
+        ->whereDate('purchase_date', Carbon::today())
+        ->count();
+        $todayDelhivery = DB::table('orders')
+        ->where('shipping', 'Delhivery')
+        ->whereDate('purchase_date', Carbon::today())
+        ->count();
+
 
         return view('admin.dashboard', [
             // Amazon
@@ -206,6 +223,11 @@ class AdminController extends Controller
             'viewsData' => json_encode($viewsData),
             'tasksLabels' => json_encode($tasksLabels),
             'tasksData' => json_encode($tasksData),
+
+            'todayxpress' => $todayXpress,
+            'todayvalmo' => $todayValmo,
+            'todayshadowfax' => $todayShadowfax,
+            'todaydelhivery' => $todayDelhivery,
         ]);
     }
 

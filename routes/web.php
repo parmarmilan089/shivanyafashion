@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\FrontendController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\CustomerAuthController;
 
@@ -20,10 +21,9 @@ use App\Http\Controllers\Front\CustomerAuthController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/', [FrontendController::class, 'home'])->name('home');
+Route::get('/product/{id}', [FrontendController::class, 'product'])->name('product');
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('customer/register', [CustomerAuthController::class, 'showRegisterForm']);
 Route::post('customer/register', [CustomerAuthController::class, 'register'])->name('customer.register');

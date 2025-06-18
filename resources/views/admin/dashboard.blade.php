@@ -189,6 +189,54 @@
 					<hr class="dark horizontal my-0">
 				</div>
 			</div>
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Valmo</p>
+								<h4 class="mb-0">{{ $todayvalmo }}</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Shadowfax</p>
+								<h4 class="mb-0">{{ $todayshadowfax }}</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Delhivery</p>
+								<h4 class="mb-0">{{ $todaydelhivery }}</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 mb-3">
+				<div class="card">
+					<div class="card-header p-2 ps-3">
+						<div class="d-flex justify-content-between">
+							<div>
+								<p class="text-sm mb-0 text-capitalize">Xpress Bees</p>
+								<h4 class="mb-0">{{ $todayxpress }}</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="col-lg-4 col-md-6 mt-4 mb-4">
 				<div class="card ">
 					<div class="card-body">

@@ -26,7 +26,14 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $req)
     {
-        Category::create($req->validated());
+        $data = $req->validated();
+        if ($req->hasFile('image')) {
+            $filename = time() . '.' . $req->image->extension();
+            $req->image->move(public_path('uploads/categories'), $filename);
+            $data['image'] = 'uploads/categories/' . $filename;
+        }
+
+        Category::create($data);
         return to_route('admin.categories.index')
             ->with('success', 'Category created');
     }
@@ -44,9 +51,19 @@ class CategoryController extends Controller
     {
         $data = $req->validated();
 
-        // Force parent_id null for main categories
         if ($data['category_type'] == 0) {
             $data['parent_id'] = null;
+        }
+
+        if ($req->hasFile('image')) {
+            $filename = time() . '.' . $req->image->extension();
+            $req->image->move(public_path('uploads/categories'), $filename);
+            $data['image'] = 'uploads/categories/' . $filename;
+
+            // optionally delete old image
+            if ($category->image && file_exists(public_path($category->image))) {
+                unlink(public_path($category->image));
+            }
         }
 
         $category->update($data);

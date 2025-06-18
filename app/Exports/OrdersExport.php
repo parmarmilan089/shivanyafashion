@@ -26,8 +26,8 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
     public function collection()
     {
         $query = Order::with(['orderProducts.product']) // load orderProducts + their product
-            ->where('sold_on', 'Meesho')
-            ->where('payment_status', 1);
+            ->where('sold_on', 'Meesho');
+            // ->where('payment_status', 0);
 
         if ($this->fromDate) {
             $query->whereDate('purchase_date', '>=', date('Y-m-d', strtotime($this->fromDate)));
@@ -87,7 +87,12 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
         $getPrice = $orderProduct->gst_price ?? 0;
         $quantity = $orderProduct->quantity ?? 1;
 
-        $profit = ($orderProduct->price - $orderProduct->gst_price) * $quantity;
+
+        if($order->payment_status == 1){
+            $profit = ($orderProduct->price - $orderProduct->gst_price) * $quantity;
+        } else {
+            $profit = 0;
+        }
 
         $payment_status = match ($order->payment_status) {
             1 => 'Received',

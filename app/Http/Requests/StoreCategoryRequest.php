@@ -44,6 +44,7 @@ class StoreCategoryRequest extends FormRequest
                 },
             ],
             'is_active' => ['required', 'in:0,1'],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp,jfif',
         ];
 
         return $rules;

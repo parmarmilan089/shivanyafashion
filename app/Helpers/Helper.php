@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Category;
 use Carbon\Carbon;
 use App\Models\Order;
 
@@ -63,5 +64,21 @@ class Helper
         }
     
         return $formatted . "." . $decimalPart;
+    }
+
+    public static function getMenuCategories()
+    {
+        return Category::with([
+            'children' => function ($q) {
+                $q->where('is_active', 1)->with([
+                    'children' => function ($sub) {
+                        $sub->where('is_active', 1);
+                    }
+                ]);
+            }
+        ])
+        ->where('category_type', 0)
+        ->where('is_active', 1)
+        ->get();
     }
 }
