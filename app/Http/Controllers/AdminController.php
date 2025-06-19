@@ -240,7 +240,6 @@ class AdminController extends Controller
         $parser = new Parser();
         $pdf = $parser->parseFile($request->file('label_pdf')->getPathname());
         $lines = preg_split("/\r\n|\n|\r/", $pdf->getText());
-        // echo '<pre>';print_r($lines); echo '</pre>';die;
         $orders = [];
         $notinproduct = [];
 
@@ -250,12 +249,20 @@ class AdminController extends Controller
             // ✅ Detect 'Pickup' even if merged (e.g., "PickupSKU Size Qty...")
             if (Str::contains(Str::lower($line), 'pickup')) {
                 // Capture the previous line as the shipping partner
-                $shippingLine = trim($lines[$i - 1] ?? '');
-                $orders[] = array(
-                    'purchase_date' => null,
-                    'shipping' => $shippingLine,
-                    'products' => [],
-                );
+                if ($line == 'ValmoPickup' || $line == 'Valmo Pickup' || $line == 'ValmoPickupC') {
+                    $orders[] = array(
+                        'purchase_date' => null,
+                        'shipping' => 'Valmo',
+                        'products' => [],
+                    );
+                } else {
+                    $shippingLine = trim($lines[$i - 1] ?? '');
+                    $orders[] = array(
+                        'purchase_date' => null,
+                        'shipping' => $shippingLine,
+                        'products' => [],
+                    );
+                }
             }
 
             if (Str::contains($line, 'SKU') && Str::contains($line, 'Order No')) {
@@ -314,11 +321,6 @@ class AdminController extends Controller
             //     $orders[count($orders) - 1]['purchase_date'] = $purchaseDate;
             // }
         }
-        // echo "<pre>"; print_r($notinproduct); echo "</pre>";
-        // echo "<pre>";
-        // print_r($orders);
-        // echo "</pre>";
-        // die;
 
         if (count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {

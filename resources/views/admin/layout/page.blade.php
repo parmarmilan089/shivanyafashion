@@ -177,6 +177,33 @@
                         </ul>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.color.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        data-bs-toggle="collapse" href="#colorMenu" role="button"
+                        aria-expanded="{{ request()->routeIs('admin.color.*') ? 'true' : 'false' }}"
+                        aria-controls="colorMenu">
+                        <i class="material-symbols-rounded opacity-5">palette</i>
+                        <span class="nav-link-text ms-1">Colors</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.color.*') ? 'show' : '' }}" id="colorMenu">
+                        <ul class="nav ms-4">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.color.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.color.index') }}">
+                                    <span class="sidenav-mini-icon">📄</span>
+                                    <span class="sidenav-normal ms-1">Color List</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.color.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.color.create') }}">
+                                    <span class="sidenav-mini-icon">🎨</span>
+                                    <span class="sidenav-normal ms-1">Add Color</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.payment.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"

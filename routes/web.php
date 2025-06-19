@@ -95,6 +95,10 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
     Route::resource('payment', PaymentController::class)->names('payment');
 });
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('color', \App\Http\Controllers\Admin\ColorController::class);
+});
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::resource('banner', BannerController::class);
 });
