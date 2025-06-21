@@ -87,7 +87,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
         $getPrice = $orderProduct->gst_price ?? 0;
         $quantity = $orderProduct->quantity ?? 1;
 
-
+        $profit = 0;
         if($order->payment_status == 1){
             $profit = ($orderProduct->price - $orderProduct->gst_price) * $quantity;
         } else {

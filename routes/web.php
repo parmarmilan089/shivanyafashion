@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
@@ -91,12 +94,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 
 });
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::resource('inventory', InventoryController::class);
+});
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
     Route::resource('payment', PaymentController::class)->names('payment');
 });
-
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::resource('size', SizeController::class);
+});
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('color', \App\Http\Controllers\Admin\ColorController::class);
+    Route::resource('color', ColorController::class);
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {

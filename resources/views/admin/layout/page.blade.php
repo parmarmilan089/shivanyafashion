@@ -94,6 +94,34 @@
                         </ul>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        data-bs-toggle="collapse" href="#inventoryMenu" role="button"
+                        aria-expanded="{{ request()->routeIs('admin.inventory.*') ? 'true' : 'false' }}"
+                        aria-controls="inventoryMenu">
+                        <i class="material-symbols-rounded opacity-5">inventory_2</i>
+                        <span class="nav-link-text ms-1">Inventory</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.inventory.*') ? 'show' : '' }}"
+                        id="inventoryMenu">
+                        <ul class="nav ms-4">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.inventory.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.inventory.index') }}">
+                                    <span class="sidenav-mini-icon">📄</span>
+                                    <span class="sidenav-normal ms-1">Product List</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.inventory.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.inventory.create') }}">
+                                    <span class="sidenav-mini-icon">➕</span>
+                                    <span class="sidenav-normal ms-1">Add Product</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.product.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
@@ -172,6 +200,33 @@
                                     href="{{ route('admin.banner.create') }}">
                                     <span class="sidenav-mini-icon">➕</span>
                                     <span class="sidenav-normal ms-1">Add Banner</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.size.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        data-bs-toggle="collapse" href="#sizeMenu" role="button"
+                        aria-expanded="{{ request()->routeIs('admin.size.*') ? 'true' : 'false' }}"
+                        aria-controls="sizeMenu">
+                        <i class="material-symbols-rounded opacity-5">straighten</i>
+                        <span class="nav-link-text ms-1">Sizes</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.size.*') ? 'show' : '' }}" id="sizeMenu">
+                        <ul class="nav ms-4">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.size.index') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.size.index') }}">
+                                    <span class="sidenav-mini-icon">📏</span>
+                                    <span class="sidenav-normal ms-1">Size List</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.size.create') ? 'active text-white bg-gradient-dark' : 'text-dark' }}"
+                                    href="{{ route('admin.size.create') }}">
+                                    <span class="sidenav-mini-icon">➕</span>
+                                    <span class="sidenav-normal ms-1">Add Size</span>
                                 </a>
                             </li>
                         </ul>
