@@ -7,7 +7,7 @@
     <div class="row align-items-center">
       <div class="col-lg-12 p-0">
       <div class="position-relative overflow-hidden" style="
-        background-image: url('{{ asset('assets/img/01-slider-banner-sale-all-country-12-06-25.jpg') }}');
+        background-image: url('{{ asset('assets/img/banner1.png') }}');
         background-size: cover;
         background-position: center;
         height: 550px;
