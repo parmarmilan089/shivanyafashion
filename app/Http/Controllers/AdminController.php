@@ -95,7 +95,7 @@ class AdminController extends Controller
             ->where('orders.order_status', 'Delivered')
             ->sum(DB::raw('order_products.gst_price * order_products.quantity'));
 
-            $meeshoBaseProfit = DB::table('order_products')
+        $meeshoBaseProfit = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->where('orders.order_status', 'Delivered')
             ->where('orders.sold_on', 'Meesho')
@@ -107,7 +107,7 @@ class AdminController extends Controller
         $meeshoShippingCharges = DB::table('orders')
             ->whereIn('order_status', ['Returned', 'Missing-Return', 'Wrong-Return'])
             ->sum('return_charges');
-            $meeshoBaseProfit = $meeshoBaseProfit - $meeshoShippingCharges;
+        $meeshoBaseProfit = $meeshoBaseProfit - $meeshoShippingCharges;
         $meeshoBaseReturnsProfit = DB::table('order_products')
             ->join('orders', 'order_products.order_id', '=', 'orders.id')
             ->whereIn('order_products.order_id', $meeshoOrderIds)
@@ -173,21 +173,82 @@ class AdminController extends Controller
         $tasksData = [15, 22, 18, 30, 25]; // Replace with actual DB queries if needed
 
         $todayXpress = DB::table('orders')
-        ->where('shipping', 'Xpress Bees')
-        ->whereDate('purchase_date', Carbon::today())
-        ->count();
+            ->where('shipping', 'Xpress Bees')
+            ->whereDate('purchase_date', Carbon::today())
+            ->count();
         $todayShadowfax = DB::table('orders')
-        ->where('shipping', 'Shadowfax')
-        ->whereDate('purchase_date', Carbon::today())
-        ->count();
+            ->where('shipping', 'Shadowfax')
+            ->whereDate('purchase_date', Carbon::today())
+            ->count();
         $todayValmo = DB::table('orders')
-        ->where('shipping', 'Valmo')
-        ->whereDate('purchase_date', Carbon::today())
-        ->count();
+            ->where('shipping', 'Valmo')
+            ->whereDate('purchase_date', Carbon::today())
+            ->count();
         $todayDelhivery = DB::table('orders')
-        ->where('shipping', 'Delhivery')
-        ->whereDate('purchase_date', Carbon::today())
-        ->count();
+            ->where('shipping', 'Delhivery')
+            ->whereDate('purchase_date', Carbon::today())
+            ->count();
+        $orders = DB::table('orders')
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as total_orders'),
+                DB::raw('SUM(CASE WHEN order_status = "Delivered" THEN 1 ELSE 0 END) as delivered_orders')
+            )
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get();
+
+        // Get return orders grouped by return_order_date
+        $returns = DB::table('orders')
+            ->select(
+                DB::raw('DATE(return_order_date) as date'),
+                DB::raw('COUNT(*) as return_orders')
+            )
+            ->whereNotNull('return_order_date')
+            ->groupBy(DB::raw('DATE(return_order_date)'))
+            ->get()
+            ->keyBy('date'); // Efficient lookup by date
+
+        // Merge both datasets
+        $data = $orders->map(function ($order) use ($returns) {
+            $order->return_orders = isset($returns[$order->date]) ? $returns[$order->date]->return_orders : 0;
+            return $order;
+        });
+
+
+
+        // Transform into FullCalendar format
+        $events = [];
+
+        foreach ($data as $row) {
+            // Total Orders
+            $events[] = [
+                'title' => "Total Orders: {$row->total_orders}",
+                'start' => $row->date,
+                'description' => "Total orders placed on {$row->date}: {$row->total_orders}",
+                'color' => '#1e88e5', // Blue
+            ];
+
+            // Delivered Orders
+            if ($row->delivered_orders > 0) {
+                $events[] = [
+                    'title' => "Delivered: {$row->delivered_orders}",
+                    'start' => $row->date,
+                    'description' => "Delivered orders on {$row->date}: {$row->delivered_orders}",
+                    'color' => 'green',
+                ];
+            }
+
+            // Return Orders
+            if ($row->return_orders > 0) {
+                $events[] = [
+                    'title' => "Returned: {$row->return_orders}",
+                    'start' => $row->date,
+                    'description' => "Returned orders on {$row->date}: {$row->return_orders}",
+                    'color' => 'red',
+                ];
+            }
+        }
+
 
 
         return view('admin.dashboard', [
@@ -228,6 +289,7 @@ class AdminController extends Controller
             'todayvalmo' => $todayValmo,
             'todayshadowfax' => $todayShadowfax,
             'todaydelhivery' => $todayDelhivery,
+            'events' => $events,
         ]);
     }
 
@@ -322,6 +384,12 @@ class AdminController extends Controller
             // }
         }
 
+        // echo "<pre>"; print_r($notinproduct); echo "</pre>";
+        // echo "<pre>";
+        // print_r($orders);
+        // echo "</pre>";
+        // die;
+
         if (count($orders) > 0 && count($notinproduct) == 0) {
             foreach ($orders as $key => $products) {
                 foreach ($products['products'] as $product) {
@@ -350,7 +418,7 @@ class AdminController extends Controller
                         // echo "<pre>"; print_r('============================================'); echo "</pre>";
                         // Attach product to order
                         $order->product()->attach($productdetails['id'], $orderproductdata);
-                        } else {
+                    } else {
                         $notinproduct[] = $product['sku'];
                     }
                 }

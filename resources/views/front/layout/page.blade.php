@@ -158,26 +158,34 @@
       </div>
     </div>
   </div>
-  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+  <main class="main-content position-relative h-100 border-radius-lg ">
     @yield('front-content')
-
   </main>
   <footer class="bg-gradient-dark text-white mt-5 pt-5 pb-3">
     <div class="container">
       <div class="row">
+        <!-- Logo and Tagline -->
         <div class="col-md-4 mb-3">
           <img src="{{ asset('assets/img/logo-white.png') }}" alt="Shivanya Fashion" style="height: 50px;">
           <p class="text-sm">We bring the latest ethnic trends from across India, right to your doorstep.</p>
         </div>
+
+        <!-- Quick Links -->
         <div class="col-md-4 mb-3 mt-2">
           <h6 class="text-uppercase text-white">Quick Links</h6>
           <ul class="list-unstyled text-sm">
-            <li><a href="/" class="text-white">Home</a></li>
-            <li><a href="/store" class="text-white">Store</a></li>
-            <li><a href="/customer/login" class="text-white">Login</a></li>
-            <li><a href="/customer/register" class="text-white">Register</a></li>
+            <li><a href="{{ url('/') }}" class="text-white">Home</a></li>
+            <li><a href="{{ url('/store') }}" class="text-white">Store</a></li>
+            <li><a href="{{ route('front.about') }}" class="text-white">About Us</a></li>
+            <li><a href="{{ route('front.contact') }}" class="text-white">Contact Us</a></li>
+            <li><a href="{{ route('front.terms') }}" class="text-white">Terms & Conditions</a></li>
+            <li><a href="{{ route('front.privacy') }}" class="text-white">Privacy Policy</a></li>
+            <li><a href="{{ url('/customer/login') }}" class="text-white">Login</a></li>
+            <li><a href="{{ url('/customer/register') }}" class="text-white">Register</a></li>
           </ul>
         </div>
+
+        <!-- Contact Info -->
         <div class="col-md-4 mb-3">
           <h6 class="text-uppercase text-white">Contact</h6>
           <p class="text-sm mb-1">Email: <a href="mailto:shivanyafs@gmail.com"
@@ -185,10 +193,12 @@
           <p class="text-sm">WhatsApp: <a href="https://wa.me/919979944324" class="text-white">+91 99799 44324</a></p>
         </div>
       </div>
+
       <hr class="border-light">
       <p class="text-center text-sm mt-2">© {{ date('Y') }} Shivanya Fashion. All rights reserved.</p>
     </div>
   </footer>
+
   <!--   Core JS Files   -->
   <!-- Include jQuery (necessary for DataTables.js) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

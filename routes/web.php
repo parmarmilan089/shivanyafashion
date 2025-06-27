@@ -26,8 +26,10 @@ use App\Http\Controllers\Front\CustomerAuthController;
 */
 Route::get('/', [FrontendController::class, 'home'])->name('home');
 Route::get('/product/{id}', [FrontendController::class, 'product'])->name('product');
-
-
+Route::view('/terms-and-conditions', 'front.pages.terms-and-conditions')->name('front.terms');
+Route::view('/about-us', 'front.pages.about')->name('front.about');
+Route::view('/contact-us', 'front.pages.contact')->name('front.contact');
+Route::view('/privacy-policy', 'front.pages.privacy')->name('front.privacy');
 Route::get('customer/register', [CustomerAuthController::class, 'showRegisterForm']);
 Route::post('customer/register', [CustomerAuthController::class, 'register'])->name('customer.register');
 

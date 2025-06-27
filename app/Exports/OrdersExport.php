@@ -94,6 +94,12 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithEve
             $profit = 0;
         }
 
+        if($order->order_status == 'Wrong-Return' || $order->order_status == 'Wrong-RTO-Return' || $order->order_status == 'Missing-Return'){
+            if($order->payment_status == 0 || $order->payment_status == 2){
+                $profit = $profit - $orderProduct->base_price;
+            }
+        }
+
         $payment_status = match ($order->payment_status) {
             1 => 'Received',
             2 => 'Cancel',

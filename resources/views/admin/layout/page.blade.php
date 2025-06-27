@@ -570,6 +570,7 @@
         <!--   Core JS Files   -->
         <!-- Include jQuery (necessary for DataTables.js) -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
 
         <!-- Include DataTables JS -->
         <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
