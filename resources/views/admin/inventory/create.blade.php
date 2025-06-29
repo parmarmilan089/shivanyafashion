@@ -76,8 +76,9 @@
                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
+                                    <div class="position-absolute end-4 top-10 mt-1 milan">
                                         >
+
                                     </div>
                                 </div>
                             </div>
