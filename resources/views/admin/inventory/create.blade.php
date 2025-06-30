@@ -66,79 +66,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <!-- <label class="form-label">Select Category</label> -->
-                                <div class="w-100 position-relative">
-                                    <select name="category_id" id="category-select" class="form-control" required>
-                                        <option value="">Select Category</option>
-                                        @foreach($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Tags -->
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <label class="form-label">Type and press Enter</label>
-                                <input type="text" name="tags" id="tag-input" class="form-control" placeholder="" />
-                            </div>
-                        </div>
-                        <!-- General Price & Stock Info -->
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <label class="form-label">Price</label>
-                                <input type="number" name="price" step="0.01" class="form-control" required>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <label class="form-label">Sale Price</label>
-                                <input type="number" name="sale_price" step="0.01" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <label class="form-label">Stock Quantity</label>
-                                <input type="number" name="stock_qty" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <div class="w-100 position-relative">
-                                    <select name="stock_status" class="form-control" id="stock_status">
-                                        <option value="in_stock">In Stock</option>
-                                        <option value="out_of_stock">Out of Stock</option>
-                                        <option value="pre_order">Pre-order</option>
-                                    </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Colors -->
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <div class="w-100 position-relative">
-                                    <select name="Colors" class="form-control" id="Colors">
-                                        <option value="in_stock">Colors</option>
-                                        <option value="out_of_stock">White</option>
-                                        <option value="pre_order">Black</option>
-                                    </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="input-group input-group-outline my-2">
                                 <div class="w-100 position-relative">
@@ -151,9 +79,9 @@
                                         <option value="pre_order">Xl</option>
                                         <option value="pre_order">FREE SIZE</option>
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
                         </div>
@@ -167,9 +95,9 @@
                                         <option value="silk">Silk</option>
                                         <option value="georgette">Georgette</option>
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
                         </div>
@@ -183,9 +111,9 @@
                                         <option value="a-line">A-line</option>
                                         <option value="flared">Flared</option>
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
                         </div>
@@ -198,9 +126,9 @@
                                         <option value="knee-length">Knee Length</option>
                                         <option value="long">Long</option>
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
                         </div>
@@ -213,161 +141,233 @@
                                         <option value="printed">Printed</option>
                                         <option value="embroidered">Embroidered</option>
                                     </select>
-                                    <div class="position-absolute end-4 top-10 mt-1">
-                                        >
-                                    </div>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
                         </div>
-                        <!-- Gallery -->
-
                     </div>
                 </div>
                 <div class="card px-sm-4 px-3 py-3 my-3">
                     <div class="row">
-                        <div class="col-md-6 my-2">
-                            <div class="file-div">
-                                <div class="w-100">
-                                    <h6 class="file-title">
-                                        Main Image
-                                    </h6>
-                                    <input type="file" name="main_image" class="form-control file-input w-100"
-                                        accept="image/*" required>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="input-group input-group-outline my-2">
+                                <!-- <label class="form-label">Select Category</label> -->
+                                <div class="w-100 position-relative">
+                                    <select name="category_id" id="category-select" class="form-control" required>
+                                        <option value="">Select Category</option>
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
+                                                                >
+                                                            </div> -->
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="input-group input-group-outline my-2">
+                                <label class="form-label">Type and press Enter</label>
+                                <input type="text" name="tags" id="tag-input" class="form-control" placeholder="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tags -->
 
-                        </div>
-                        <div class="col-md-6 my-2">
-                            <div class="file-div">
-                                <div class="w-100">
-                                    <h6 class="file-title">
-                                        Gallery Images
-                                    </h6>
-                                    <input type="file" name="gallery_images[]" class="form-control file-input w-100"
-                                        multiple accept="image/*">
-                                </div>
-                            </div>
-                        </div>
+                <!-- Gallery -->
+
+        </div>
+    </div>
+    <div class="card px-sm-4 px-3 py-3 my-3">
+        <div class="row">
+            <div class="col-md-6 my-2">
+                <div class="file-div">
+                    <div class="w-100">
+                        <h6 class="file-title">
+                            Main Image
+                        </h6>
+                        <input type="file" name="main_image" class="form-control file-input w-100" accept="image/*"
+                            required>
                     </div>
                 </div>
-                <div class="card px-sm-4 px-3 py-3">
-                    <div class="row">
-                        <div class="col-md-6 my-2">
-                            <div class="input-group input-group-outline">
-                                <label class="form-label">Meta Title</label>
-                                <input type="text" name="meta_title" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-6 my-2">
-                            <div class="input-group input-group-outline ">
-                                <label class="form-label">Meta Keywords</label>
-                                <input type="text" name="meta_keywords" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-12 my-2">
-                            <div class="input-group input-group-outline ">
-                                <label class="form-label">Meta Description</label>
-                                <textarea name="meta_description" class="form-control" rows="5"></textarea>
-                            </div>
-                        </div>
+
+            </div>
+            <div class="col-md-6 my-2">
+                <div class="file-div">
+                    <div class="w-100">
+                        <h6 class="file-title">
+                            Gallery Images
+                        </h6>
+                        <input type="file" name="gallery_images[]" class="form-control file-input w-100" multiple
+                            accept="image/*">
                     </div>
                 </div>
-                <div class="w-100 text-base mt-4 d-flex align-items-center gap-1 mb-2">
-                    <h5 class="m-0">Status :</h5>
-                    <div class="">
-                        <select name="status" class="form-control py-0 px-2">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="draft">Draft</option>
+            </div>
+        </div>
+    </div>
+    <div class="card px-sm-4 px-3 py-3">
+        <div class="row">
+            <div class="col-md-6 my-2">
+                <div class="input-group input-group-outline">
+                    <label class="form-label">Meta Title</label>
+                    <input type="text" name="meta_title" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-6 my-2">
+                <div class="input-group input-group-outline ">
+                    <label class="form-label">Meta Keywords</label>
+                    <input type="text" name="meta_keywords" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-12 my-2">
+                <div class="input-group input-group-outline ">
+                    <label class="form-label">Meta Description</label>
+                    <textarea name="meta_description" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-100 text-base mt-4 d-flex align-items-center gap-1 mb-2">
+        <h5 class="m-0">Status :</h5>
+        <div class="">
+            <select name="status" class="form-control py-0 px-2">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="draft">Draft</option>
+            </select>
+        </div>
+    </div>
+    <div class="card px-3 py-3">
+        <div class="w-100 d-flex justify-content-between align-items-center">
+            <h6>Variants (Color + Size)</h6>
+            <button type="button" class="btn btn-sm btn-dark" id="add-color-variant">Add Variant</button>
+        </div>
+        <div id="variant-container" class="mt-3">
+            <!-- First Variant Block -->
+            <div class="variant-block border p-3 mb-4 bg-white" data-color-index="0">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div class="col-md-4">
+                        <label class="form-label">Select Color</label>
+                        <select class="form-control" name="variants[0][color_id]" required>
+                            @foreach($colors as $color)
+                                <option value="{{ $color->id }}">{{ $color->name }}</option>
+                            @endforeach
                         </select>
                     </div>
-                </div>
-                <div class="card px-3 py-3">
-                    <div
-                        class="w-100 p-2 d-flex justify-content-between align-items-center gap-3 flex-wrap variants-main-div">
-                        <h6 class="m-0 ">Variants (Color + Size)</h6>
-                        <button type="button" class="btn btn-sm btn-dark m-0 " onclick="addVariant()">Add
-                            Variant</button>
-                    </div>
-                    <div class="px-3">
-                        <div id="variant-container">
-                            <!-- Variant rows will be appended here -->
-                        </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-sm btn-primary add-size-btn" data-color-index="0">Add Size
+                            Row</button>
                     </div>
                 </div>
-                <div class="text-end mt-4">
-                    <button type="submit" class="btn bg-gradient-dark text-white">Save Product</button>
+                <div class="mt-3 size-rows" id="variant-sizes-0">
+                    <!-- Size rows will be added here -->
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
 
+    <div class="text-end mt-4">
+        <button type="submit" class="btn bg-gradient-dark text-white">Save Product</button>
+    </div>
+    </form>
 
-
-            <script>
-                function focused(el) {
-                    el.parentElement.classList.add('is-focused');
-                }
-
-                function defocused(el) {
-                    if (!el.value) {
-                        el.parentElement.classList.remove('is-focused');
-                    }
-                }
-
-                function addVariant() {
-                    const container = document.getElementById('variant-container');
-                    const index = container.children.length;
-                    const html = `
-                <div class="row border rounded p-2 mt-3 position-relative variant-item">
-                <div class="col-md-3">
-                <label class="form-label">Color</label>
-                <div class="input-group input-group-outline ">
-                 <select name="variants[\${index}][color_id]" class="form-control" required>
-                @foreach($colors as $color)
-                    <option value="{{ $color->id }}">{{ $color->name }}</option>
-                @endforeach
-                </select>
-                </div>
-
-                </div>
-                <div class="col-md-3">
-                <label class="form-label">Size</label>
-                <div class="input-group input-group-outline ">
-                <select name="variants[\${index}][size_id]" class="form-control" required>
-                @foreach($sizes as $size)
-                    <option value="{{ $size->id }}">{{ $size->name }}</option>
-                @endforeach
-                </select>
-                </div>
-                
-                </div>
-                <div class="col-md-2">
-                <label class="form-label">Price</label>
-                 <div class="input-group input-group-outline ">
-                 <input type="number" name="variants[\${index}][price]" class="form-control" required>
-                </div>
-                </div>
-                <div class="col-md-2">
-                <label class="form-label">Sale Price</label>
-                 <div class="input-group input-group-outline ">
-                 <input type="number" name="variants[\${index}][sale_price]" class="form-control">
-                </div>
-                </div>
-                <div class="col-md-2">
-                <label class="form-label">Stock</label>
-                 <div class="input-group input-group-outline ">
-                 <input type="number" name="variants[\${index}][stock]" class="form-control" required>
-                </div>
-                </div>
-                 <div class="col-md-12">
-                <div class='d-flex w-100 justify-content-end'>
-                <button type="button" class="btn btn-sm btn-danger mt-2 mb-0" onclick="this.closest('.variant-item').remove()">
-                &times;
-                </button></div>
-                </div>
-                </div>
-                `;
-                    container.insertAdjacentHTML('beforeend', html);
-                }
-            </script>
 
 @endsection
+@push('scripts')
+<script>
+let colorIndex = 1;
+
+// Add new color variant
+$('#add-color-variant').on('click', function () {
+    let cloneFrom = $('.variant-block').first();
+    let variantHtml = '';
+
+    if (cloneFrom.length > 0) {
+        let sizeRows = cloneFrom.find('.size-row').map(function () {
+            return `
+                <div class="row size-row mb-2">
+                    <div class="col-md-2">
+                        <select class="form-control" name="variants[${colorIndex}][sizes][][size_id]" required>
+                            ${$(this).find('select').val() ? `<option selected>${$(this).find('select').val()}</option>` : ''}
+                        </select>
+                    </div>
+                    <div class="col-md-2"><input type="number" name="variants[${colorIndex}][sizes][][price]" class="form-control price-input" value="${$(this).find('.price-input').val()}" placeholder="Price"></div>
+                    <div class="col-md-2"><input type="number" name="variants[${colorIndex}][sizes][][sale_price]" class="form-control sale-price-input" value="${$(this).find('.sale-price-input').val()}" placeholder="Sale Price"></div>
+                    <div class="col-md-2"><input type="number" name="variants[${colorIndex}][sizes][][stock]" class="form-control stock-input" value="${$(this).find('.stock-input').val()}" placeholder="Stock"></div>
+                    <div class="col-md-2"><input type="date" name="variants[${colorIndex}][sizes][][sale_start]" class="form-control sale-start-input" value="${$(this).find('.sale-start-input').val()}"></div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <input type="date" name="variants[${colorIndex}][sizes][][sale_end]" class="form-control sale-end-input" value="${$(this).find('.sale-end-input').val()}">
+                        <button type="button" class="btn btn-sm btn-danger remove-size-row">&times;</button>
+                    </div>
+                </div>`;
+        }).get().join('');
+
+        variantHtml = `
+            <div class="variant-block border p-3 mb-4 bg-white" data-color-index="${colorIndex}">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div class="col-md-4">
+                        <label class="form-label">Select Color</label>
+                        <select class="form-control" name="variants[${colorIndex}][color_id]" required>
+                            <option value="">-- Select --</option>
+                            @foreach($colors as $color)
+                                <option value="{{ $color->id }}">{{ $color->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-sm btn-danger remove-variant-block">Remove Variant</button>
+                    </div>
+                </div>
+                <div class="mt-3 size-rows" id="variant-sizes-${colorIndex}">
+                    ${sizeRows}
+                </div>
+            </div>
+        `;
+    } else {
+        alert('Please add the first variant with size details before cloning.');
+        return;
+    }
+
+    $('#variant-container').append(variantHtml);
+    colorIndex++;
+});
+
+// Remove variant block
+$(document).on('click', '.remove-variant-block', function () {
+    $(this).closest('.variant-block').remove();
+});
+
+// Remove size row
+$(document).on('click', '.remove-size-row', function () {
+    $(this).closest('.size-row').remove();
+});
+
+// Add size row manually to specific variant
+$(document).on('click', '.add-size-btn', function () {
+    let index = $(this).data('color-index');
+    let sizeRow = `
+        <div class="row size-row mb-2">  
+            <div class="col-md-2">
+                <select class="form-control" name="variants[${index}][sizes][][size_id]" required>
+                    @foreach($sizes as $size)
+                        <option value="{{ $size->id }}">{{ $size->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2"><input type="number" name="variants[${index}][sizes][][price]" class="form-control price-input" placeholder="Price"></div>
+            <div class="col-md-2"><input type="number" name="variants[${index}][sizes][][sale_price]" class="form-control sale-price-input" placeholder="Sale Price"></div>
+            <div class="col-md-2"><input type="number" name="variants[${index}][sizes][][stock]" class="form-control stock-input" placeholder="Stock"></div>
+            <div class="col-md-2"><input type="date" name="variants[${index}][sizes][][sale_start]" class="form-control sale-start-input"></div>
+            <div class="col-md-2 d-flex gap-2">
+                <input type="date" name="variants[${index}][sizes][][sale_end]" class="form-control sale-end-input">
+                <button type="button" class="btn btn-sm btn-danger remove-size-row">&times;</button>
+            </div>
+        </div>
+    `;
+    $(`#variant-sizes-${index}`).append(sizeRow);
+});
+</script>
+@endpush
