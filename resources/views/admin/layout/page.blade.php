@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
     <!-- Choices.js CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-    <link  rel="stylesheet" href="../css/app.css" />
+    <!-- <link  rel="stylesheet" href="../css/app.css" /> -->
 
     <!-- Choices.js JS -->
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -575,7 +575,6 @@
         </div>
         <!--   Core JS Files   -->
         <!-- Include jQuery (necessary for DataTables.js) -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
 
         <!-- Include DataTables JS -->
@@ -584,13 +583,11 @@
         <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
-        <script src="{{ asset('assets/js/datatables.js') }}"></script>
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
         @stack('scripts')
         <script>
