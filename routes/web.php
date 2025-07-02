@@ -84,7 +84,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
 
         // Resourceful routes for category module
-        Route::resource('categories', CategoryController::class);
+        Route::resource('categories', CategoryController::class)->except(['show']);
+
+        
+        Route::get('categories/get-subcategories', [CategoryController::class, 'getSubcategories'])->name('get-subcategories');
+        Route::get('categories/get-subsubcategories', [CategoryController::class, 'getSubsubcategories'])->name('get-subsubcategories');
 
         // AJAX route to get children of a category (for cascading dropdown)
         Route::get('categories/children/{parent?}', function (?App\Models\Category $parent) {

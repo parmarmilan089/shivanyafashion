@@ -76,4 +76,24 @@ class CategoryController extends Controller
         $category->delete();
         return back()->with('success', 'Deleted');
     }
+
+    public function getSubcategories(Request $request)
+    {
+        $subcategories = Category::where('parent_id', $request->category_id)
+            ->where('category_type', 1)
+            ->get();
+
+        return response()->json($subcategories);
+    }
+
+    public function getSubsubcategories(Request $request)
+    {
+        $subcategoryId = $request->subcategory_id;
+
+        $subsubcategories = Category::where('parent_id', $subcategoryId)
+            ->where('category_type', 2) // Sub-subcategory type
+            ->get();
+
+        return response()->json($subsubcategories);
+    }
 }
