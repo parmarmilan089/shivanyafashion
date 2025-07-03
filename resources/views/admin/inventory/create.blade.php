@@ -1,8 +1,10 @@
 @extends('admin.layout.page')
 @section('contect')
-    <div id="app">
+<!-- other blade content -->
+
+    <div id="inventory-create">
         <inventory-create></inventory-create>
     </div>
-@endsection
 
-@vite('resources/js/app.js')
+
+@endsection
