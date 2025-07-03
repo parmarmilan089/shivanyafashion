@@ -1,7 +1,6 @@
-import './bootstrap';
+import { createApp } from 'vue';
+import InventoryCreate from './components/InventoryCreate.vue';
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+const app = createApp({});
+app.component('inventory-create', InventoryCreate);
+app.mount('#app');
