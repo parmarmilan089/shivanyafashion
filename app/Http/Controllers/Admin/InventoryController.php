@@ -35,6 +35,7 @@ class InventoryController extends Controller
             'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
             'variants' => 'required|array',
         ]);
+        echo "<pre>"; print_r($request->all()); echo "</pre>";die;
 
         // Upload main image
         $mainImage = null;
@@ -65,6 +66,8 @@ class InventoryController extends Controller
         $colorIds = array_values(array_unique($colorIds));
         $sizeIds = array_values(array_unique($sizeIds));
 
+        echo "<pre>"; print_r($colorIds); echo "</pre>";
+        echo "<pre>"; print_r($sizeIds); echo "</pre>";die;
         // Save Inventory
         $inventory = new Inventory();
         $inventory->name = $request->name;

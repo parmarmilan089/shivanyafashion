@@ -95,6 +95,7 @@
                 <h4 class="mb-4">Add New Product</h6>
             </div>
             <form action="{{ route('admin.inventory.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
                 <div class="card px-sm-4 px-3 py-3">
                     <div class="row">
                         <!-- Product Name -->
@@ -113,25 +114,6 @@
                             </div>
                         </div>
 
-
-                        <div class="col-md-6 col-lg-3">
-                            <div class="input-group input-group-outline my-2">
-                                <div class="w-100 position-relative">
-                                    <select name="stock_Sizes" class="form-control" id="stock_Sizes">
-                                        <option value="in_stock">Sizes</option>
-                                        <option value="out_of_stock">Xs</option>
-                                        <option value="pre_order">S</option>
-                                        <option value="pre_order">M</option>
-                                        <option value="pre_order">LG</option>
-                                        <option value="pre_order">Xl</option>
-                                        <option value="pre_order">FREE SIZE</option>
-                                    </select>
-                                    <!-- <div class="position-absolute end-4 top-10 mt-1">
-                                                                                                                                                                                    >
-                                                                                                                                                                                </div> -->
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="input-group input-group-outline my-2">
                                 <div class="w-100 position-relative">
@@ -143,8 +125,8 @@
                                         <option value="georgette">Georgette</option>
                                     </select>
                                     <!-- <div class="position-absolute end-4 top-10 mt-1">
-                                                                                                                                                                                    >
-                                                                                                                                                                                </div> -->
+                                                                                                                                                                                            >
+                                                                                                                                                                                        </div> -->
                                 </div>
                             </div>
                         </div>
@@ -159,8 +141,8 @@
                                         <option value="flared">Flared</option>
                                     </select>
                                     <!-- <div class="position-absolute end-4 top-10 mt-1">
-                                                                                                                                                                                    >
-                                                                                                                                                                                </div> -->
+                                                                                                                                                                                            >
+                                                                                                                                                                                        </div> -->
                                 </div>
                             </div>
                         </div>
@@ -174,8 +156,8 @@
                                         <option value="long">Long</option>
                                     </select>
                                     <!-- <div class="position-absolute end-4 top-10 mt-1">
-                                                                                                                                                                                    >
-                                                                                                                                                                                </div> -->
+                                                                                                                                                                                            >
+                                                                                                                                                                                        </div> -->
                                 </div>
                             </div>
                         </div>
@@ -189,8 +171,8 @@
                                         <option value="embroidered">Embroidered</option>
                                     </select>
                                     <!-- <div class="position-absolute end-4 top-10 mt-1">
-                                                                                                                                                                                    >
-                                                                                                                                                                                </div> -->
+                                                                                                                                                                                            >
+                                                                                                                                                                                        </div> -->
                                 </div>
                             </div>
                         </div>
@@ -261,11 +243,11 @@
                             </div>
                         </div>
                         <!-- <div class="col-md-6 col-lg-3">
-                                                                                    <div class="input-group input-group-outline my-2">
-                                                                                        <label class="form-label">Type and press Enter</label>
-                                                                                        <input type="text" name="tags" id="tag-input" class="form-control" placeholder="" />
-                                                                                    </div>
-                                                                                </div> -->
+                                                                                            <div class="input-group input-group-outline my-2">
+                                                                                                <label class="form-label">Type and press Enter</label>
+                                                                                                <input type="text" name="tags" id="tag-input" class="form-control" placeholder="" />
+                                                                                            </div>
+                                                                                        </div> -->
                     </div>
                 </div>
                 <!-- Tags -->
@@ -473,73 +455,81 @@
             let variantHtml = '';
 
             if (cloneFrom.length > 0) {
-                let sizeRows = cloneFrom.find('.size-row').map(function () {
+                let sizeRows = '';
+                cloneFrom.find('.size-row').each(function (i) {
                     const sizeVal = $(this).find('select').val();
                     const sizeText = $(this).find('select option:selected').text();
-                    return `
-                                            <div class="row size-row mb-2">
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <select class="form-control" name="variants[${colorIndex}][sizes][][size_id]" required>
-                                                            <option value="${sizeVal}" selected>${sizeText}</option>
-                                                            @foreach($sizes as $size)
-                                                                <option value="{{ $size->id }}">{{ $size->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${colorIndex}][sizes][][price]" class="form-control price-input" value="${$(this).find('.price-input').val()}" placeholder="Price" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${colorIndex}][sizes][][sale_price]" class="form-control sale-price-input" value="${$(this).find('.sale-price-input').val()}" placeholder="Sale Price" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${colorIndex}][sizes][][stock]" class="form-control stock-input" value="${$(this).find('.stock-input').val()}" placeholder="Stock" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="date" name="variants[${colorIndex}][sizes][][sale_start]" class="form-control sale-start-input" value="${$(this).find('.sale-start-input').val()}" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2 d-flex gap-2">
-                                                    <div class="input-group input-group-outline my-2 w-100">
-                                                        <input type="date" name="variants[${colorIndex}][sizes][][sale_end]" class="form-control sale-end-input" value="${$(this).find('.sale-end-input').val()}" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                    <i class="remove-size-row material-symbols-rounded opacity-5 mt-2">delete</i>
-                                                </div>
-                                            </div>`;
-                }).get().join('');
+                    const price = $(this).find('.price-input').val();
+                    const salePrice = $(this).find('.sale-price-input').val();
+                    const stock = $(this).find('.stock-input').val();
+                    const start = $(this).find('.sale-start-input').val();
+                    const end = $(this).find('.sale-end-input').val();
+
+                    sizeRows += `
+                    <div class="row size-row mb-2" data-size-index="${i}">
+                        <div class="col-md-2">
+                            <div class="input-group input-group-outline my-2">
+                                <select class="form-control" name="variants[${colorIndex}][sizes][${i}][size_id]" required>
+                                    <option value="${sizeVal}" selected>${sizeText}</option>
+                                    @foreach($sizes as $size)
+                                        <option value="{{ $size->id }}">{{ $size->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-outline my-2">
+                                <input type="number" name="variants[${colorIndex}][sizes][${i}][price]" value="${price}" class="form-control price-input" placeholder="Price">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-outline my-2">
+                                <input type="number" name="variants[${colorIndex}][sizes][${i}][sale_price]" value="${salePrice}" class="form-control sale-price-input" placeholder="Sale Price">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-outline my-2">
+                                <input type="number" name="variants[${colorIndex}][sizes][${i}][stock]" value="${stock}" class="form-control stock-input" placeholder="Stock">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-outline my-2">
+                                <input type="date" name="variants[${colorIndex}][sizes][${i}][sale_start]" value="${start}" class="form-control sale-start-input">
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                            <div class="input-group input-group-outline my-2 w-100">
+                                <input type="date" name="variants[${colorIndex}][sizes][${i}][sale_end]" value="${end}" class="form-control sale-end-input">
+                            </div>
+                            <i class="remove-size-row material-symbols-rounded opacity-5 mt-2">delete</i>
+                        </div>
+                    </div>
+                `;
+                });
 
                 variantHtml = `
-                                        <div class="variant-block border p-3 mb-4 bg-white" data-color-index="${colorIndex}">
-                                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                                <div class="col-md-4">
-                                                    <label class="form-label">Select Color</label>
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <select class="form-control" name="variants[${colorIndex}][color_id]" required>
-                                                            <option value="">-- Select --</option>
-                                                            @foreach($colors as $color)
-                                                                <option value="{{ $color->id }}">{{ $color->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex gap-2 mt-4">
-                                                    <button type="button" class="btn btn-sm btn-success add-size-btn" data-color-index="${colorIndex}"><i class="material-symbols-rounded opacity-5">add_box</i> <span>Add Size</span></button>
-                                                    <button type="button" class="btn btn-sm btn-danger remove-variant-block">Remove Variant</button>
-                                                </div>
-                                            </div>
-                                            <div class="mt-3 size-rows" id="variant-sizes-${colorIndex}">
-                                                ${sizeRows}
-                                            </div>
-                                        </div>`;
+                <div class="variant-block border p-3 mb-4 bg-white" data-color-index="${colorIndex}">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Select Color</label>
+                            <div class="input-group input-group-outline my-2">
+                                <select class="form-control" name="variants[${colorIndex}][color_id]" required>
+                                    <option value="">-- Select --</option>
+                                    @foreach($colors as $color)
+                                        <option value="{{ $color->id }}">{{ $color->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="button" class="btn btn-sm btn-success add-size-btn" data-color-index="${colorIndex}"><i class="material-symbols-rounded opacity-5">add_box</i> <span>Add Size</span></button>
+                            <button type="button" class="btn btn-sm btn-danger remove-variant-block">Remove Variant</button>
+                        </div>
+                    </div>
+                    <div class="mt-3 size-rows" id="variant-sizes-${colorIndex}">
+                        ${sizeRows}
+                    </div>
+                </div>`;
             } else {
                 alert('Please add the first variant with size details before cloning.');
                 return;
@@ -562,8 +552,8 @@
         // Add size row manually to specific variant
         $(document).on('click', '.add-size-btn', function () {
             let index = $(this).data('color-index');
+            let sizeIndex = $(`#variant-sizes-${index} .size-row`).length;
 
-            // Prevent duplicate sizes
             const selectedSizes = $(`#variant-sizes-${index} select`).map(function () {
                 return $(this).val();
             }).get();
@@ -577,47 +567,43 @@
             }
 
             let sizeRow = `
-                                            <div class="row size-row mb-2">
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <select class="form-control" name="variants[${index}][sizes][][size_id]" required>
-                                                            ${options}
-                                                        </select>
-                                                    </div>
-                                                </div>
+                <div class="row size-row mb-2" data-size-index="${sizeIndex}">
+                    <div class="col-md-2">
+                        <div class="input-group input-group-outline my-2">
+                            <select class="form-control" name="variants[${index}][sizes][${sizeIndex}][size_id]" required>
+                                ${options}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-outline my-2">
+                            <input type="number" name="variants[${index}][sizes][${sizeIndex}][price]" class="form-control price-input" placeholder="Price">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-outline my-2">
+                            <input type="number" name="variants[${index}][sizes][${sizeIndex}][sale_price]" class="form-control sale-price-input" placeholder="Sale Price">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-outline my-2">
+                            <input type="number" name="variants[${index}][sizes][${sizeIndex}][stock]" class="form-control stock-input" placeholder="Stock">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-outline my-2">
+                            <input type="date" name="variants[${index}][sizes][${sizeIndex}][sale_start]" class="form-control sale-start-input">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <div class="input-group input-group-outline my-2 w-100">
+                            <input type="date" name="variants[${index}][sizes][${sizeIndex}][sale_end]" class="form-control sale-end-input">
+                        </div>
+                        <i class="remove-size-row material-symbols-rounded opacity-5 mt-2">delete</i>
+                    </div>
+                </div>
+            `;
 
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${index}][sizes][][price]" class="form-control price-input" placeholder="Price" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${index}][sizes][][sale_price]" class="form-control sale-price-input" placeholder="Sale Price" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="number" name="variants[${index}][sizes][][stock]" class="form-control stock-input" placeholder="Stock" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-2">
-                                                    <div class="input-group input-group-outline my-2">
-                                                        <input type="date" name="variants[${index}][sizes][][sale_start]" class="form-control sale-start-input" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-2 d-flex gap-2">
-                                                    <div class="input-group input-group-outline my-2 w-100">
-                                                        <input type="date" name="variants[${index}][sizes][][sale_end]" class="form-control sale-end-input" onfocus="focused(this)" onfocusout="defocused(this)">
-                                                    </div>
-                                                    <i class="remove-size-row material-symbols-rounded opacity-5 mt-2">delete</i>
-                                                </div>
-                                            </div>
-                                        `;
             $(`#variant-sizes-${index}`).append(sizeRow);
         });
 
