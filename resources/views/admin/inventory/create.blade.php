@@ -1,23 +1,22 @@
 @extends('admin.layout.page')
-@section('contect')
-    <!-- other blade content -->
+@section('content')
     <script>
         window.inventoryProps = {
-            categories: @json($categories),
-            subcategories: @json($subcategories),
-            subsubcategories: @json($subsubcategories),
-            colors: @json($colors),
-            sizes: @json($sizes),
+            categories: @json($categories ?? []),
+            subcategories: @json($subcategories ?? []),
+            subsubcategories: @json($subsubcategories ?? []),
+            colors: @json($colors ?? []),
+            sizes: @json($sizes ?? []),
         };
-
     </script>
 
     <div id="inventory-create">
-        <inventory-create v-bind:categories="window.inventoryProps.categories"
-            v-bind:subcategories="window.inventoryProps.subcategories"
-            v-bind:subsubcategories="window.inventoryProps.subsubcategories" v-bind:colors="window.inventoryProps.colors"
-            v-bind:sizes="window.inventoryProps.sizes"></inventory-create>
+        <inventory-create 
+            :categories="window.inventoryProps.categories"
+            :subcategories="window.inventoryProps.subcategories"
+            :subsubcategories="window.inventoryProps.subsubcategories" 
+            :colors="window.inventoryProps.colors"
+            :sizes="window.inventoryProps.sizes">
+        </inventory-create>
     </div>
-
-
 @endsection

@@ -30,7 +30,7 @@
     <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Material Icons -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -45,6 +45,8 @@
     <!-- Choices.js JS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .navbar-main {
             z-index: 999;
@@ -476,7 +478,7 @@
                 </div>
             </div>
         </nav>
-        @yield('contect')
+        @yield('content')
         <div class="fixed-plugin">
             <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
                 <i class="material-symbols-rounded py-2">settings</i>
@@ -547,12 +549,8 @@
                         </div>
                     </div>
                     <hr class="horizontal dark my-sm-4">
-                    <a class="btn bg-gradient-info w-100" <<<<<<< HEAD
-                        href="https://www.creative-tim.com/product/material-dashboard-pro">Free
-                        Download</a>
-                    =======
-                    href="https://www.creative-tim.com/product/material-dashboard-pro">Free Download</a>
-                    >>>>>>> a7b8198befdc2df50b3d1ea43ba1966303a61cdf
+                    <a class="btn bg-gradient-info w-100"
+                        href="https://www.creative-tim.com/product/material-dashboard-pro">Free Download</a>
                     <a class="btn btn-outline-dark w-100"
                         href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard">View
                         documentation</a>
@@ -584,13 +582,11 @@
         <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <!-- DataTables JS -->
         <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
         <!-- Select2 CSS + JS -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         @stack('scripts')
         <script>

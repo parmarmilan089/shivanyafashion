@@ -1,6 +1,6 @@
 @extends('admin.layout.page')
 
-@section('contect')
+@section('content')
   <style>
     .choices__inner {
     min-height: 45px;

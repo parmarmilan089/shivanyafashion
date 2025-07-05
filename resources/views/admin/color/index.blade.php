@@ -1,6 +1,6 @@
 @extends('admin.layout.page')
 
-@section('contect')
+@section('content')
 
 <div class="container-fluid py-4">
   <h3 class="text-dark">Color List</h3>

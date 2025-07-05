@@ -1,5 +1,5 @@
 @extends('front.layout.page')
-@section('contect')
+@section('content')
 
     <!-- End Navbar -->
     <div class="container-fluid py-2">

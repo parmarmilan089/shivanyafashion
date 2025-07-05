@@ -1,5 +1,5 @@
 @extends('admin.layout.page')
-@section('contect')
+@section('content')
 	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 	<style>
 		#order-calendar {
@@ -643,8 +643,9 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			var calendarEl = document.getElementById('order-calendar');
-
-			var calendar = new FullCalendar.Calendar(calendarEl, {
+			
+			if (calendarEl) {
+				var calendar = new FullCalendar.Calendar(calendarEl, {
 				initialView: 'dayGridMonth',
 				height: "auto",
 				events: @json($events),
@@ -657,13 +658,15 @@
 				}
 			});
 
-			calendar.render();
+				calendar.render();
+			}
 		});
 	</script>
 	<script>
 		// Chart: Sales Line Chart
-		const salesCtx = document.getElementById("chart-line").getContext("2d");
-		new Chart(salesCtx, {
+		const salesCtx = document.getElementById("chart-line");
+		if (salesCtx) {
+			const salesChart = new Chart(salesCtx.getContext("2d"), {
 			type: "line",
 			data: {
 				labels: {!! $salesLabels !!},
@@ -742,10 +745,12 @@
 				},
 			},
 		});
+		}
 
 		// Chart: Views Bar Chart
-		const viewsCtx = document.getElementById("chart-bars").getContext("2d");
-		new Chart(viewsCtx, {
+		const viewsCtx = document.getElementById("chart-bars");
+		if (viewsCtx) {
+			const viewsChart = new Chart(viewsCtx.getContext("2d"), {
 			type: "bar",
 			data: {
 				labels: {!! $viewsLabels !!},
@@ -815,10 +820,12 @@
 				},
 			},
 		});
+		}
 
 		// Chart: Tasks Line Chart
-		const tasksCtx = document.getElementById("chart-line-tasks").getContext("2d");
-		new Chart(tasksCtx, {
+		const tasksCtx = document.getElementById("chart-line-tasks");
+		if (tasksCtx) {
+			const tasksChart = new Chart(tasksCtx.getContext("2d"), {
 			type: "line",
 			data: {
 				labels: {!! $tasksLabels !!},
@@ -889,6 +896,7 @@
 				},
 			},
 		});
+		}
 	</script>
 	<script>
 		function focused(el) {
@@ -912,7 +920,9 @@
 		});
 
 		// Calculator logic
-		$('#profitCalculator').on('submit', function (e) {
+		const profitCalculator = document.getElementById('profitCalculator');
+		if (profitCalculator) {
+			$(profitCalculator).on('submit', function (e) {
 			e.preventDefault();
 			let price = parseFloat($('#product_price').val());
 			let usdToInr = parseFloat($('#usd_inr').val());
@@ -926,6 +936,7 @@
 			let finalAmount = inrAmount - shipment - stitching;
 
 			$('#finalAmount').text('₹' + finalAmount.toFixed(2));
-		});
+			});
+		}
 	</script>
 @endpush
