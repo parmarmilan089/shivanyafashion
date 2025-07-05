@@ -4,12 +4,13 @@
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <form action="{{ route('admin.inventory.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.inventory.update', $inventory->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
 
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>Add New Product</h6>
+                        <h6>Edit Product</h6>
                     </div>
 
                     <div class="card-body px-4 pt-2 pb-4">
@@ -18,7 +19,7 @@
                             <div class="col-md-6">
                                 <div class="input-group input-group-outline my-2">
                                     <label class="form-label">Product Name</label>
-                                    <input type="text" name="name" class="form-control" required>
+                                    <input type="text" name="name" class="form-control" value="{{ $inventory->name }}" required>
                                 </div>
                             </div>
 
@@ -26,7 +27,7 @@
                             <div class="col-md-6">
                                 <div class="input-group input-group-outline my-2">
                                     <label class="form-label">SKU</label>
-                                    <input type="text" name="sku" class="form-control" required>
+                                    <input type="text" name="sku" class="form-control" value="{{ $inventory->sku }}" required>
                                 </div>
                             </div>
 
@@ -37,7 +38,7 @@
                                     <select name="category_id" id="category-select" class="form-control" required>
                                         <option value="">Select Category</option>
                                         @foreach($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                            <option value="{{ $cat->id }}" {{ $inventory->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -47,7 +48,7 @@
                             <div class="col-md-6">
                                 <div class="my-2">
                                     <label class="form-label">Tags</label>
-                                    <input type="text" name="tags" id="tag-input" placeholder="Type and press Enter" />
+                                    <input type="text" name="tags" id="tag-input" placeholder="Type and press Enter" value="{{ $inventory->tags }}" />
                                 </div>
                             </div>
 
@@ -55,30 +56,30 @@
                             <div class="col-md-3">
                                 <div class="input-group input-group-outline my-2">
                                     <label class="form-label">Price</label>
-                                    <input type="number" name="price" step="0.01" class="form-control" required>
+                                    <input type="number" name="price" step="0.01" class="form-control" value="{{ $inventory->price }}" required>
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="input-group input-group-outline my-2">
                                     <label class="form-label">Sale Price</label>
-                                    <input type="number" name="sale_price" step="0.01" class="form-control">
+                                    <input type="number" name="sale_price" step="0.01" class="form-control" value="{{ $inventory->sale_price }}">
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="input-group input-group-outline my-2">
                                     <label class="form-label">Stock Quantity</label>
-                                    <input type="number" name="stock_qty" class="form-control" required>
+                                    <input type="number" name="stock_qty" class="form-control" value="{{ $inventory->stock_qty }}" required>
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="input-group-outline my-2">
                                     <select name="stock_status" class="form-control" id="stock_status">
-                                        <option value="in_stock">In Stock</option>
-                                        <option value="out_of_stock">Out of Stock</option>
-                                        <option value="pre_order">Pre-order</option>
+                                        <option value="in_stock" {{ $inventory->stock_status == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                                        <option value="out_of_stock" {{ $inventory->stock_status == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                                        <option value="pre_order" {{ $inventory->stock_status == 'pre_order' ? 'selected' : '' }}>Pre-order</option>
                                     </select>
                                 </div>
                             </div>
