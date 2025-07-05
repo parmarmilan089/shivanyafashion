@@ -221,31 +221,43 @@
               <!-- Sizes inside this variant -->
               <div v-for="(size, sizeIndex) in variant.sizes" :key="sizeIndex" class="row mb-2">
                 <div class="col-md-2">
-                  <select v-model="size.size_id" class="form-control">
-                    <option value="">Select Size</option>
-                    <option v-for="sz in sizes" :value="sz.id" :disabled="isSizeUsedInVariant(sz.id, vIndex)">
-                      {{ sz.name }}
-                    </option>
-                  </select>
+                  <div class="input-group input-group-outline my-2">
+                    <select v-model="size.size_id" class="form-control">
+                      <option value="">Select Size</option>
+                      <option v-for="sz in sizes" :value="sz.id" :disabled="isSizeUsedInVariant(sz.id, vIndex)">
+                        {{ sz.name }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
 
                 <!-- Other inputs: price, sale price etc. -->
                 <div class="col-md-2">
-                  <input v-model="size.price" class="form-control" placeholder="Price" @input="autoFillPrice(vIndex, sizeIndex, $event.target.value)" />
-                  <div v-if="size.priceError" class="error-message">{{ size.priceError }}</div>
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.price" class="form-control" placeholder="Price" @input="autoFillPrice(vIndex, sizeIndex, $event.target.value)" />
+                    <div v-if="size.priceError" class="error-message">{{ size.priceError }}</div>
+                  </div>
                 </div>
                 <div class="col-md-2">
-                  <input v-model="size.sale_price" class="form-control" :class="{ 'is-invalid': size.salePriceError }" placeholder="Sale Price" @input="autoFillSalePrice(vIndex, sizeIndex, $event.target.value)" />
-                  <div v-if="size.salePriceError" class="error-message">{{ size.salePriceError }}</div>
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_price" class="form-control" :class="{ 'is-invalid': size.salePriceError }" placeholder="Sale Price" @input="autoFillSalePrice(vIndex, sizeIndex, $event.target.value)" />
+                    <div v-if="size.salePriceError" class="error-message">{{ size.salePriceError }}</div>
+                  </div>
                 </div>
                 <div class="col-md-2">
-                  <input v-model="size.stock" class="form-control" placeholder="Stock" @input="autoFillStock(vIndex, sizeIndex, $event.target.value)" />
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.stock" class="form-control" placeholder="Stock" @input="autoFillStock(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
                 </div>
                 <div class="col-md-2">
-                  <input v-model="size.sale_start" type="date" class="form-control" @change="autoFillSaleStart(vIndex, sizeIndex, $event.target.value)" />
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_start" type="date" class="form-control" @change="autoFillSaleStart(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
                 </div>
                 <div class="col-md-2 d-flex gap-2">
-                  <input v-model="size.sale_end" type="date" class="form-control" @change="autoFillSaleEnd(vIndex, sizeIndex, $event.target.value)" />
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_end" type="date" class="form-control" @change="autoFillSaleEnd(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
                   <button @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
                 </div>
               </div>
