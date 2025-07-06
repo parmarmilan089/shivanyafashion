@@ -35,6 +35,7 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <!-- CSS Files -->
   <link id="pagestyle" href="{{asset('assets/css/material-dashboard.css?v=3.2.0')}}" rel="stylesheet" />
+  <link id="pagestyle" href="{{asset('assets/css/front-style.css')}}" rel="stylesheet" />
   <!-- Add to <head> -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,126 +43,120 @@
 </head>
 
 <body class="">
-  <div class="container position-sticky z-index-sticky top-0">
-    <div class="row">
-      <div class="col-12">
-        <nav
-          class="navbar navbar-expand-lg blur border-radius-lg top-0 z-index-3 shadow position-absolute mt-4 py-2 start-0 end-0 mx-4">
-          <div class="container-fluid ps-2 pe-0">
+  <header class="header-section position-fixed left-0 top-0 w-100 z-index-9999 bg-white">
+    <div class="container-ct">
+      <nav class="navbar navbar-expand-lg ">
+          <!-- Logo -->
+          <a class="navbar-brand ms-lg-0 ms-3 d-flex align-items-center" href="{{ url('/') }}">
+            <img src="{{ asset('assets/img/header-logo.png') }}" alt="Shivanya Fashion" style="height: 40px;">
+          </a>
 
-            <!-- Logo -->
-            <a class="navbar-brand ms-lg-0 ms-3 d-flex align-items-center" href="{{ url('/') }}">
-              <img src="{{ asset('assets/img/header-logo.png') }}" alt="Shivanya Fashion" style="height: 40px;">
-            </a>
+          <!-- Toggler -->
+          <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon mt-2">
+              <span class="navbar-toggler-bar bar1"></span>
+              <span class="navbar-toggler-bar bar2"></span>
+              <span class="navbar-toggler-bar bar3"></span>
+            </span>
+          </button>
 
-            <!-- Toggler -->
-            <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false"
-              aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon mt-2">
-                <span class="navbar-toggler-bar bar1"></span>
-                <span class="navbar-toggler-bar bar2"></span>
-                <span class="navbar-toggler-bar bar3"></span>
-              </span>
-            </button>
-
-            <!-- Dynamic Navigation Menu -->
-            <div class="collapse navbar-collapse" id="navigation">
-              <ul class="navbar-nav mx-auto">
-                @php
-          $categories = \App\Helpers\Helper::getMenuCategories();
+          <!-- Dynamic Navigation Menu -->
+          <div class="collapse navbar-collapse" id="navigation">
+            <ul class="navbar-nav mx-auto">
+              @php
+        $categories = \App\Helpers\Helper::getMenuCategories();
         @endphp
 
-                @foreach ($categories as $mainCategory)
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown{{ $mainCategory->id }}" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                {{ $mainCategory->name }}
-                </a>
+              @foreach ($categories as $mainCategory)
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown{{ $mainCategory->id }}" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              {{ $mainCategory->name }}
+            </a>
 
-                @if ($mainCategory->children->isNotEmpty())
-              <ul class="dropdown-menu" aria-labelledby="dropdown{{ $mainCategory->id }}">
-              @foreach ($mainCategory->children as $child)
-              @if ($child->children->isNotEmpty())
-              <li class="dropdown-submenu position-relative">
-              <a class="dropdown-item dropdown-toggle" href="#">{{ $child->name }}</a>
-              <ul class="dropdown-menu shadow" style="top: 0; left: 100%; margin-top: -1px;">
-              @foreach ($child->children as $subChild)
-              <li>
-              <a class="dropdown-item" href="">
-              {{ $subChild->name }}
-              </a>
-              </li>
-              @endforeach
-              </ul>
-              </li>
-              @else
-              <li>
-              <a class="dropdown-item" href="">
-              {{ $child->name }}
-              </a>
-              </li>
-              @endif
-            @endforeach
-              </ul>
-            @endif
-              </li>
+            @if ($mainCategory->children->isNotEmpty())
+            <ul class="dropdown-menu" aria-labelledby="dropdown{{ $mainCategory->id }}">
+            @foreach ($mainCategory->children as $child)
+            @if ($child->children->isNotEmpty())
+            <li class="dropdown-submenu position-relative">
+            <a class="dropdown-item dropdown-toggle" href="#">{{ $child->name }}</a>
+            <ul class="dropdown-menu shadow" style="top: 0; left: 100%; margin-top: -1px;">
+            @foreach ($child->children as $subChild)
+          <li>
+          <a class="dropdown-item" href="">
+          {{ $subChild->name }}
+          </a>
+          </li>
+          @endforeach
+            </ul>
+            </li>
+          @else
+          <li>
+          <a class="dropdown-item" href="">
+            {{ $child->name }}
+          </a>
+          </li>
+          @endif
+          @endforeach
+            </ul>
+        @endif
+            </li>
         @endforeach
 
-                <!-- Static Links -->
-                <li class="nav-item"><a class="nav-link" href="#">Offers</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">New Arrivals</a></li>
-              </ul>
+              <!-- Static Links -->
+              <li class="nav-item"><a class="nav-link" href="#">Offers</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">New Arrivals</a></li>
+            </ul>
 
-              <!-- Right Side Icons -->
-              <ul class="navbar-nav d-lg-flex flex-row align-items-center gap-3 pe-3 icon-list">
-                <!-- Search -->
-                <li class="nav-item d-none d-lg-block">
-                  <form method="GET" action="" class="d-flex align-items-center">
-                    <label for="searchInput" class="me-2 mb-0">
-                      <i class="material-symbols-rounded text-dark" style="font-size: 22px;">search</i>
-                    </label>
-                    <div class="input-group input-group-outline my-0">
-                      <input type="text" id="searchInput" name="q" class="form-control form-control-sm"
-                        placeholder="Search..." onfocus="focused(this)" onfocusout="defocused(this)">
-                    </div>
-                  </form>
-                </li>
+            <!-- Right Side Icons -->
+            <ul class="navbar-nav d-lg-flex flex-row align-items-center gap-3 pe-3 icon-list">
+              <!-- Search -->
+              <li class="nav-item d-none d-lg-block">
+                <form method="GET" action="" class="d-flex align-items-center">
+                  <label for="searchInput" class="me-2 mb-0">
+                    <i class="material-symbols-rounded text-dark" style="font-size: 22px;">search</i>
+                  </label>
+                  <div class="input-group input-group-outline my-0">
+                    <input type="text" id="searchInput" name="q" class="form-control form-control-sm"
+                      placeholder="Search..." onfocus="focused(this)" onfocusout="defocused(this)">
+                  </div>
+                </form>
+              </li>
 
-                <!-- Wishlist -->
-                <li class="nav-item">
-                  <a href="" class="nav-link px-2">
-                    <i class="material-symbols-rounded" style="font-size: 26px;">favorite</i>
-                  </a>
-                </li>
+              <!-- Wishlist -->
+              <li class="nav-item">
+                <a href="" class="nav-link px-2">
+                  <i class="material-symbols-rounded" style="font-size: 26px;">favorite</i>
+                </a>
+              </li>
 
-                <!-- Cart -->
-                <li class="nav-item position-relative">
-                  <a href="" class="nav-link px-2">
-                    <i class="material-symbols-rounded text-dark" style="font-size: 26px;">shopping_cart</i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                      {{ session('cart_count', 0) }}
-                    </span>
-                  </a>
-                </li>
+              <!-- Cart -->
+              <li class="nav-item position-relative">
+                <a href="" class="nav-link px-2">
+                  <i class="material-symbols-rounded text-dark" style="font-size: 26px;">shopping_cart</i>
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ session('cart_count', 0) }}
+                  </span>
+                </a>
+              </li>
 
-                <!-- Profile -->
-                <li class="nav-item">
-                  <a href="" class="nav-link px-2">
-                    <i class="material-symbols-rounded text-dark" style="font-size: 26px;">person</i>
-                  </a>
-                </li>
-              </ul>
-            </div>
+              <!-- Profile -->
+              <li class="nav-item">
+                <a href="" class="nav-link px-2">
+                  <i class="material-symbols-rounded text-dark" style="font-size: 26px;">person</i>
+                </a>
+              </li>
+            </ul>
           </div>
-        </nav>
-      </div>
+      </nav>
     </div>
-  </div>
-  <main class="main-content position-relative h-100 border-radius-lg ">
+  </header>
+  <main class="main-content position-relative h-100 front-main-content">
     @yield('front-content')
   </main>
-  <footer class="bg-gradient-dark text-white mt-5 pt-5 pb-3">
+  <footer class="bg-gradient-dark text-white mt-5 pt-5 pb-6">
     <div class="container">
       <div class="row">
         <!-- Logo and Tagline -->
