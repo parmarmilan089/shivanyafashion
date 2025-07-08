@@ -27,22 +27,6 @@ return new class extends Migration {
             $table->longText('full_description')->nullable();
             $table->text('highlights')->nullable(); // comma separated or JSON
 
-            // Pricing
-            $table->decimal('price', 10, 2);
-            $table->decimal('sale_price', 10, 2)->nullable();
-            $table->decimal('tax_percent', 5, 2)->nullable();
-            $table->date('offer_start_date')->nullable();
-            $table->date('offer_end_date')->nullable();
-
-            // Inventory
-            $table->integer('stock_qty')->default(0);
-            $table->enum('stock_status', ['in_stock', 'out_of_stock', 'pre_order'])->default('in_stock');
-            $table->integer('low_stock_alert')->nullable();
-            $table->string('barcode')->nullable();
-
-            // Variants
-            $table->json('color_ids')->nullable(); // store as array of IDs
-            $table->json('size_ids')->nullable();
             $table->string('fabric')->nullable();
             $table->string('fit')->nullable();
             $table->string('pattern')->nullable();
@@ -51,10 +35,6 @@ return new class extends Migration {
             $table->string('top_length')->nullable();
 
             // Shipping
-            $table->decimal('weight', 8, 2)->nullable();
-            $table->decimal('length', 8, 2)->nullable();
-            $table->decimal('width', 8, 2)->nullable();
-            $table->decimal('height', 8, 2)->nullable();
             $table->string('shipping_class')->nullable();
             $table->boolean('returnable')->default(true);
             $table->boolean('cod_available')->default(true);
@@ -80,12 +60,13 @@ return new class extends Migration {
             $table->enum('status', ['active', 'inactive', 'draft'])->default('active');
             $table->enum('visibility', ['public', 'admin', 'hidden'])->default('public');
             $table->boolean('is_featured')->default(false);
-            $table->string('platform')->nullable(); // optional if static
 
             $table->timestamps();
 
             // Foreign Keys
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('set null');
+            $table->foreign('subsubcategory_id')->references('id')->on('categories')->onDelete('set null');
         });
     }
 
