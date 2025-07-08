@@ -1,0 +1,672 @@
+<template>
+  <div>
+    <div v-if="!formLoaded" class="alert alert-warning">
+      Loading inventory...
+    </div>
+    <div v-else>
+      <form @submit.prevent="handleSubmit">
+        <!-- Basic Product Info -->
+        <div class="card px-sm-4 px-3 py-3">
+          <div class="row">
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Product Name</label>
+                <input type="text" v-model="form.name" class="form-control" required />
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">SKU</label>
+                <input type="text" v-model="form.sku" class="form-control" required />
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <div class="w-100 position-relative">
+                  <select v-model="form.fabric" class="form-control">
+                    <option value="">Select fabric</option>
+                    <option value="cotton">Cotton</option>
+                    <option value="rayon">Rayon</option>
+                    <option value="silk">Silk</option>
+                    <option value="georgette">Georgette</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="form.fit" class="form-control">
+                  <option value="">Select Fit</option>
+                  <option value="regular">Regular</option>
+                  <option value="slim">Slim</option>
+                  <option value="a-line">A-line</option>
+                  <option value="flared">Flared</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="form.top_length" class="form-control">
+                  <option value="">Select Top Length</option>
+                  <option value="short">Short</option>
+                  <option value="long">Long</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="form.pattern" class="form-control">
+                  <option value="">Select Pattern</option>
+                  <option value="solid">Solid</option>
+                  <option value="printed">Printed</option>
+                  <option value="embroidered">Embroidered</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Short Description</label>
+                <textarea v-model="form.short_description" class="form-control" rows="3"
+                  placeholder="Enter short description..."></textarea>
+              </div>
+            </div>
+            <div class="col-md-12 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Full Description</label>
+                <textarea v-model="form.full_description" class="form-control" rows="6"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="card px-sm-4 px-3 py-3 my-3">
+          <div class="row">
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="selectedCategoryId" class="form-control">
+                  <option value="">Select Category</option>
+                  <option v-for="cat in categories.filter(c => c.category_type === 0)" :key="cat.id" :value="cat.id">
+                    {{ cat.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="selectedSubcategoryId" class="form-control" :disabled="!selectedCategoryId">
+                  <option value="">Select Subcategory</option>
+                  <option v-for="sub in filteredSubcategories" :key="sub.id" :value="sub.id">
+                    {{ sub.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="input-group input-group-outline my-2">
+                <select v-model="selectedSubsubcategoryId" class="form-control" :disabled="!selectedSubcategoryId">
+                  <option value="">Select Sub-subcategory</option>
+                  <option v-for="subsub in filteredSubsubcategories" :key="subsub.id" :value="subsub.id">
+                    {{ subsub.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Main Image & Gallery -->
+
+        <div class="card px-sm-4 px-3 py-3 my-3">
+          <div class="row">
+            <div class="col-md-6 my-2">
+              <div class="file-div">
+                <h6 class="file-title">Main Image</h6>
+                <input type="file" class="form-control file-input w-100" accept="image/*" @change="handleMainImage" />
+                <div v-if="inventory.main_image">
+                  <img :src="'/storage/' + inventory.main_image" alt="Current Main Image" style="max-width: 120px; margin-top: 10px;" />
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 my-2">
+              <div class="file-div">
+                <h6 class="file-title">Gallery Images</h6>
+                <input type="file" class="form-control file-input w-100" accept="image/*" multiple @change="handleGalleryImages" />
+                <div v-if="inventory.gallery_images">
+                  <div v-for="img in parsedGalleryImages" :key="img" style="display: inline-block; margin: 5px;">
+                    <img :src="'/storage/' + img" alt="Gallery Image" style="max-width: 80px;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO Fields -->
+        <div class="card px-sm-4 px-3 py-3">
+          <div class="row">
+            <div class="col-md-6 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Meta Title</label>
+                <input type="text" v-model="form.meta_title" class="form-control" />
+              </div>
+            </div>
+            <div class="col-md-6 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Meta Keywords</label>
+                <input type="text" v-model="form.meta_keywords" class="form-control" />
+              </div>
+            </div>
+            <div class="col-md-12 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Meta Description</label>
+                <textarea v-model="form.meta_description" class="form-control" rows="5"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status & Featured -->
+        <div class="card px-sm-4 px-3 py-3 my-3">
+          <div class="row">
+            <div class="col-md-4 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Status</label>
+                <select v-model="form.status" class="form-control">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Featured Product</label>
+                <select v-model="form.featured" class="form-control">
+                  <option value="inactive">Inactive</option>
+                  <option value="active">Active</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Stock Status</label>
+                <select v-model="form.stock_status" class="form-control">
+                  <option value="in_stock">In Stock</option>
+                  <option value="out_of_stock">Out of Stock</option>
+                  <option value="low_stock">Low Stock</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variants -->
+        <div class="card px-3 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6>Variants</h6>
+            <button type="button" class="btn btn-sm btn-dark" @click="addVariant">Add Variant</button>
+          </div>
+          <div v-if="form.variants.length === 0" class="text-center text-muted my-3">
+            No variants yet. Click "Add Variant" to create one.
+          </div>
+          <div v-for="(variant, vIndex) in form.variants" :key="vIndex" class="variant-block border p-3 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-2">
+                  <label class="form-label">Select Color</label>
+                  <select v-model="variant.color_id" class="form-control">
+                    <option v-for="color in colors" :value="color.id" :key="color.id">{{ color.name }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex gap-2 mt-4">
+                <button type="button" class="btn btn-sm btn-dark" @click="addSizeRow(vIndex)">Add Size</button>
+                <button type="button" class="btn btn-sm btn-danger" @click="removeVariant(vIndex)">
+                  <i class="material-icons">delete</i>
+                </button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="row fw-bold text-dark mb-2">
+                <div class="col-md-2">Size</div>
+                <div class="col-md-2">Price</div>
+                <div class="col-md-2">Sale Price</div>
+                <div class="col-md-2">Stock</div>
+                <div class="col-md-2">Sale Start</div>
+                <div class="col-md-2">Sale End</div>
+              </div>
+              <div v-for="(size, sizeIndex) in variant.sizes" :key="sizeIndex" class="row mb-2">
+                <div class="col-md-2">
+                  <div class="input-group input-group-outline my-2">
+                    <select v-model="size.size_id" class="form-control">
+                      <option value="">Select Size</option>
+                      <option v-for="sz in sizes" :value="sz.id" :disabled="isSizeUsedInVariant(sz.id, vIndex)">
+                        {{ sz.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.price" class="form-control" placeholder="Price" @input="autoFillPrice(vIndex, sizeIndex, $event.target.value)" />
+                    <div v-if="size.priceError" class="error-message">{{ size.priceError }}</div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_price" class="form-control" :class="{ 'is-invalid': size.salePriceError }" placeholder="Sale Price" @input="autoFillSalePrice(vIndex, sizeIndex, $event.target.value)" />
+                    <div v-if="size.salePriceError" class="error-message">{{ size.salePriceError }}</div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.stock" class="form-control" placeholder="Stock" @input="autoFillStock(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_start" type="date" class="form-control" @change="autoFillSaleStart(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                  <div class="input-group input-group-outline my-2">
+                    <input v-model="size.sale_end" type="date" class="form-control" @change="autoFillSaleEnd(vIndex, sizeIndex, $event.target.value)" />
+                  </div>
+                  <button @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-end mt-4">
+          <button type="submit" class="btn bg-gradient-dark text-white">Update Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script>
+import Swal from 'sweetalert2';
+import axios from 'axios';
+
+export default {
+  props: {
+    inventory: { type: Object, required: true },
+    categories: { type: Array, default: () => [] },
+    subcategories: { type: Array, default: () => [] },
+    subsubcategories: { type: Array, default: () => [] },
+    colors: { type: Array, default: () => [] },
+    sizes: { type: Array, default: () => [] },
+    variants: { type: Array, default: () => [] }
+  },
+  data() {
+    return {
+      form: {
+        name: '',
+        sku: '',
+        fabric: '',
+        fit: '',
+        top_length: '',
+        pattern: '',
+        short_description: '',
+        full_description: '',
+        main_image: null,
+        gallery_images: [],
+        meta_title: '',
+        meta_keywords: '',
+        meta_description: '',
+        status: 'active',
+        featured: 'inactive',
+        price: '',
+        stock_qty: '',
+        stock_status: 'in_stock',
+        variants: []
+      },
+      selectedCategoryId: '',
+      selectedSubcategoryId: '',
+      selectedSubsubcategoryId: '',
+      formLoaded: false
+    };
+  },
+  computed: {
+    filteredSubcategories() {
+      return Array.isArray(this.subcategories) ? this.subcategories.filter(cat => cat.category_type === 1 && cat.parent_id === Number(this.selectedCategoryId)) : [];
+    },
+    filteredSubsubcategories() {
+      return Array.isArray(this.subsubcategories)
+        ? this.subsubcategories.filter(
+          cat => cat.category_type === 2 && cat.parent_id === Number(this.selectedSubcategoryId)
+        )
+        : [];
+    },
+    parsedGalleryImages() {
+      if (!this.inventory.gallery_images) return [];
+      try {
+        return JSON.parse(this.inventory.gallery_images);
+      } catch {
+        return [];
+      }
+    }
+  },
+  mounted() {
+    this.populateForm();
+  },
+  methods: {
+    populateForm() {
+      const inv = this.inventory;
+      let variantsArr = [];
+      if (Array.isArray(this.variants) && this.variants.length > 0) {
+        variantsArr = this.variants;
+      } else if (Array.isArray(inv.variants)) {
+        variantsArr = inv.variants;
+      } else if (typeof inv.variants === 'string' && inv.variants.trim() !== '') {
+        try {
+          variantsArr = JSON.parse(inv.variants);
+        } catch {
+          variantsArr = [];
+        }
+      }
+      this.form = {
+        name: inv.name || '',
+        sku: inv.sku || '',
+        fabric: inv.fabric || '',
+        fit: inv.fit || '',
+        top_length: inv.top_length || '',
+        pattern: inv.pattern || '',
+        short_description: inv.short_description || '',
+        full_description: inv.full_description || '',
+        main_image: null,
+        gallery_images: [],
+        meta_title: inv.meta_title || '',
+        meta_keywords: inv.meta_keywords || '',
+        meta_description: inv.meta_description || '',
+        status: inv.status || 'active',
+        featured: inv.featured || 'inactive',
+        price: inv.price || '',
+        stock_qty: inv.stock_qty || '',
+        stock_status: inv.stock_status || 'in_stock',
+        variants: Array.isArray(variantsArr) ? variantsArr : []
+      };
+      this.selectedCategoryId = inv.category_id ? String(inv.category_id) : '';
+      this.selectedSubcategoryId = inv.subcategory_id ? String(inv.subcategory_id) : '';
+      this.selectedSubsubcategoryId = inv.subsubcategory_id ? String(inv.subsubcategory_id) : '';
+      this.formLoaded = true;
+    },
+    handleMainImage(e) {
+      this.form.main_image = e.target.files[0];
+    },
+    handleGalleryImages(e) {
+      this.form.gallery_images = [...e.target.files];
+    },
+    addVariant() {
+      let newVariant = { color_id: '', sizes: [] };
+      if (this.form.variants.length > 0 && this.form.variants[0].sizes.length > 0) {
+        newVariant.sizes = this.form.variants[0].sizes.map(size => ({
+          size_id: size.size_id,
+          price: size.price,
+          sale_price: size.sale_price,
+          stock: size.stock,
+          sale_start: size.sale_start,
+          sale_end: size.sale_end,
+          priceError: '',
+          salePriceError: ''
+        }));
+      }
+      this.form.variants.push(newVariant);
+    },
+    addSizeRow(variantIndex) {
+      const variant = this.form.variants[variantIndex];
+      if (!variant.sizes) {
+        variant.sizes = [];
+      }
+      const selectedSizeIds = variant.sizes.map((size) => size.size_id);
+      if (!Array.isArray(this.sizes) || this.sizes.length === 0) {
+        alert('Sizes are not available. Please refresh the page.');
+        return;
+      }
+      const availableSize = this.sizes.find(sz => !selectedSizeIds.includes(sz.id));
+      if (!availableSize) {
+        Swal.fire({
+          title: 'No More Sizes Available',
+          text: 'All sizes have been added for this variant.',
+          icon: 'info',
+          confirmButtonText: 'OK'
+        });
+        return;
+      } 
+      variant.sizes.push({
+        size_id: availableSize.id,
+        price: '',
+        sale_price: '',
+        stock: '',
+        sale_start: '',
+        sale_end: '',
+        priceError: '',
+        salePriceError: ''
+      });
+    },
+    removeSizeRow(variantIndex, sizeIndex) {
+      if (this.form.variants[variantIndex] && this.form.variants[variantIndex].sizes) {
+        this.form.variants[variantIndex].sizes.splice(sizeIndex, 1);
+      }
+    },
+    removeVariant(variantIndex) {
+      if (this.form.variants.length > 1) {
+        Swal.fire({
+          title: 'Remove Variant?',
+          text: 'Are you sure you want to remove this variant?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, remove it!',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.form.variants.splice(variantIndex, 1);
+            Swal.fire('Removed!', 'Variant has been removed.', 'success');
+          }
+        });
+      } else {
+        Swal.fire({
+          title: 'Cannot Remove',
+          text: 'You must have at least one variant.',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+      }
+    },
+    isSizeUsedInVariant(sizeId, variantIndex) {
+      if (!this.form.variants[variantIndex] || !this.form.variants[variantIndex].sizes) {
+        return false;
+      }
+      return this.form.variants[variantIndex].sizes.some(size => size.size_id === sizeId);
+    },
+    autoFillPrice(variantIndex, sizeIndex, value) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach((size, index) => {
+          if (index !== sizeIndex) {
+            size.price = value;
+          }
+        });
+        this.validateSalePrices(variantIndex);
+      }
+    },
+    autoFillSalePrice(variantIndex, sizeIndex, value) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach((size, index) => {
+          if (index !== sizeIndex) {
+            size.sale_price = value;
+          }
+        });
+        this.validateSalePrices(variantIndex);
+      }
+    },
+    autoFillStock(variantIndex, sizeIndex, value) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach((size, index) => {
+          if (index !== sizeIndex) {
+            size.stock = value;
+          }
+        });
+      }
+    },
+    autoFillSaleStart(variantIndex, sizeIndex, value) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach((size, index) => {
+          if (index !== sizeIndex) {
+            size.sale_start = value;
+          }
+        });
+      }
+    },
+    autoFillSaleEnd(variantIndex, sizeIndex, value) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach((size, index) => {
+          if (index !== sizeIndex) {
+            size.sale_end = value;
+          }
+        });
+      }
+    },
+    validateSalePrices(variantIndex) {
+      const variant = this.form.variants[variantIndex];
+      if (variant && variant.sizes) {
+        variant.sizes.forEach(size => {
+          size.salePriceError = '';
+          if (size.price && size.sale_price) {
+            const price = parseFloat(size.price);
+            const salePrice = parseFloat(size.sale_price);
+            if (salePrice >= price) {
+              size.salePriceError = 'Sale price must be less than regular price';
+            }
+          }
+        });
+      }
+    },
+    handleSubmit() {
+      this.calculateDefaultValues();
+      const formData = new FormData();
+      formData.append('name', this.form.name);
+      formData.append('sku', this.form.sku);
+      formData.append('fabric', this.form.fabric);
+      formData.append('fit', this.form.fit);
+      formData.append('top_length', this.form.top_length);
+      formData.append('pattern', this.form.pattern);
+      formData.append('short_description', this.form.short_description);
+      formData.append('full_description', this.form.full_description);
+      formData.append('category_id', this.selectedCategoryId);
+      formData.append('subcategory_id', this.selectedSubcategoryId);
+      formData.append('subsubcategory_id', this.selectedSubsubcategoryId);
+      formData.append('meta_title', this.form.meta_title);
+      formData.append('meta_keywords', this.form.meta_keywords);
+      formData.append('meta_description', this.form.meta_description);
+      formData.append('status', this.form.status);
+      formData.append('featured', this.form.featured);
+      formData.append('price', this.form.price);
+      formData.append('stock_qty', this.form.stock_qty);
+      formData.append('stock_status', this.form.stock_status);
+      if (this.form.main_image) {
+        formData.append('main_image', this.form.main_image);
+      }
+      if (this.form.gallery_images && this.form.gallery_images.length > 0) {
+        this.form.gallery_images.forEach(image => {
+          formData.append('gallery_images[]', image);
+        });
+      }
+      formData.append('variants', JSON.stringify(this.form.variants));
+      Swal.fire({
+        title: 'Updating...',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+      });
+      axios.post(`/admin/inventory/${this.inventory.id}?_method=PUT`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      .then(res => {
+        Swal.fire({ title: 'Success!', text: 'Product updated.', icon: 'success' }).then(() => {
+          window.location.href = '/admin/inventory';
+        });
+      })
+      .catch(err => {
+        Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Update failed.', icon: 'error' });
+      });
+    },
+    calculateDefaultValues() {
+      let totalStock = 0;
+      let lowestPrice = null;
+      this.form.variants.forEach(variant => {
+        if (variant.sizes && variant.sizes.length > 0) {
+          variant.sizes.forEach(size => {
+            if (size.stock && !isNaN(size.stock)) {
+              totalStock += parseInt(size.stock);
+            }
+            if (size.price && !isNaN(size.price)) {
+              const price = parseFloat(size.price);
+              if (lowestPrice === null || price < lowestPrice) {
+                lowestPrice = price;
+              }
+            }
+          });
+        }
+      });
+      this.form.price = lowestPrice ? lowestPrice.toString() : '';
+      this.form.stock_qty = totalStock.toString();
+    }
+  }
+};
+</script>
+
+<style scoped>
+.variant-block {
+  border-radius: 10px;
+}
+.is-invalid {
+  border: 1px solid red !important;
+}
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.file-div {
+  background-color: #ff00000a;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px dashed #e73b37;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+.file-div .file-title {
+  font-size: 16px;
+  line-height: normal;
+  font-weight: 500;
+  color: #e73b37;
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+  margin: 0;
+}
+.file-div .file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9;
+  opacity: 0;
+  height: 100%;
+}
+</style>
