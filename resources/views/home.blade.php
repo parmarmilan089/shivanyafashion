@@ -6,8 +6,8 @@
 	<section class="hero-banner-section w-100">
 		<div class="w-100">
 			<div class="position-relative overflow-hidden banner-items" style="
-																																																									background-image: url('{{ asset('assets/img/banner1.png') }}');
-																																																									">
+																																																												background-image: url('{{ asset('assets/img/banner1.png') }}');
+																																																												">
 				<!-- Optional dark overlay -->
 				<div class="position-absolute top-0 start-0 w-100 h-100 " style="opacity: 0.4;"></div>
 
@@ -33,9 +33,9 @@
 				@foreach ($categorys as $category)
 					<div class="categories-card overflow-hidden">
 						<!-- Category Image -->
-						<div class="categories-card-img w-100 overflow-hidden flex-1">
+						<div class="categories-card-img w-90 overflow-hidden flex-1">
 							<!-- <img src="{{ asset($category['image']) }}" alt="{{ $category['name'] }}" class="w-100 h-100 object-cover"> -->
-							<img src="//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906&width=165 165w,//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906&width=360 360w,//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906&width=533 533w,//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906&width=720 720w,//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906&width=940 940w,//dt-vogue.myshopify.com/cdn/shop/files/fashionproduct1.jpg?v=1698831906 950w"
+							<img src="{{ asset($category['image']) }}"
 								class="w-100 h-100 object-cover">
 						</div>
 						<!-- Category Name -->
@@ -61,8 +61,10 @@
 					@foreach ($products->take(15) as $product)
 						<div class="product-card ">
 							<div class="position-relative product-items-img">
-								<img src="https://dt-vogue.myshopify.com/cdn/shop/files/Product13.0.jpg?v=1699086311&width=533"
-									class="w-100 h-100 object-fit-cover" alt="{{ $product['name'] }}">
+								@if($product['image'])
+									<img src="{{ asset('storage/' . $product->image) }}" class="w-100 h-100 object-fit-cover"
+										alt="{{ $product['name'] }}">
+								@endif
 							</div>
 							<div class="d-flex flex-column justify-content-between gap-3 p-4 text-center ">
 								<div>
@@ -77,32 +79,32 @@
 			</div>
 		</div>
 		<!-- <div class="swiper featuredSwiper swiper-invisible">
-																												<div class="swiper-wrapper">
-																													@foreach ($products->take(15) as $product)
-																														<div class="swiper-slide">
-																															<div class="card border-0 shadow-sm h-100">
-																																<div class="position-relative" style="aspect-ratio: 4/5; overflow: hidden;">
-																																	<img src="{{ asset('storage/' . $product->image) }}" class="w-100 h-100 object-fit-cover"
-																																		alt="{{ $product['name'] }}">
-																																</div>
+																															<div class="swiper-wrapper">
+																																@foreach ($products->take(15) as $product)
+																																	<div class="swiper-slide">
+																																		<div class="card border-0 shadow-sm h-100">
+																																			<div class="position-relative" style="aspect-ratio: 4/5; overflow: hidden;">
+																																				<img src="{{ asset('storage/' . $product->image) }}" class="w-100 h-100 object-fit-cover"
+																																					alt="{{ $product['name'] }}">
+																																			</div>
 
-																																<div class="card-body d-flex flex-column justify-content-between">
-																																	<div>
-																																		<h6 class="card-title fw-semibold mb-1">{{ $product['name'] }}</h6>
-																																		<p class="text-dark fw-bold mb-2">₹{{ $product['price'] }}</p>
+																																			<div class="card-body d-flex flex-column justify-content-between">
+																																				<div>
+																																					<h6 class="card-title fw-semibold mb-1">{{ $product['name'] }}</h6>
+																																					<p class="text-dark fw-bold mb-2">₹{{ $product['price'] }}</p>
+																																				</div>
+																																				<a href="{{ route('product', $product['id']) }}"
+																																					class="btn btn-sm bg-gradient-dark mt-auto">View
+																																					Product</a>
+																																			</div>
+																																		</div>
 																																	</div>
-																																	<a href="{{ route('product', $product['id']) }}"
-																																		class="btn btn-sm bg-gradient-dark mt-auto">View
-																																		Product</a>
-																																</div>
-																															</div>
-																														</div>
-																													@endforeach
-																												</div> -->
+																																@endforeach
+																															</div> -->
 
 		<!-- Navigation Arrows -->
 		<!-- <div class="swiper-button-next"></div>
-																												<div class="swiper-button-prev"></div> -->
+																															<div class="swiper-button-prev"></div> -->
 	</section>
 
 	<div class="shop-us-section w-100 overflow-hidden">
@@ -149,9 +151,9 @@
 				<!-- Product Images Section -->
 				<div class="col-md-6 mb-md-0 mb-4">
 					<div class="w-100">
-						<img id="mainImage"
-							src="https://dt-vogue.myshopify.com/cdn/shop/files/f1.jpg?v=1701491555&width=493"
-							class="h-100 w-100 object-cover" alt="{{ $product->name }}">
+						@if($product->image)
+							<img id="mainImage" src="{{ asset('storage/' . $product->image) }}" class="w-70 m-auto object-cover" alt="{{ $product->name }}">
+						@endif
 					</div>
 					<div class="product-items-grid">
 						<div class="w-100 item-product">
