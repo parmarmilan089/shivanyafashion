@@ -1,7 +1,7 @@
 <template>
-  <div style="color: red; font-size: 2rem;">INVENTORY COMPONENT IS RENDERING</div>
+  <div>Hello from InventoryCreate.vue</div>
 </template>
 
 <script setup>
-// Empty for debug
-</script> 
+console.log('InventoryCreate component loaded');
+</script>
