@@ -1,5 +1,5 @@
 @extends('admin.layout.page')
-@section('contect')
+@section('content')
 
 <div class="container-fluid py-4">
   <h3 class="text-dark">Banner List</h3>
