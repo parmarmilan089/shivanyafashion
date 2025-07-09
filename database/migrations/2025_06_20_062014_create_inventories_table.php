@@ -34,6 +34,10 @@ return new class extends Migration {
             $table->string('sleeve_type')->nullable();
             $table->string('top_length')->nullable();
 
+<<<<<<< HEAD
+=======
+            // Shipping
+>>>>>>> 8b61383 (vue js added new code)
             $table->string('shipping_class')->nullable();
             $table->boolean('returnable')->default(true);
             $table->boolean('cod_available')->default(true);
@@ -64,6 +68,8 @@ return new class extends Migration {
 
             // Foreign Keys
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('set null');
+            $table->foreign('subsubcategory_id')->references('id')->on('categories')->onDelete('set null');
         });
     }
 

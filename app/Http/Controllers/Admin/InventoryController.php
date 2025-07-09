@@ -40,9 +40,23 @@ class InventoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|unique:inventories,sku',
-            'main_image' => 'required|image',
-            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
-            'variants' => 'required|array',
+            'fabric' => 'nullable|string|max:255',
+            'fit' => 'nullable|string|max:255',
+            'top_length' => 'nullable|string|max:255',
+            'pattern' => 'nullable|string|max:255',
+            'short_description' => 'nullable|string',
+            'full_description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:categories,id',
+            'subsubcategory_id' => 'nullable|exists:categories,id',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_keywords' => 'nullable|string',
+            'meta_description' => 'nullable|string',
+            'status' => 'required|in:active,inactive,draft',
+            'featured' => 'required|in:active,inactive',
+            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'variants' => 'required|json',
         ]);
         echo "<pre>"; print_r($request->all()); echo "</pre>";die;
 
@@ -60,16 +74,10 @@ class InventoryController extends Controller
             }
         }
 
-        // Extract color_ids and size_ids from variants
-        $colorIds = [];
-        $sizeIds = [];
-
-        foreach ($request->variants as $variant) {
-            $colorIds[] = $variant['color_id'];
-            foreach ($variant['sizes'] as $size) {
-                $sizeIds[] = $size['size_id'];
-            }
-        }
+        // Decode variants JSON for storage
+        $data['variants'] = json_decode($request->variants, true);
+        dd($data);
+        Inventory::create($data);
 
         // Remove duplicates
         $colorIds = array_values(array_unique($colorIds));

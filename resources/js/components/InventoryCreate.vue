@@ -164,7 +164,7 @@
         <!-- Status & Featured -->
         <div class="card px-sm-4 px-3 py-3 my-3">
           <div class="row">
-            <div class="col-md-6 my-2">
+            <div class="col-md-4 my-2">
               <div class="input-group input-group-outline my-2">
                 <label class="form-label">Status</label>
                 <select v-model="form.status" class="form-control">
@@ -174,12 +174,22 @@
                 </select>
               </div>
             </div>
-            <div class="col-md-6 my-2">
+            <div class="col-md-4 my-2">
               <div class="input-group input-group-outline my-2">
                 <label class="form-label">Featured Product</label>
                 <select v-model="form.featured" class="form-control">
                   <option value="inactive">Inactive</option>
                   <option value="active">Active</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4 my-2">
+              <div class="input-group input-group-outline my-2">
+                <label class="form-label">Stock Status</label>
+                <select v-model="form.stock_status" class="form-control">
+                  <option value="in_stock">In Stock</option>
+                  <option value="out_of_stock">Out of Stock</option>
+                  <option value="low_stock">Low Stock</option>
                 </select>
               </div>
             </div>
@@ -277,6 +287,7 @@
 
 <script>
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export default {
   props: {
@@ -364,11 +375,6 @@ export default {
     }
   },
   mounted() {
-    console.log('Component mounted');
-    console.log('Categories:', this.categories);
-    console.log('Subcategories:', this.subcategories);
-    console.log('Subsubcategories:', this.subsubcategories);
-    console.log('Colors:', this.colors);
     console.log('Sizes:', this.sizes);
     
     // Validate that all required props are available
@@ -385,6 +391,35 @@ export default {
   methods: {
     addlog() {
       console.log(this.form, 'variants');
+    },
+    
+    // Calculate default price and stock from variants
+    calculateDefaultValues() {
+      let totalStock = 0;
+      let lowestPrice = null;
+      
+      this.form.variants.forEach(variant => {
+        if (variant.sizes && variant.sizes.length > 0) {
+          variant.sizes.forEach(size => {
+            // Calculate total stock
+            if (size.stock && !isNaN(size.stock)) {
+              totalStock += parseInt(size.stock);
+            }
+            
+            // Find lowest price
+            if (size.price && !isNaN(size.price)) {
+              const price = parseFloat(size.price);
+              if (lowestPrice === null || price < lowestPrice) {
+                lowestPrice = price;
+              }
+            }
+          });
+        }
+      });
+      
+      // Update form with calculated values
+      this.form.price = lowestPrice ? lowestPrice.toString() : '';
+      this.form.stock_qty = totalStock.toString();
     },
     isSizeUsed(sizeId, variantIndex) {
       if (!this.form.variants[variantIndex] || !this.form.variants[variantIndex].sizes) {
@@ -747,6 +782,9 @@ export default {
     },
     
     submitForm() {
+      // Calculate default values from variants
+      this.calculateDefaultValues();
+      
       // Create FormData for file uploads
       const formData = new FormData();
       
@@ -767,6 +805,9 @@ export default {
       formData.append('meta_description', this.form.meta_description);
       formData.append('status', this.form.status);
       formData.append('featured', this.form.featured);
+      formData.append('price', this.form.price);
+      formData.append('stock_qty', this.form.stock_qty);
+      formData.append('stock_status', this.form.stock_status);
       
       // Add main image
       if (this.form.main_image) {
@@ -795,11 +836,10 @@ export default {
         }
       });
       
-      // Submit the form
+      // Submit the form using axios
       console.log('Submitting form data...');
       
-      // You can uncomment and modify the axios call below
-      /*
+      console.log(formData, 'formData');
       axios.post('/admin/inventory', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -826,17 +866,6 @@ export default {
           confirmButtonText: 'OK'
         });
       });
-      */
-      
-      // For now, show success message (remove this when you implement the actual API call)
-      setTimeout(() => {
-        Swal.fire({
-          title: 'Success!',
-          text: 'Product has been saved successfully.',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-      }, 2000);
     }
   }
 };
