@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import InventoryCreate from './components/InventoryCreate.vue';
+import InventoryEdit from './components/InventoryEdit.vue';
 
 console.log('Vue app loading...');
 // Helper to mount any component to a given DOM element
@@ -15,17 +16,15 @@ function mountComponent(selector, component, props = {}) {
 }
 
 // Wait for DOM to be ready
+// Only mount once, on DOMContentLoaded
+// (Remove the immediate mount block to avoid double-mounting)
 document.addEventListener('DOMContentLoaded', function() {
-    const element = document.querySelector('#inventory-create');
-    if (element && window.inventoryProps) {
+    const createElement = document.querySelector('#inventory-create');
+    if (createElement && window.inventoryProps) {
         mountComponent('#inventory-create', InventoryCreate, window.inventoryProps);
+    }
+    const editElement = document.querySelector('#inventory-edit');
+    if (editElement && window.inventoryEditProps) {
+        mountComponent('#inventory-edit', InventoryEdit, window.inventoryEditProps);
     }
 });
-
-// Also try mounting immediately in case DOM is already ready
-if (document.readyState !== 'loading') {
-    const element = document.querySelector('#inventory-create');
-    if (element && window.inventoryProps) {
-        mountComponent('#inventory-create', InventoryCreate, window.inventoryProps);
-    }
-}
