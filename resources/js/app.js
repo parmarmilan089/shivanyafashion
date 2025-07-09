@@ -4,13 +4,11 @@ import InventoryCreate from './components/InventoryCreate.vue';
 
 console.log('Vue app loading...');
 // Helper to mount any component to a given DOM element
-function mountComponent(selector, component) {
+function mountComponent(selector, component, props = {}) {
     const el = document.querySelector(selector);
     if (el) {
-        createApp(component).mount(el);
+        createApp(component, props).mount(el);
     }
 }
 
-// Mount components conditionally
-mountComponent('#inventory-create', InventoryCreate);
-// mountComponent('#user-profile', UserProfile);
+mountComponent('#inventory-create', InventoryCreate, window.inventoryProps);

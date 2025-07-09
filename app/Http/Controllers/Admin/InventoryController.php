@@ -19,11 +19,20 @@ class InventoryController extends Controller
 
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::where('category_type', 0)->get(); // Main categories
+        $subcategories = Category::where('category_type', 1)->get(); // Subcategories
+        $subsubcategories = Category::where('category_type', 2)->get(); // Sub-subcategories
+
         $colors = Color::where('status', 'active')->get();
         $sizes = Size::where('status', 'active')->get();
 
-        return view('admin.inventory.create', compact('categories', 'colors', 'sizes'));
+        return view('admin.inventory.create', compact(
+            'categories',
+            'subcategories',
+            'subsubcategories',
+            'colors',
+            'sizes'
+        ));
     }
 
     public function store(Request $request)
