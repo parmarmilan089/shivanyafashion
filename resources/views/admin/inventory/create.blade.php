@@ -19,10 +19,4 @@
             :sizes="window.inventoryProps.sizes">
         </inventory-create>
     </div>
-<<<<<<< HEAD
-
-
 @endsection
-=======
-@endsection
->>>>>>> 9ae5a69 (added the sweetalert)

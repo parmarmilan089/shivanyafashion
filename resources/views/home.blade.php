@@ -58,18 +58,52 @@
 			<div class="w-100 flex-1 right-product-fea overflow-hidden">
 				<h3 class="main-title">Featured Products</h3>
 				<div class="product-featured-items d-flex items-start gap-3 gap-lg-4 overflow-auto scroll-1">
-					@foreach ($products->take(15) as $product)
+					@foreach ($inventories->take(15) as $product)
+						@php
+							$minPrice = $product->variants->min('price');
+							$firstVariant = $product->variants->first();
+						@endphp
 						<div class="product-card ">
 							<div class="position-relative product-items-img">
-								@if($product['image'])
-									<img src="{{ asset('storage/' . $product->image) }}" class="w-100 h-100 object-fit-cover"
-										alt="{{ $product['name'] }}">
-								@endif
+                                @php
+                                    $gallery = $product->gallery_images;
+                                    $hasGallery = is_array($gallery) && count($gallery) > 0;
+                                @endphp
+                                @if($hasGallery)
+                                    <div id="carousel-{{ $product->id }}" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            @foreach($gallery as $idx => $img)
+                                                <div class="carousel-item{{ $idx === 0 ? ' active' : '' }}">
+                                                    <img src="{{ asset('storage/' . $img) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product['name'] }}">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @if(count($gallery) > 1)
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @elseif($product->main_image)
+                                    <img src="{{ asset('storage/' . $product->main_image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product['name'] }}">
+                                @endif
 							</div>
 							<div class="d-flex flex-column justify-content-between gap-3 p-4 text-center ">
 								<div>
 									<h6 class="product-title mb-3">{{ $product['name'] }}</h6>
-									<p class="product-price mb-0">₹{{ $product['price'] }}</p>
+                                    @if(!empty($product['short_description']))
+                                        <p class="product-short-description mb-2">{{ Str::limit($product['short_description'], 80) }}</p>
+                                    @endif
+									<p class="product-price mb-0">₹{{ $minPrice ?? 'N/A' }}</p>
+									<!-- @if($firstVariant)
+										<span class="badge bg-light text-dark">Color: {{ $firstVariant->color->name ?? 'N/A' }}</span>
+										<span class="badge bg-light text-dark">Size: {{ $firstVariant->size->name ?? 'N/A' }}</span>
+									@endif -->
 								</div>
 								<a href="{{ route('product', $product['id']) }}" class="product-link">View Product</a>
 							</div>
@@ -78,33 +112,7 @@
 				</div>
 			</div>
 		</div>
-		<!-- <div class="swiper featuredSwiper swiper-invisible">
-																															<div class="swiper-wrapper">
-																																@foreach ($products->take(15) as $product)
-																																	<div class="swiper-slide">
-																																		<div class="card border-0 shadow-sm h-100">
-																																			<div class="position-relative" style="aspect-ratio: 4/5; overflow: hidden;">
-																																				<img src="{{ asset('storage/' . $product->image) }}" class="w-100 h-100 object-fit-cover"
-																																					alt="{{ $product['name'] }}">
-																																			</div>
-
-																																			<div class="card-body d-flex flex-column justify-content-between">
-																																				<div>
-																																					<h6 class="card-title fw-semibold mb-1">{{ $product['name'] }}</h6>
-																																					<p class="text-dark fw-bold mb-2">₹{{ $product['price'] }}</p>
-																																				</div>
-																																				<a href="{{ route('product', $product['id']) }}"
-																																					class="btn btn-sm bg-gradient-dark mt-auto">View
-																																					Product</a>
-																																			</div>
-																																		</div>
-																																	</div>
-																																@endforeach
-																															</div> -->
-
-		<!-- Navigation Arrows -->
-		<!-- <div class="swiper-button-next"></div>
-																															<div class="swiper-button-prev"></div> -->
+		
 	</section>
 
 	<div class="shop-us-section w-100 overflow-hidden">
@@ -151,41 +159,18 @@
 				<!-- Product Images Section -->
 				<div class="col-md-6 mb-md-0 mb-4">
 					<div class="w-100">
-						@if($product->image)
-							<img id="mainImage" src="{{ asset('storage/' . $product->image) }}" class="w-70 m-auto object-cover" alt="{{ $product->name }}">
+						@if($product->main_image)
+							<img id="mainImage" src="{{ asset('storage/' . $product->main_image) }}" class="w-70 m-auto object-cover" alt="{{ $product->name }}">
 						@endif
 					</div>
 					<div class="product-items-grid">
-						<div class="w-100 item-product">
-							<img src="https://dt-vogue.myshopify.com/cdn/shop/files/f1.jpg?v=1701491555&width=493"
+						@foreach(json_decode($product->gallery_images, true) as $image)
+							<div class="w-100 item-product">
+								<img src="{{ asset('storage/' . $image) }}"
 								class="w-100 h-100 object-cover"
 								onclick="document.getElementById('mainImage').src=this.src">
 						</div>
-						<div class="w-100 item-product">
-							<img src="	https://dt-vogue.myshopify.com/cdn/shop/files/Product6.0.jpg?v=1699086092&width=360"
-								class="w-100 h-100 object-cover"
-								onclick="document.getElementById('mainImage').src=this.src">
-						</div>
-						<div class="w-100 item-product">
-							<img src="https://dt-vogue.myshopify.com/cdn/shop/files/f1.jpg?v=1701491555&width=493"
-								class="w-100 h-100 object-cover"
-								onclick="document.getElementById('mainImage').src=this.src">
-						</div>
-						<div class="w-100 item-product">
-							<img src="	https://dt-vogue.myshopify.com/cdn/shop/files/Product6.0.jpg?v=1699086092&width=360"
-								class="w-100 h-100 object-cover"
-								onclick="document.getElementById('mainImage').src=this.src">
-						</div>
-						<div class="w-100 item-product">
-							<img src="https://dt-vogue.myshopify.com/cdn/shop/files/f1.jpg?v=1701491555&width=493"
-								class="w-100 h-100 object-cover"
-								onclick="document.getElementById('mainImage').src=this.src">
-						</div>
-						<div class="w-100 item-product">
-							<img src="	https://dt-vogue.myshopify.com/cdn/shop/files/Product6.0.jpg?v=1699086092&width=360"
-								class="w-100 h-100 object-cover"
-								onclick="document.getElementById('mainImage').src=this.src">
-						</div>
+						@endforeach
 					</div>
 				</div>
 
@@ -194,16 +179,14 @@
 					<p class="product-price mb-2">Category: {{ $product->category->name ?? 'N/A' }}</p>
 					<h2 class="product-details-title mb-3">{{ $product->name }}</h2>
 					<span class="product-description mb-3 d-block">
-						This gorgeous dress's appealing silhouette, versatile embroidery, and elegant fabric are meant to
-						make you feel like a queen ideal for red carpet events, weddings, and special occasions.
+					{{ Str::limit($product->short_description, 80) }}
 					</span>
 
+					@php
+						$minPrice = $product->variants->min('price');
+					@endphp
 					<div class="mb-4">
-						<span class="product-title d-block">₹{{ $product->discount_price ?? $product->price }}</span>
-						@if ($product->discount_price)
-							<span class="product-title d-block">₹{{ $product->price }}</span>
-							<span class="product-title d-block">₹{{ $product->price - $product->discount_price }} OFF</span>
-						@endif
+						<span class="product-title d-block">₹{{ $minPrice ?? 'N/A' }}</span>
 					</div>
 					<!-- Quantity Selector -->
 					<div class="mb-sm-4 mb-3 d-flex align-items-center gap-3 flex-sm-row flex-column">
@@ -254,3 +237,13 @@
 		}
 	</script>
 @endsection
+
+{{-- Ensure Bootstrap CSS is loaded --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+@endpush
+
+{{-- Ensure Bootstrap JS is loaded for carousel functionality --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+@endpush
