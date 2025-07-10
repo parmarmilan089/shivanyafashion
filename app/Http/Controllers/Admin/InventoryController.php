@@ -21,9 +21,9 @@ class InventoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('category_type', 0)->get(); // Main categories
-        $subcategories = Category::where('category_type', 1)->get(); // Subcategories
-        $subsubcategories = Category::where('category_type', 2)->get(); // Sub-subcategories
+        $categories = Category::where('category_type', 0)->get();  // Main categories
+        $subcategories = Category::where('category_type', 1)->get();  // Subcategories
+        $subsubcategories = Category::where('category_type', 2)->get();  // Sub-subcategories
 
         $colors = Color::where('status', 'active')->get();
         $sizes = Size::where('status', 'active')->get();
@@ -74,7 +74,10 @@ class InventoryController extends Controller
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|json',
         ]);
-        echo "<pre>"; print_r($request->all()); echo "</pre>";die;
+        echo '<pre>';
+        print_r($request->all());
+        echo '</pre>';
+        die;
 
         // Upload main image
         $mainImage = null;
@@ -124,8 +127,13 @@ class InventoryController extends Controller
         $colorIds = array_values(array_unique($colorIds));
         $sizeIds = array_values(array_unique($sizeIds));
 
-        echo "<pre>"; print_r($colorIds); echo "</pre>";
-        echo "<pre>"; print_r($sizeIds); echo "</pre>";die;
+        echo '<pre>';
+        print_r($colorIds);
+        echo '</pre>';
+        echo '<pre>';
+        print_r($sizeIds);
+        echo '</pre>';
+        die;
         // Save Inventory
         $inventory = new Inventory();
         $inventory->name = $request->name;
@@ -173,9 +181,9 @@ class InventoryController extends Controller
     public function edit($id)
     {
         $inventory = Inventory::findOrFail($id);
-        $categories = Category::where('category_type', 0)->get(); // Main categories
-        $subcategories = Category::where('category_type', 1)->get(); // Subcategories
-        $subsubcategories = Category::where('category_type', 2)->get(); // Sub-subcategories
+        $categories = Category::where('category_type', 0)->get();  // Main categories
+        $subcategories = Category::where('category_type', 1)->get();  // Subcategories
+        $subsubcategories = Category::where('category_type', 2)->get();  // Sub-subcategories
         $colors = Color::where('status', 'active')->get();
         $sizes = Size::where('status', 'active')->get();
         $variantRows = DB::table('product_variants')->where('inventory_id', $inventory->id)->get();
