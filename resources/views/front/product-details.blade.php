@@ -32,69 +32,26 @@
 					<span class="product-description mb-3 d-block">
 					{{ Str::limit($product->short_description, 80) }}
 					</span>
-
-					@php
-						// Group variants by color
-						$colorGroups = $product->variants->groupBy(function($variant) {
-							return $variant->color->id ?? 'none';
-						});
-						$firstColorId = $colorGroups->keys()->first();
-						$firstColorVariants = $colorGroups[$firstColorId] ?? collect();
-						$firstSizeId = $firstColorVariants->first()->size->id ?? null;
-					@endphp
-					<div class="mb-3">
-						<label for="colorSelect" class="form-label">Color:</label>
-						<select id="colorSelect" class="form-select">
-							@foreach($colorGroups as $colorId => $variants)
-								<option value="{{ $colorId }}">{{ $variants->first()->color->name ?? 'N/A' }}</option>
-							@endforeach
-						</select>
-					</div>
-					<div class="mb-3">
-						<label for="sizeSelect" class="form-label">Size:</label>
-						<select id="sizeSelect" class="form-select">
-							@foreach($firstColorVariants as $variant)
-								<option value="{{ $variant->size->id ?? '' }}" data-price="{{ $variant->price }}">{{ $variant->size->name ?? 'N/A' }}</option>
-							@endforeach
-						</select>
-					</div>
-					<div class="mb-4">
-						<span class="product-title d-block">₹<span id="variantPrice">{{ $firstColorVariants->first()->price ?? 'N/A' }}</span></span>
-					</div>
-					<div class="mb-sm-4 mb-3 d-flex align-items-center gap-3 flex-sm-row flex-column">
-						<div class="input-group-qut d-flex align-items-center gap-2 justify-content-between">
-							<button class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt" onclick="updateQty(-1)">-</button>
-							<input type="number" id="quantity" value="1" class="p-0 border-0 bg-transparent text-center" min="1">
-							<button class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt" onclick="updateQty(1)">+</button>
-						</div>
-						<button class="w-100 flex-1 border-btn">Add to Cart</button>
-					</div>
-					<div class="mb-2">
-						<span>Total: ₹<span id="totalPrice">{{ $firstColorVariants->first()->price ?? 'N/A' }}</span></span>
-					</div>
-
-					<!-- Action Buttons -->
-					<button class="border-btn w-100">Buy it Now</button>
-
-					<!-- Trust Badges -->
-					<div class="mt-4 w-100 d-flex flex-column gap-4 product-shipping-detail">
-						<div class="d-flex align-items-center w-100 gap-2"><i class="fa fa-shield-alt me-1 text-dark"></i>
-							<span class="w-100 flex-1">
-								Secure Checkout
-							</span>
-						</div>
-						<div class="d-flex align-items-center w-100 gap-2"><i class="fa fa-truck me-1 text-dark"></i>
-							<span class="w-100 flex-1">
-								Free Shipping
-							</span>
-						</div>
-						<div class="d-flex align-items-center w-100 gap-2"><i class="fa fa-undo me-1 text-dark"></i>
-							<span class="w-100 flex-1">Easy Returns</span>
-						</div>
-						<div class="d-flex align-items-center w-100 gap-2"><i class="fa fa-headset me-1 text-dark"></i>
-							<span class="w-100 flex-1"> 24/7 Support</span>
-						</div>
-					</div>
+                    @php
+                        $variants = $product->variants->map(function($v) {
+                            return [
+                                'color_id' => $v->color->id ?? null,
+                                'color_name' => $v->color->name ?? '',
+                                'color_code' => $v->color->code ?? '',
+                                'size_id' => $v->size->id ?? null,
+                                'size_name' => $v->size->name ?? '',
+                                'price' => $v->price,
+                            ];
+                        });
+                    @endphp
+                    <script>
+    window.productOptionsProps = @json([
+        'variants' => $variants,
+    ]);
+</script>
+					<div id="product-options">
+                        <product-options :variants='@json($variantData)'></product-options>
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -109,16 +66,6 @@
         let val = parseInt(qty.value);
         qty.value = Math.max(1, val + change);
     }
-
-    const variants = @json($product->variants->map(function($v) {
-        return [
-            'color_id' => $v->color->id ?? null,
-            'color_name' => $v->color->name ?? '',
-            'size_id' => $v->size->id ?? null,
-            'size_name' => $v->size->name ?? '',
-            'price' => $v->price,
-        ];
-    });
     let qtyInput = document.getElementById('quantity');
     let colorSelect = document.getElementById('colorSelect');
     let sizeSelect = document.getElementById('sizeSelect');
