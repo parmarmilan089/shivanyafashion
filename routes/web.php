@@ -46,6 +46,16 @@ Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('ca
 Route::get('/cart/get', [CartController::class, 'getCart'])->name('cart.get');
 Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+Route::get('/cart', function () {
+    return view('front.cart');
+})->name('cart.page');
+
+Route::get('/checkout', function () {
+    return view('front.checkout');
+})->name('checkout.page');
+
+Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout.process');
+
 Route::middleware('auth:customer')->group(function () {
     Route::get('/store', function () {
         return view('front.store.index');

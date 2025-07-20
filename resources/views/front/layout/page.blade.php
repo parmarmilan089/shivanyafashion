@@ -266,6 +266,7 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{{asset('assets/js/material-dashboard.js')}}"></script>
   @vite('resources/js/app.js')
+  @yield('script')
 
   <!-- Cart Sidebar JavaScript -->
   <script>
