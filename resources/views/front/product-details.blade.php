@@ -4,81 +4,104 @@
 <main class="main-content position-relative border-radius-lg first-section">
 
 <div class="container my-5 ">
-    <div class="row g-5">
+    <section class="product-details-section pt-100-ct">
+		<div class="container-ct">
+			<div class="row">
+				<!-- Product Images Section -->
+				<div class="col-md-6 mb-md-0 mb-4">
+					<div class="w-100">
+						@if($product->main_image)
+							<img id="mainImage" src="{{ asset('storage/' . $product->main_image) }}" class="w-70 m-auto object-cover" alt="{{ $product->name }}">
+						@endif
+					</div>
+					<div class="product-items-grid">
+						@foreach(json_decode($product->gallery_images, true) as $image)
+							<div class="w-100 item-product">
+								<img src="{{ asset('storage/' . $image) }}"
+								class="w-100 h-100 object-cover"
+								onclick="document.getElementById('mainImage').src=this.src">
+						</div>
+						@endforeach
+					</div>
+				</div>
 
-        <!-- Product Images Section -->
-        <div class="col-md-6">
-            <div class="mb-3 border rounded overflow-hidden">
-                <img id="mainImage" src="{{ asset('storage/' . $product->image) }}" class="img-fluid w-100" alt="{{ $product->name }}">
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                    <img src="{{ asset('storage/' . $product->image) }}"
-                         class="img-thumbnail"
-                         style="width: 80px; height: 100px; object-fit: cover; cursor: pointer;"
-                         onclick="document.getElementById('mainImage').src=this.src">
-            </div>
-        </div>
-
-        <!-- Product Details Section -->
-        <div class="col-md-6">
-            <h2 class="fw-bold mb-2">{{ $product->name }}</h2>
-            <p class="text-muted mb-1">Category: {{ $product->category->name ?? 'N/A' }}</p>
-
-            <div class="mb-3">
-                <span class="fs-4 fw-bold text-dark">₹{{ $product->discount_price ?? $product->price }}</span>
-                @if ($product->discount_price)
-                    <span class="text-muted text-decoration-line-through ms-2">₹{{ $product->price }}</span>
-                    <span class="badge bg-danger ms-2">₹{{ $product->price - $product->discount_price }} OFF</span>
-                @endif
-            </div>
-
-            <!-- Size Options -->
-            <!-- @if (!empty($product->sizes))
-            <div class="mb-3">
-                <p class="fw-bold mb-2">Size</p>
-                <div class="d-flex gap-2">
-                    @foreach (explode(',', $product->sizes) as $size)
-                        <button class="btn btn-outline-dark btn-sm rounded-pill">{{ trim($size) }}</button>
-                    @endforeach
-                </div>
-            </div>
-            @endif -->
-
-            <!-- Quantity Selector -->
-            <div class="mb-4 d-flex align-items-center">
-                <label for="quantity" class="me-2 fw-bold">Qty:</label>
-                <div class="input-group" style="width: 100px;">
-                    <button class="btn btn-outline-secondary" onclick="updateQty(-1)">-</button>
-                    <input type="number" id="quantity" value="1" class="form-control text-center" min="1">
-                    <button class="btn btn-outline-secondary" onclick="updateQty(1)">+</button>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="d-grid gap-2">
-                <button class="btn btn-dark py-2 fw-semibold">Add to Cart</button>
-                <button class="btn btn-outline-dark py-2 fw-semibold">Buy it Now</button>
-            </div>
-
-            <!-- Trust Badges -->
-            <div class="mt-4 border-top pt-3">
-                <div class="d-flex flex-wrap gap-3 text-muted">
-                    <div><i class="fa fa-shield-alt me-1 text-dark"></i> Secure Checkout</div>
-                    <div><i class="fa fa-truck me-1 text-dark"></i> Free Shipping</div>
-                    <div><i class="fa fa-undo me-1 text-dark"></i> Easy Returns</div>
-                    <div><i class="fa fa-headset me-1 text-dark"></i> 24/7 Support</div>
-                </div>
-            </div>
-        </div>
-    </div>
+				<!-- Product Details Section -->
+				<div class="col-md-6 position-sticky top-0">
+					<p class="product-price mb-2">Category: {{ $product->category->name ?? 'N/A' }}</p>
+					<h2 class="product-details-title mb-3">{{ $product->name }}</h2>
+					<span class="product-description mb-3 d-block">
+					{{ Str::limit($product->short_description, 80) }}
+					</span>
+                    @php
+                        $variants = $product->variants->map(function($v) {
+                            return [
+                                'color_id' => $v->color->id ?? null,
+                                'color_name' => $v->color->name ?? '',
+                                'color_code' => $v->color->code ?? '',
+                                'size_id' => $v->size->id ?? null,
+                                'size_name' => $v->size->name ?? '',
+                                'price' => $v->price,
+                            ];
+                        });
+                    @endphp
+                    <script>
+    window.productOptionsProps = @json([
+        'variants' => $variants,
+    ]);
+</script>
+					<div id="product-options">
+                        <product-options :variants='@json($variantData)'></product-options>
+                    </div>
+				</div>
+			</div>
+		</div>
+	</section>
 </div>
 </main>
-
+@endsection
+@section('script')
 <script>
     function updateQty(change) {
         let qty = document.getElementById('quantity');
         let val = parseInt(qty.value);
         qty.value = Math.max(1, val + change);
     }
+    let qtyInput = document.getElementById('quantity');
+    let colorSelect = document.getElementById('colorSelect');
+    let sizeSelect = document.getElementById('sizeSelect');
+    let priceSpan = document.getElementById('variantPrice');
+    let totalSpan = document.getElementById('totalPrice');
+
+    function updateSizes() {
+        let colorId = colorSelect.value;
+        let sizes = variants.filter(v => v.color_id == colorId);
+        sizeSelect.innerHTML = '';
+        sizes.forEach(function(v, idx) {
+            let opt = document.createElement('option');
+            opt.value = v.size_id;
+            opt.text = v.size_name;
+            opt.setAttribute('data-price', v.price);
+            sizeSelect.appendChild(opt);
+        });
+        updatePrice();
+    }
+    function updatePrice() {
+        let selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+        let price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price')) : 0;
+        let qty = parseInt(qtyInput.value) || 1;
+        priceSpan.textContent = price;
+        totalSpan.textContent = price * qty;
+    }
+    colorSelect.addEventListener('change', function() {
+        updateSizes();
+    });
+    sizeSelect.addEventListener('change', function() {
+        updatePrice();
+    });
+    qtyInput.addEventListener('input', function() {
+        updatePrice();
+    });
+    // Initial update
+    updateSizes();
 </script>
 @endsection

@@ -3,21 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
 use App\Models\Product;
-
+use Illuminate\Http\Request;
 
 class FrontendController extends Controller
 {
     //
-    public function home(){
-        $products = Product::limit(20)->orderBy('id','desc')->get();
-        $categorys = Category::where('category_type',1)->get();
-        return view('home',compact('products','categorys'));
+    public function home()
+    {
+        // here base on inventories
+        $inventories = \App\Models\Inventory::with(['variants.color', 'variants.size'])->limit(20)->orderBy('id', 'desc')->get();
+        $categorys = Category::where('category_type', 1)->get();
+        return view('home', compact('inventories', 'categorys'));
     }
 
-    public function product($id){
-        $product = Product::find($id);
-        return view('front.product-details',compact('product'));
+    public function product($id)
+    {
+        $product = \App\Models\Inventory::with(['variants.color', 'variants.size'])->findOrFail($id);
+        $variantData = $product->variants->map(function($v) {
+            return [
+                'color_id' => optional($v->color)->id,
+                'color_name' => optional($v->color)->name,
+                'size_id' => optional($v->size)->id,
+                'size_name' => optional($v->size)->name,
+                'price' => $v->price,
+            ];
+        })->values();
+        return view('front.product-details', compact('product', 'variantData'));
     }
 }

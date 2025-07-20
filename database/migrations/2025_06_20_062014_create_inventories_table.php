@@ -20,12 +20,12 @@ return new class extends Migration {
             $table->string('slug')->unique();
             $table->string('sku')->unique();
             $table->unsignedBigInteger('category_id')->nullable();
-            $table->text('tags')->nullable(); // comma separated or JSON
+            $table->text('tags')->nullable();  // comma separated or JSON
 
             // Product Descriptions
             $table->text('short_description')->nullable();
             $table->longText('full_description')->nullable();
-            $table->text('highlights')->nullable(); // comma separated or JSON
+            $table->text('highlights')->nullable();  // comma separated or JSON
 
             $table->string('fabric')->nullable();
             $table->string('fit')->nullable();
@@ -33,8 +33,6 @@ return new class extends Migration {
             $table->string('neck_style')->nullable();
             $table->string('sleeve_type')->nullable();
             $table->string('top_length')->nullable();
-
-            // Shipping
             $table->string('shipping_class')->nullable();
             $table->boolean('returnable')->default(true);
             $table->boolean('cod_available')->default(true);
@@ -46,7 +44,7 @@ return new class extends Migration {
 
             // SEO
             $table->string('meta_title')->nullable();
-            $table->string('meta_description')->nullable();
+            $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
 
             // Misc

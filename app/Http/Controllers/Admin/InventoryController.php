@@ -21,9 +21,9 @@ class InventoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('category_type', 0)->get(); // Main categories
-        $subcategories = Category::where('category_type', 1)->get(); // Subcategories
-        $subsubcategories = Category::where('category_type', 2)->get(); // Sub-subcategories
+        $categories = Category::where('category_type', 0)->get();  // Main categories
+        $subcategories = Category::where('category_type', 1)->get();  // Subcategories
+        $subsubcategories = Category::where('category_type', 2)->get();  // Sub-subcategories
 
         $colors = Color::where('status', 'active')->get();
         $sizes = Size::where('status', 'active')->get();
@@ -53,7 +53,7 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|unique:inventories,sku',
             'fabric' => 'nullable|string|max:255',
@@ -74,18 +74,23 @@ class InventoryController extends Controller
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|json',
         ]);
+        echo '<pre>';
+        print_r($request->all());
+        echo '</pre>';
+        die;
 
-        // Handle Image Upload
+        // Upload main image
+        $mainImage = null;
         if ($request->hasFile('main_image')) {
-            $data['main_image'] = $request->file('main_image')->store('products', 'public');
+            $mainImage = $request->file('main_image')->store('uploads/products/main', 'public');
         }
 
+        // Upload gallery images
+        $galleryPaths = [];
         if ($request->hasFile('gallery_images')) {
-            $gallery = [];
             foreach ($request->file('gallery_images') as $image) {
-                $gallery[] = $image->store('products/gallery', 'public');
+                $galleryPaths[] = $image->store('uploads/products/gallery', 'public');
             }
-            $data['gallery_images'] = json_encode($gallery);
         }
 
         // Use the unique slug generator
@@ -118,15 +123,67 @@ class InventoryController extends Controller
             }
         }
 
-        return redirect()->route('admin.inventory.index')->with('success', 'Product created successfully.');
+        // Remove duplicates
+        $colorIds = array_values(array_unique($colorIds));
+        $sizeIds = array_values(array_unique($sizeIds));
+
+        echo '<pre>';
+        print_r($colorIds);
+        echo '</pre>';
+        echo '<pre>';
+        print_r($sizeIds);
+        echo '</pre>';
+        die;
+        // Save Inventory
+        $inventory = new Inventory();
+        $inventory->name = $request->name;
+        $inventory->slug = \Str::slug($request->name);
+        $inventory->sku = $request->sku;
+        $inventory->category_id = $request->category_id;
+        $inventory->short_description = $request->short_description;
+        $inventory->full_description = $request->full_description;
+        $inventory->main_image = $mainImage;
+        $inventory->gallery_images = json_encode($galleryPaths);
+        $inventory->fabric = $request->fabric;
+        $inventory->fit = $request->Fit;
+        $inventory->pattern = $request->Pattern;
+        $inventory->top_length = $request->top_length;
+        $inventory->meta_title = $request->meta_title;
+        $inventory->meta_description = $request->meta_description;
+        $inventory->meta_keywords = $request->meta_keywords;
+        $inventory->status = $request->status ?? 'active';
+        $inventory->is_featured = $request->is_featured == 'active' ? 1 : 0;
+        $inventory->color_ids = json_encode($colorIds);
+        $inventory->size_ids = json_encode($sizeIds);
+        $inventory->save();
+
+        // Store variants
+        foreach ($request->variants as $variant) {
+            foreach ($variant['sizes'] as $size) {
+                \DB::table('product_variants')->insert([
+                    'inventory_id' => $inventory->id,
+                    'color_id' => $variant['color_id'],
+                    'size_id' => $size['size_id'],
+                    'price' => $size['price'],
+                    'sale_price' => $size['sale_price'],
+                    'stock_qty' => $size['stock'],
+                    'sale_start' => $size['sale_start'] ?? null,
+                    'sale_end' => $size['sale_end'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.inventory.index')->with('success', 'Product added successfully.');
     }
 
     public function edit($id)
     {
         $inventory = Inventory::findOrFail($id);
-        $categories = Category::where('category_type', 0)->get(); // Main categories
-        $subcategories = Category::where('category_type', 1)->get(); // Subcategories
-        $subsubcategories = Category::where('category_type', 2)->get(); // Sub-subcategories
+        $categories = Category::where('category_type', 0)->get();  // Main categories
+        $subcategories = Category::where('category_type', 1)->get();  // Subcategories
+        $subsubcategories = Category::where('category_type', 2)->get();  // Sub-subcategories
         $colors = Color::where('status', 'active')->get();
         $sizes = Size::where('status', 'active')->get();
         $variantRows = DB::table('product_variants')->where('inventory_id', $inventory->id)->get();
