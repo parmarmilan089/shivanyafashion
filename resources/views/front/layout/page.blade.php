@@ -138,7 +138,7 @@
                 <a href="#" class="nav-link px-2" id="cartToggle">
                   <i class="material-symbols-rounded text-dark" style="font-size: 26px;">shopping_cart</i>
                   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">
-                    {{ session('cart_count', 0) }}
+                    {{ \App\Helpers\Helper::getCartCount() }}
                   </span>
                 </a>
               </li>

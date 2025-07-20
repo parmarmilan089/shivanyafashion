@@ -82,29 +82,29 @@ class CartController extends Controller
         return response()->json(['success' => false, 'message' => 'Item not found in cart']);
     }
 
-    // public function removeFromCart(Request $request)
-    // {
-    //     $request->validate([
-    //         'cart_key' => 'required|string',
-    //     ]);
+    public function removeFromCart(Request $request)
+    {
+        $request->validate([
+            'cart_key' => 'required|string',
+        ]);
 
-    //     $cart = session()->get('cart', []);
+        $cart = session()->get('cart', []);
 
-    //     if (isset($cart[$request->cart_key])) {
-    //         unset($cart[$request->cart_key]);
-    //         session()->put('cart', $cart);
-    //         session()->put('cart_count', count($cart));
+        if (isset($cart[$request->cart_key])) {
+            unset($cart[$request->cart_key]);
+            session()->put('cart', $cart);
+            session()->put('cart_count', count($cart));
 
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Item removed from cart',
-    //             'cart_count' => count($cart),
-    //             'cart_total' => $this->calculateCartTotal($cart)
-    //         ]);
-    //     }
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed from cart',
+                'cart_count' => count($cart),
+                'cart_total' => $this->calculateCartTotal($cart)
+            ]);
+        }
 
-    //     return response()->json(['success' => false, 'message' => 'Item not found in cart']);
-    // }
+        return response()->json(['success' => false, 'message' => 'Item not found in cart']);
+    }
 
     public function getCart()
     {
@@ -118,16 +118,16 @@ class CartController extends Controller
         ]);
     }
 
-    // public function clearCart()
-    // {
-    //     session()->forget('cart');
-    //     session()->forget('cart_count');
+    public function clearCart()
+    {
+        session()->forget('cart');
+        session()->forget('cart_count');
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Cart cleared'
-    //     ]);
-    // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart cleared'
+        ]);
+    }
 
     private function calculateCartTotal($cart)
     {

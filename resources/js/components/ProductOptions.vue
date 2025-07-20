@@ -122,8 +122,15 @@ export default {
       axios.post('/cart/add', data)
         .then(response => {
           alert('Added to cart!');
+          // Update cart count in the DOM
+          if (response.data.cart_count !== undefined) {
+            const cartCountEl = document.getElementById('cart-count');
+            if (cartCountEl) {
+              cartCountEl.textContent = response.data.cart_count;
+            }
+          }
           // Optionally emit an event or update cart UI
-          // this.$emit('cart-updated', response.data);
+          // this.$emit('cart-updated', response.data.cart);
         })
         .catch(error => {
           alert('Failed to add to cart.');

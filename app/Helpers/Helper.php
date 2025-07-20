@@ -53,7 +53,7 @@ class Helper
         $x = explode('.', $amount);
         $integerPart = $x[0];
         $decimalPart = $x[1];
-    
+
         $lastThree = substr($integerPart, -3);
         $restUnits = substr($integerPart, 0, -3);
         if ($restUnits != '') {
@@ -62,7 +62,7 @@ class Helper
         } else {
             $formatted = $lastThree;
         }
-    
+
         return $formatted . "." . $decimalPart;
     }
 
@@ -80,5 +80,11 @@ class Helper
         ->where('category_type', 0)
         ->where('is_active', 1)
         ->get();
+    }
+
+    public static function getCartCount()
+    {
+        $cart = session('cart', []);
+        return count($cart);
     }
 }
