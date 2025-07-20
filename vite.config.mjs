@@ -4,21 +4,18 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     server: {
-        host: 'shivanyafashion.com',
+        host: 'shivanyafashion.local',
         port: 5173,
-        origin: 'http://shivanyafashion.com:5173',
+        origin: 'http://shivanyafashion.local:5173',
         cors: {
-            origin: ['http://shivanyafashion.com:8001'],
-            methods: ['GET', 'POST'],
-            allowedHeaders: ['Content-Type'],
+            origin: 'http://shivanyafashion.local:8000',
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
         },
         hmr: {
-            host: 'shivanyafashion.com',
-            port: 5173,
-            protocol: 'ws',
+            host: 'shivanyafashion.local',
         },
     },
-
     plugins: [
         laravel({
             input: ['resources/js/app.js'],

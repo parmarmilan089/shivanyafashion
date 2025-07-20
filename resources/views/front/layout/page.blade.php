@@ -18,6 +18,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="{{ asset('assets/img/shivanya.png') }}">
   <title>
@@ -43,9 +44,9 @@
 </head>
 
 <body class="">
-  <header class="header-section position-fixed left-0 top-0 w-100 z-index-9999 bg-white">
+  <header class="header-section position-fixed left-0 top-0 w-100 z-index-9999">
     <div class="container-ct">
-      <nav class="navbar navbar-expand-lg ">
+      <nav class="navbar navbar-expand-lg shadow-none">
           <!-- Logo -->
           <a class="navbar-brand ms-lg-0 ms-3 d-flex align-items-center" href="{{ url('/') }}">
             <img src="{{ asset('assets/img/header-logo.png') }}" alt="Shivanya Fashion" style="height: 40px;">
@@ -134,20 +135,35 @@
 
               <!-- Cart -->
               <li class="nav-item position-relative">
-                <a href="" class="nav-link px-2">
+                <a href="#" class="nav-link px-2" id="cartToggle">
                   <i class="material-symbols-rounded text-dark" style="font-size: 26px;">shopping_cart</i>
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartCount">
                     {{ session('cart_count', 0) }}
                   </span>
                 </a>
               </li>
 
               <!-- Profile -->
-              <li class="nav-item">
-                <a href="" class="nav-link px-2">
-                  <i class="material-symbols-rounded text-dark" style="font-size: 26px;">person</i>
-                </a>
-              </li>
+              @auth('customer')
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="customerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="material-symbols-rounded text-dark me-2" style="font-size: 26px;">person</i>
+                    <span class="text-dark">{{ auth('customer')->user()->name }}</span>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="customerDropdown">
+                    <li><a class="dropdown-item" href="{{ route('customer.profile') }}"><i class="material-symbols-rounded me-2">account_circle</i>Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('customer.orders') }}"><i class="material-symbols-rounded me-2">receipt</i>Orders</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url('customer/logout') }}"><i class="material-symbols-rounded me-2">logout</i>Logout</a></li>
+                  </ul>
+                </li>
+              @else
+                <li class="nav-item">
+                  <a href="{{ route('customer.login') }}" class="nav-link px-2">
+                    <i class="material-symbols-rounded text-dark" style="font-size: 26px;">person</i>
+                  </a>
+                </li>
+              @endauth
             </ul>
           </div>
       </nav>
@@ -250,6 +266,221 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="{{asset('assets/js/material-dashboard.js')}}"></script>
   @vite('resources/js/app.js')
+
+  <!-- Cart Sidebar JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const cartToggle = document.getElementById('cartToggle');
+      const cartSidebar = document.getElementById('cartSidebar');
+      const cartOverlay = document.getElementById('cartOverlay');
+      const cartClose = document.getElementById('cartClose');
+      const cartBody = document.getElementById('cartBody');
+      const cartFooter = document.getElementById('cartFooter');
+      const cartCount = document.getElementById('cartCount');
+      const cartTotal = document.getElementById('cartTotal');
+      const clearCartBtn = document.getElementById('clearCartBtn');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      // Toggle cart sidebar
+      function toggleCart() {
+        cartSidebar.classList.toggle('active');
+        cartOverlay.classList.toggle('active');
+        if (cartSidebar.classList.contains('active')) {
+          loadCart();
+        }
+      }
+
+      // Load cart data
+      function loadCart() {
+        fetch('/cart/get')
+          .then(response => response.json())
+          .then(data => {
+            updateCartDisplay(data);
+          })
+          .catch(error => {
+            console.error('Error loading cart:', error);
+          });
+      }
+
+      // Update cart display
+      function updateCartDisplay(data) {
+        cartCount.textContent = data.cart_count;
+
+        if (data.cart_count === 0) {
+          cartBody.innerHTML = `
+            <div class="cart-empty text-center py-5">
+              <i class="material-symbols-rounded text-muted" style="font-size: 48px;">shopping_cart</i>
+              <p class="text-muted mt-3">Your cart is empty</p>
+            </div>
+          `;
+          cartFooter.style.display = 'none';
+        } else {
+          let cartHtml = '';
+          Object.keys(data.cart).forEach(key => {
+            const item = data.cart[key];
+            cartHtml += `
+              <div class="cart-item" data-cart-key="${key}">
+                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <div class="cart-item-details">
+                  <div class="cart-item-name">${item.name}</div>
+                  <div class="cart-item-variant">
+                    ${item.color ? 'Color: ' + item.color : ''}
+                    ${item.size ? 'Size: ' + item.size : ''}
+                  </div>
+                  <div class="cart-item-price">₹${item.price}</div>
+                  <div class="cart-item-quantity">
+                    <button class="quantity-btn" onclick="updateQuantity('${key}', -1)">-</button>
+                    <input type="number" class="quantity-input" value="${item.quantity}"
+                           min="1" onchange="updateQuantity('${key}', this.value, true)">
+                    <button class="quantity-btn" onclick="updateQuantity('${key}', 1)">+</button>
+                    <button class="cart-item-remove" onclick="removeFromCart('${key}')">
+                      <i class="material-symbols-rounded" style="font-size: 18px;">delete</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          cartBody.innerHTML = cartHtml;
+          cartTotal.textContent = '₹' + data.cart_total.toFixed(2);
+          cartFooter.style.display = 'block';
+        }
+      }
+
+      // Update quantity
+      window.updateQuantity = function(cartKey, change, isDirectInput = false) {
+        let newQuantity;
+        if (isDirectInput) {
+          newQuantity = parseInt(change);
+        } else {
+          const currentQuantity = parseInt(document.querySelector(`[data-cart-key="${cartKey}"] .quantity-input`).value);
+          newQuantity = currentQuantity + parseInt(change);
+        }
+
+        if (newQuantity < 1) return;
+
+        fetch('/cart/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            cart_key: cartKey,
+            quantity: newQuantity
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            loadCart();
+          }
+        })
+        .catch(error => {
+          console.error('Error updating cart:', error);
+        });
+      };
+
+      // Remove from cart
+      window.removeFromCart = function(cartKey) {
+        fetch('/cart/remove', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            cart_key: cartKey
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            loadCart();
+          }
+        })
+        .catch(error => {
+          console.error('Error removing from cart:', error);
+        });
+      };
+
+      // Clear cart
+      clearCartBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear your cart?')) {
+          fetch('/cart/clear', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              loadCart();
+            }
+          })
+          .catch(error => {
+            console.error('Error clearing cart:', error);
+          });
+        }
+      });
+
+      // Checkout button
+      checkoutBtn.addEventListener('click', function() {
+        // Redirect to checkout page or show checkout modal
+        alert('Checkout functionality will be implemented here');
+      });
+
+      // Event listeners
+      cartToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleCart();
+      });
+
+      cartClose.addEventListener('click', toggleCart);
+      cartOverlay.addEventListener('click', toggleCart);
+
+      // Close cart on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && cartSidebar.classList.contains('active')) {
+          toggleCart();
+        }
+      });
+    });
+  </script>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-sidebar-header">
+      <h5 class="mb-0">Shopping Cart</h5>
+      <button type="button" class="btn-close" id="cartClose"></button>
+    </div>
+
+    <div class="cart-sidebar-body" id="cartBody">
+      <!-- Cart items will be loaded here -->
+      <div class="cart-empty text-center py-5">
+        <i class="material-symbols-rounded text-muted" style="font-size: 48px;">shopping_cart</i>
+        <p class="text-muted mt-3">Your cart is empty</p>
+      </div>
+    </div>
+
+    <div class="cart-sidebar-footer" id="cartFooter" style="display: none;">
+      <div class="cart-total mb-3">
+        <div class="d-flex justify-content-between">
+          <span>Total:</span>
+          <span class="fw-bold" id="cartTotal">₹0.00</span>
+        </div>
+      </div>
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+        <button type="button" class="btn btn-outline-secondary" id="clearCartBtn">Clear Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Overlay -->
+  <div class="cart-overlay" id="cartOverlay"></div>
 
 </body>
 

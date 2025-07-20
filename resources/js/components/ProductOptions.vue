@@ -20,12 +20,19 @@
     </div>
 
     <div class="mb-3">
-      <label for="sizeSelect" class="form-label">Size:</label>
-      <select v-model="selectedSize" id="sizeSelect" class="form-select" @change="onSizeChange">
-        <option v-for="size in sizeOptions" :key="size.size_id" :value="size.size_id">
-          {{ size.size_name }}
-        </option>
-      </select>
+      <label class="form-label d-block">Size:</label>
+      <div class="d-flex gap-2 flex-wrap">
+        <label v-for="size in sizeOptions" :key="size.size_id" class="size-radio-container">
+          <input
+            type="radio"
+            class="size-radio-input"
+            :value="size.size_id"
+            v-model="selectedSize"
+            @change="onSizeChange"
+          >
+          <span class="size-radio-box">{{ size.size_name }}</span>
+        </label>
+      </div>
     </div>
 
     <div class="mb-4">
@@ -40,11 +47,7 @@
         <input type="number" v-model.number="quantity" class="p-0 border-0 bg-transparent text-center" min="1">
         <button @click="updateQty(1)" class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt">+</button>
       </div>
-      <button class="w-100 flex-1 border-btn">Add to Cart</button>
-    </div>
-
-    <div class="mb-2">
-      <span class="product-title">Total: ₹{{ totalPrice }}</span>
+      <button class="w-100 flex-1 border-btn product-title">ADD TO CART <span class="atc-dot"></span>  ₹{{ totalPrice }}</button>
     </div>
   </div>
 </template>
@@ -101,7 +104,7 @@ export default {
   },
   mounted() {
     console.log(this.variants,'variants');
-    
+
     if (this.colorOptions.length) {
       this.selectedColor = this.colorOptions[0].color_id;
       this.onColorChange();
@@ -109,3 +112,56 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.size-radio-container {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.size-radio-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.size-radio-box {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 50px;
+  text-align: center;
+  user-select: none;
+  box-shadow: none !important;
+}
+
+.size-radio-input:checked + .size-radio-box {
+  border-color: #222121;
+  background-color: #222121;
+  color: #fff;
+}
+
+.size-radio-input:hover + .size-radio-box {
+  border-color: #222121;
+  background-color: #f8f9fa;
+}
+
+.size-radio-input:checked:hover + .size-radio-box {
+  background-color: #2b2b2b;
+}
+.form-check-input:checked[type=radio] {
+    --bs-form-check-bg-image: linear-gradient(195deg, #222121 0%, #222121 100%);
+}
+
+/* Add to cart button hover effect for atc-dot */
+.border-btn:hover .atc-dot {
+  background-color: white !important;
+}
+</style>

@@ -105,14 +105,19 @@
 										<span class="badge bg-light text-dark">Size: {{ $firstVariant->size->name ?? 'N/A' }}</span>
 									@endif -->
 								</div>
-								<a href="{{ route('product', $product['id']) }}" class="product-link">View Product</a>
+								<div class="d-flex gap-2">
+									<a href="{{ route('product', $product['id']) }}" class="product-link flex-1">View Product</a>
+									@if($firstVariant)
+										<button class="border-btn" onclick="quickAddToCart({{ $product['id'] }}, {{ $firstVariant->id }})">Add to Cart</button>
+									@endif
+								</div>
 							</div>
 						</div>
 					@endforeach
 				</div>
 			</div>
 		</div>
-		
+
 	</section>
 
 	<div class="shop-us-section w-100 overflow-hidden">
@@ -234,6 +239,37 @@
 			let qty = document.getElementById('quantity');
 			let val = parseInt(qty.value);
 			qty.value = Math.max(1, val + change);
+		}
+
+		function quickAddToCart(inventoryId, variantId) {
+			fetch('/cart/add', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+				},
+				body: JSON.stringify({
+					inventory_id: inventoryId,
+					variant_id: variantId,
+					quantity: 1
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					// Update cart count
+					document.getElementById('cartCount').textContent = data.cart_count;
+
+					// Show success message
+					alert('Item added to cart successfully!');
+				} else {
+					alert('Error: ' + data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('Error adding item to cart');
+			});
 		}
 	</script>
 @endsection

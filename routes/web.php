@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\CustomerAuthController;
 
@@ -38,10 +39,19 @@ Route::post('customer/login', [CustomerAuthController::class, 'login']);
 
 Route::get('customer/logout', [CustomerAuthController::class, 'logout']);
 
+// Cart routes
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::get('/cart/get', [CartController::class, 'getCart'])->name('cart.get');
+Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
 Route::middleware('auth:customer')->group(function () {
     Route::get('/store', function () {
         return view('front.store.index');
     });
+    Route::get('/customer/profile', [CustomerAuthController::class, 'profile'])->name('customer.profile');
+    Route::get('/customer/orders', [CustomerAuthController::class, 'orders'])->name('customer.orders');
 });
 
 Route::get('/dashboard', function () {
@@ -86,7 +96,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         // Resourceful routes for category module
         Route::resource('categories', CategoryController::class)->except(['show']);
 
-        
+
         Route::get('categories/get-subcategories', [CategoryController::class, 'getSubcategories'])->name('get-subcategories');
         Route::get('categories/get-subsubcategories', [CategoryController::class, 'getSubsubcategories'])->name('get-subsubcategories');
 

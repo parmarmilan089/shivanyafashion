@@ -74,10 +74,6 @@ class InventoryController extends Controller
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|json',
         ]);
-        echo '<pre>';
-        print_r($request->all());
-        echo '</pre>';
-        die;
 
         // Upload main image
         $mainImage = null;
@@ -93,7 +89,11 @@ class InventoryController extends Controller
             }
         }
 
-        // Use the unique slug generator
+        $data = $request->all();
+        $data['main_image'] = $mainImage;
+        $data['gallery_images'] = json_encode($galleryPaths);
+        $data['status'] = $request->status ?? 'active';
+        $data['is_featured'] = $request->is_featured == 'active' ? 1 : 0;
         $data['slug'] = $this->generateUniqueSlug($data['name']);
 
         // Create the inventory and assign to $inventory
@@ -123,55 +123,49 @@ class InventoryController extends Controller
             }
         }
 
-        // Remove duplicates
-        $colorIds = array_values(array_unique($colorIds));
-        $sizeIds = array_values(array_unique($sizeIds));
 
-        echo '<pre>';
-        print_r($colorIds);
-        echo '</pre>';
-        echo '<pre>';
-        print_r($sizeIds);
-        echo '</pre>';
-        die;
-        // Save Inventory
-        $inventory = new Inventory();
-        $inventory->name = $request->name;
-        $inventory->slug = \Str::slug($request->name);
-        $inventory->sku = $request->sku;
-        $inventory->category_id = $request->category_id;
-        $inventory->short_description = $request->short_description;
-        $inventory->full_description = $request->full_description;
-        $inventory->main_image = $mainImage;
-        $inventory->gallery_images = json_encode($galleryPaths);
-        $inventory->fabric = $request->fabric;
-        $inventory->fit = $request->Fit;
-        $inventory->pattern = $request->Pattern;
-        $inventory->top_length = $request->top_length;
-        $inventory->meta_title = $request->meta_title;
-        $inventory->meta_description = $request->meta_description;
-        $inventory->meta_keywords = $request->meta_keywords;
-        $inventory->status = $request->status ?? 'active';
-        $inventory->is_featured = $request->is_featured == 'active' ? 1 : 0;
-        $inventory->color_ids = json_encode($colorIds);
-        $inventory->size_ids = json_encode($sizeIds);
-        $inventory->save();
+        // // Save Inventory
+        // $inventory = new Inventory();
+        // $inventory->name = $request->name;
+        // $inventory->slug = \Str::slug($request->name);
+        // $inventory->sku = $request->sku;
+        // $inventory->category_id = $request->category_id;
+        // $inventory->short_description = $request->short_description;
+        // $inventory->full_description = $request->full_description;
+        // $inventory->main_image = $mainImage;
+        // $inventory->gallery_images = json_encode($galleryPaths);
+        // $inventory->fabric = $request->fabric;
+        // $inventory->fit = $request->Fit;
+        // $inventory->pattern = $request->Pattern;
+        // $inventory->top_length = $request->top_length;
+        // $inventory->meta_title = $request->meta_title;
+        // $inventory->meta_description = $request->meta_description;
+        // $inventory->meta_keywords = $request->meta_keywords;
+        // $inventory->status = $request->status ?? 'active';
+        // $inventory->is_featured = $request->is_featured == 'active' ? 1 : 0;
+        // $inventory->save();
 
         // Store variants
-        foreach ($request->variants as $variant) {
-            foreach ($variant['sizes'] as $size) {
-                \DB::table('product_variants')->insert([
-                    'inventory_id' => $inventory->id,
-                    'color_id' => $variant['color_id'],
-                    'size_id' => $size['size_id'],
-                    'price' => $size['price'],
-                    'sale_price' => $size['sale_price'],
-                    'stock_qty' => $size['stock'],
-                    'sale_start' => $size['sale_start'] ?? null,
-                    'sale_end' => $size['sale_end'] ?? null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+        $variants = json_decode($request->variants, true);
+
+        if (is_array($variants)) {
+            foreach ($variants as $variant) {
+                if (isset($variant['sizes']) && is_array($variant['sizes'])) {
+                    foreach ($variant['sizes'] as $size) {
+                        \DB::table('product_variants')->insert([
+                            'inventory_id' => $inventory->id,
+                            'color_id' => $variant['color_id'],
+                            'size_id' => $size['size_id'],
+                            'price' => $size['price'],
+                            'sale_price' => $size['sale_price'] === '' ? null : $size['sale_price'],
+                            'stock_qty' => $size['stock'],
+                            'sale_start' => empty($size['sale_start']) ? null : $size['sale_start'],
+                            'sale_end' => empty($size['sale_end']) ? null : $size['sale_end'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
             }
         }
 

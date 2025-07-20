@@ -66,4 +66,17 @@ class CustomerAuthController extends Controller
         auth()->guard('customer')->logout();
         return redirect('/customer/login');
     }
+
+    public function profile()
+    {
+        $customer = auth()->guard('customer')->user();
+        return view('front.customer.profile', compact('customer'));
+    }
+
+    public function orders()
+    {
+        $customer = auth()->guard('customer')->user();
+        $orders = $customer->orders()->orderBy('created_at', 'desc')->get();
+        return view('front.customer.orders', compact('customer', 'orders'));
+    }
 }
