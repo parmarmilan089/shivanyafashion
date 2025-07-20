@@ -20,13 +20,17 @@ class FrontendController extends Controller
     public function product($id)
     {
         $product = \App\Models\Inventory::with(['variants.color', 'variants.size'])->findOrFail($id);
-        $variantData = $product->variants->map(function($v) {
+        $variantData = $product->variants->map(function($v) use ($product) {
             return [
+                'variant_id' => $v->id,
+                'inventory_id' => $v->inventory_id,
+                'product_name' => $product->name,
                 'color_id' => optional($v->color)->id,
                 'color_name' => optional($v->color)->name,
                 'size_id' => optional($v->size)->id,
                 'size_name' => optional($v->size)->name,
                 'price' => $v->price,
+                'image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
             ];
         })->values();
         return view('front.product-details', compact('product', 'variantData'));

@@ -47,12 +47,13 @@
         <input type="number" v-model.number="quantity" class="p-0 border-0 bg-transparent text-center" min="1">
         <button @click="updateQty(1)" class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt">+</button>
       </div>
-      <button class="w-100 flex-1 border-btn product-title">ADD TO CART <span class="atc-dot"></span>  ₹{{ totalPrice }}</button>
+      <button class="w-100 flex-1 border-btn product-title" @click="addToCart">ADD TO CART <span class="atc-dot"></span>  ₹{{ totalPrice }}</button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'ProductOptions',
   props: {
@@ -100,6 +101,34 @@ export default {
     },
     updateQty(change) {
       this.quantity = Math.max(1, this.quantity + change);
+    },
+    addToCart() {
+      if (!this.selectedVariant) {
+        alert('Please select a color and size.');
+        return;
+      }
+      const data = {
+        variant_id: this.selectedVariant.variant_id,
+        inventory_id: this.selectedVariant.inventory_id,
+        product_name: this.selectedVariant.product_name,
+        color_id: this.selectedVariant.color_id,
+        color_name: this.selectedVariant.color_name,
+        size_id: this.selectedVariant.size_id,
+        size_name: this.selectedVariant.size_name,
+        price: this.selectedVariant.price,
+        quantity: this.quantity,
+        image: this.selectedVariant.image
+      };
+      axios.post('/cart/add', data)
+        .then(response => {
+          alert('Added to cart!');
+          // Optionally emit an event or update cart UI
+          // this.$emit('cart-updated', response.data);
+        })
+        .catch(error => {
+          alert('Failed to add to cart.');
+          console.error(error);
+        });
     }
   },
   mounted() {

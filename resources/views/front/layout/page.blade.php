@@ -295,6 +295,7 @@
         fetch('/cart/get')
           .then(response => response.json())
           .then(data => {
+            console.log(data,'data');
             updateCartDisplay(data);
           })
           .catch(error => {
@@ -320,12 +321,12 @@
             const item = data.cart[key];
             cartHtml += `
               <div class="cart-item" data-cart-key="${key}">
-                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <img src="${item.image}" alt="${item.product_name}" class="cart-item-image">
                 <div class="cart-item-details">
-                  <div class="cart-item-name">${item.name}</div>
+                  <div class="cart-item-name">${item.product_name}</div>
                   <div class="cart-item-variant">
-                    ${item.color ? 'Color: ' + item.color : ''}
-                    ${item.size ? 'Size: ' + item.size : ''}
+                    ${item.color_name ? 'Color: ' + item.color_name : ''}
+                    ${item.size_name ? 'Size: ' + item.size_name : ''}
                   </div>
                   <div class="cart-item-price">₹${item.price}</div>
                   <div class="cart-item-quantity">

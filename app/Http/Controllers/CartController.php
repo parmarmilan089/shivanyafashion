@@ -10,45 +10,53 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        $request->validate([
-            'inventory_id' => 'required|exists:inventories,id',
-            'variant_id' => 'required|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
+        // Retrieve existing cart from session
         $cart = session()->get('cart', []);
-        $inventory = Inventory::with(['variants.color', 'variants.size'])->find($request->inventory_id);
-        $variant = $inventory->variants->where('id', $request->variant_id)->first();
+        $variantId = $request->variant_id;
+        $requestedQty = $request->quantity;
 
+        // Get the product variant to check stock
+        $variant = ProductVariant::find($variantId);
         if (!$variant) {
-            return response()->json(['success' => false, 'message' => 'Variant not found']);
+            return response()->json(['error' => 'Variant not found'], 404);
         }
 
-        $cartKey = $request->inventory_id . '_' . $request->variant_id;
+        // Check if enough stock is available
+        if ($variant->stock_qty < $requestedQty) {
+            return response()->json(['error' => 'Only ' . $variant->stock . ' item(s) left in stock'], 400);
+        }
+        // If product is already in cart, update quantity
+        if (isset($cart[$variantId])) {
+            $newQty = $cart[$variantId]['quantity'] + $requestedQty;
 
-        if (isset($cart[$cartKey])) {
-            $cart[$cartKey]['quantity'] += $request->quantity;
+            // Check again if stock allows this new quantity
+            if ($newQty > $variant->stock) {
+                return response()->json(['error' => 'Only ' . $variant->stock . ' item(s) available'], 400);
+            }
+
+            $cart[$variantId]['quantity'] = $newQty;
         } else {
-            $cart[$cartKey] = [
+            // Add new item to cart
+            $cartdata = [
+                'variant_id'   => $variantId,
                 'inventory_id' => $request->inventory_id,
-                'variant_id' => $request->variant_id,
-                'quantity' => $request->quantity,
-                'name' => $inventory->name,
-                'price' => $variant->price,
-                'image' => $inventory->image,
-                'color' => $variant->color->name ?? '',
-                'size' => $variant->size->name ?? '',
+                'product_name' => $request->product_name,
+                'color_id'     => $request->color_id,
+                'color_name'   => $request->color_name,
+                'size_id'      => $request->size_id,
+                'size_name'    => $request->size_name,
+                'price'        => $request->price,
+                'quantity'     => $requestedQty,
+                'image'        => $request->image,
             ];
+
+            $cart[$variantId] = $cartdata;
         }
 
+        // Store updated cart
         session()->put('cart', $cart);
-        session()->put('cart_count', count($cart));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Item added to cart',
-            'cart_count' => count($cart)
-        ]);
+        return response()->json(['success' => 'Product added to cart']);
     }
 
     public function updateCart(Request $request)
@@ -74,29 +82,29 @@ class CartController extends Controller
         return response()->json(['success' => false, 'message' => 'Item not found in cart']);
     }
 
-    public function removeFromCart(Request $request)
-    {
-        $request->validate([
-            'cart_key' => 'required|string',
-        ]);
+    // public function removeFromCart(Request $request)
+    // {
+    //     $request->validate([
+    //         'cart_key' => 'required|string',
+    //     ]);
 
-        $cart = session()->get('cart', []);
+    //     $cart = session()->get('cart', []);
 
-        if (isset($cart[$request->cart_key])) {
-            unset($cart[$request->cart_key]);
-            session()->put('cart', $cart);
-            session()->put('cart_count', count($cart));
+    //     if (isset($cart[$request->cart_key])) {
+    //         unset($cart[$request->cart_key]);
+    //         session()->put('cart', $cart);
+    //         session()->put('cart_count', count($cart));
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Item removed from cart',
-                'cart_count' => count($cart),
-                'cart_total' => $this->calculateCartTotal($cart)
-            ]);
-        }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Item removed from cart',
+    //             'cart_count' => count($cart),
+    //             'cart_total' => $this->calculateCartTotal($cart)
+    //         ]);
+    //     }
 
-        return response()->json(['success' => false, 'message' => 'Item not found in cart']);
-    }
+    //     return response()->json(['success' => false, 'message' => 'Item not found in cart']);
+    // }
 
     public function getCart()
     {
@@ -110,16 +118,16 @@ class CartController extends Controller
         ]);
     }
 
-    public function clearCart()
-    {
-        session()->forget('cart');
-        session()->forget('cart_count');
+    // public function clearCart()
+    // {
+    //     session()->forget('cart');
+    //     session()->forget('cart_count');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cart cleared'
-        ]);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Cart cleared'
+    //     ]);
+    // }
 
     private function calculateCartTotal($cart)
     {

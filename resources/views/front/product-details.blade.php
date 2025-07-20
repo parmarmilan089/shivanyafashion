@@ -32,21 +32,9 @@
 					<span class="product-description mb-3 d-block">
 					{{ Str::limit($product->short_description, 80) }}
 					</span>
-                    @php
-                        $variants = $product->variants->map(function($v) {
-                            return [
-                                'color_id' => $v->color->id ?? null,
-                                'color_name' => $v->color->name ?? '',
-                                'color_code' => $v->color->code ?? '',
-                                'size_id' => $v->size->id ?? null,
-                                'size_name' => $v->size->name ?? '',
-                                'price' => $v->price,
-                            ];
-                        });
-                    @endphp
                     <script>
     window.productOptionsProps = @json([
-        'variants' => $variants,
+        'variants' => $variantData,
     ]);
 </script>
 					<div id="product-options">
