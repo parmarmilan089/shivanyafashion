@@ -214,6 +214,20 @@
                     </div>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.customer.index') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('admin.customer.index') }}">
+                        <i class="material-symbols-rounded opacity-5">person</i>
+                        <span class="nav-link-text ms-1">Customers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.marketplace-order.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('admin.marketplace-order.index') }}">
+                        <i class="material-symbols-rounded opacity-5">shopping_bag</i>
+                        <span class="nav-link-text ms-1">Marketplace Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.size.*') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                         data-bs-toggle="collapse" href="#sizeMenu" role="button"
                         aria-expanded="{{ request()->routeIs('admin.size.*') ? 'true' : 'false' }}"

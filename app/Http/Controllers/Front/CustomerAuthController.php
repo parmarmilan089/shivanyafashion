@@ -76,7 +76,20 @@ class CustomerAuthController extends Controller
     public function orders()
     {
         $customer = auth()->guard('customer')->user();
-        $orders = $customer->orders()->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\MarketplaceOrder::with('items')
+            ->where('customer_id', $customer->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('front.customer.orders', compact('customer', 'orders'));
+    }
+
+    public function orderDetails($id)
+    {
+        $customer = auth()->guard('customer')->user();
+        $order = \App\Models\MarketplaceOrder::with(['items.inventory'])
+            ->where('id', $id)
+            ->where('customer_id', $customer->id)
+            ->firstOrFail();
+        return view('front.customer.order-details', compact('order'));
     }
 }

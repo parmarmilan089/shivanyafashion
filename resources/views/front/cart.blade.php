@@ -108,7 +108,11 @@ function updateCartQty(variantId, newQty) {
         location.reload();
     })
     .catch(function(error) {
-        alert('Failed to update cart.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update cart.'
+        });
     });
 }
 
@@ -125,7 +129,11 @@ function removeCartItem(variantId) {
         location.reload();
     })
     .catch(function(error) {
-        alert('Failed to remove item.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to remove item.'
+        });
     });
 }
 </script>

@@ -54,6 +54,8 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
   name: 'ProductOptions',
   props: {
@@ -104,7 +106,11 @@ export default {
     },
     addToCart() {
       if (!this.selectedVariant) {
-        alert('Please select a color and size.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Selection',
+          text: 'Please select a color and size.'
+        });
         return;
       }
       const data = {
@@ -121,7 +127,11 @@ export default {
       };
       axios.post('/cart/add', data)
         .then(response => {
-          alert('Added to cart!');
+          Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: 'Added to cart!'
+          });
           // Update cart count in the DOM
           if (response.data.cart_count !== undefined) {
             const cartCountEl = document.getElementById('cart-count');
@@ -133,7 +143,11 @@ export default {
           // this.$emit('cart-updated', response.data.cart);
         })
         .catch(error => {
-          alert('Failed to add to cart.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to add to cart.'
+          });
           console.error(error);
         });
     }

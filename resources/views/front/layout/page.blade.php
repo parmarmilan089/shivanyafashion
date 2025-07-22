@@ -428,11 +428,6 @@
         }
       });
 
-      // Checkout button
-      checkoutBtn.addEventListener('click', function() {
-        // Redirect to checkout page or show checkout modal
-        alert('Checkout functionality will be implemented here');
-      });
 
       // Event listeners
       cartToggle.addEventListener('click', function(e) {
@@ -475,7 +470,7 @@
         </div>
       </div>
       <div class="d-grid gap-2">
-        <button type="button" class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+        <a href="{{ route('checkout.page') }}" class="btn btn-primary w-100 mt-3" id="checkoutBtn">Proceed to Checkout</a>
         <button type="button" class="btn btn-outline-secondary" id="clearCartBtn">Clear Cart</button>
       </div>
     </div>

@@ -25,16 +25,25 @@
                                 <tbody>
                                     @foreach($orders as $order)
                                     <tr>
-                                        <td>#{{ $order->id }}</td>
+                                        <td>#{{ $order->order_number }}</td>
                                         <td>{{ $order->created_at->format('M d, Y') }}</td>
                                         <td>₹{{ number_format($order->total_amount, 2) }}</td>
                                         <td>
-                                            <span class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'info') }}">
+                                            @php
+                                                $statusColors = [
+                                                    'pending' => 'warning',
+                                                    'confirmed' => 'info',
+                                                    'shipped' => 'primary',
+                                                    'delivered' => 'success',
+                                                    'cancelled' => 'danger',
+                                                ];
+                                            @endphp
+                                            <span class="badge bg-{{ $statusColors[$order->status] ?? 'secondary' }}">
                                                 {{ ucfirst($order->status) }}
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <a href="{{ route('customer.order.details', $order->id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
                                         </td>
                                     </tr>
                                     @endforeach

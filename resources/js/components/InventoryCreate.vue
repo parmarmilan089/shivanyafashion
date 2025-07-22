@@ -376,7 +376,7 @@ export default {
   },
   mounted() {
     console.log('Sizes:', this.sizes);
-    
+
     // Validate that all required props are available
     if (!Array.isArray(this.sizes) || this.sizes.length === 0) {
       console.warn('Sizes prop is empty or not an array');
@@ -392,12 +392,12 @@ export default {
     addlog() {
       console.log(this.form, 'variants');
     },
-    
+
     // Calculate default price and stock from variants
     calculateDefaultValues() {
       let totalStock = 0;
       let lowestPrice = null;
-      
+
       this.form.variants.forEach(variant => {
         if (variant.sizes && variant.sizes.length > 0) {
           variant.sizes.forEach(size => {
@@ -405,7 +405,7 @@ export default {
             if (size.stock && !isNaN(size.stock)) {
               totalStock += parseInt(size.stock);
             }
-            
+
             // Find lowest price
             if (size.price && !isNaN(size.price)) {
               const price = parseFloat(size.price);
@@ -416,7 +416,7 @@ export default {
           });
         }
       });
-      
+
       // Update form with calculated values
       this.form.price = lowestPrice ? lowestPrice.toString() : '';
       this.form.stock_qty = totalStock.toString();
@@ -451,7 +451,7 @@ export default {
     addVariant() {
       // Clone the first variant's size data if it exists
       let newVariant = { color_id: '', sizes: [] };
-      
+
       if (this.form.variants.length > 0 && this.form.variants[0].sizes.length > 0) {
         // Clone each size from the first variant
         newVariant.sizes = this.form.variants[0].sizes.map(size => ({
@@ -465,7 +465,7 @@ export default {
           salePriceError: ''
         }));
       }
-      
+
       this.form.variants.push(newVariant);
       console.log(this.form.variants, 'this.form.variants');
     },
@@ -474,13 +474,17 @@ export default {
       if (!variant.sizes) {
         variant.sizes = [];
       }
-      
+
       const selectedSizeIds = variant.sizes.map((size) => size.size_id);
 
       // Check if sizes prop exists and is an array
       if (!Array.isArray(this.sizes) || this.sizes.length === 0) {
         console.error('Sizes prop is not available or empty');
-        alert('Sizes are not available. Please refresh the page.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Sizes Not Available',
+          text: 'Sizes are not available. Please refresh the page.'
+        });
         return;
       }
 
@@ -552,12 +556,12 @@ export default {
             size.price = value;
           }
         });
-        
+
         // Validate sale prices after price change
         this.validateSalePrices(variantIndex);
       }
     },
-    
+
     autoFillSalePrice(variantIndex, sizeIndex, value) {
       const variant = this.form.variants[variantIndex];
       if (variant && variant.sizes) {
@@ -567,12 +571,12 @@ export default {
             size.sale_price = value;
           }
         });
-        
+
         // Validate sale prices
         this.validateSalePrices(variantIndex);
       }
     },
-    
+
     autoFillStock(variantIndex, sizeIndex, value) {
       const variant = this.form.variants[variantIndex];
       if (variant && variant.sizes) {
@@ -584,7 +588,7 @@ export default {
         });
       }
     },
-    
+
     autoFillSaleStart(variantIndex, sizeIndex, value) {
       const variant = this.form.variants[variantIndex];
       if (variant && variant.sizes) {
@@ -596,7 +600,7 @@ export default {
         });
       }
     },
-    
+
     autoFillSaleEnd(variantIndex, sizeIndex, value) {
       const variant = this.form.variants[variantIndex];
       if (variant && variant.sizes) {
@@ -608,7 +612,7 @@ export default {
         });
       }
     },
-    
+
     // Validation methods
     validateSalePrices(variantIndex) {
       const variant = this.form.variants[variantIndex];
@@ -616,11 +620,11 @@ export default {
         variant.sizes.forEach(size => {
           // Clear previous errors
           size.salePriceError = '';
-          
+
           if (size.price && size.sale_price) {
             const price = parseFloat(size.price);
             const salePrice = parseFloat(size.sale_price);
-            
+
             if (salePrice >= price) {
               size.salePriceError = 'Sale price must be less than regular price';
             }
@@ -628,43 +632,43 @@ export default {
         });
       }
     },
-    
+
     handleSubmit() {
       // Clear previous validation errors
       this.clearValidationErrors();
-      
+
       let hasErrors = false;
       const errors = [];
-      
+
       // 1. Basic product information validation
       if (!this.form.name || this.form.name.trim() === '') {
         errors.push('Product name is required');
         hasErrors = true;
       }
-      
+
       if (!this.form.sku || this.form.sku.trim() === '') {
         errors.push('SKU is required');
         hasErrors = true;
       }
-      
+
       // 2. Category validation
       if (!this.selectedCategoryId) {
         errors.push('Please select a category');
         hasErrors = true;
       }
-      
+
       // 3. Main image validation
       if (!this.form.main_image) {
         errors.push('Main image is required');
         hasErrors = true;
       }
-      
+
       // 4. Variants validation
       if (!this.form.variants || this.form.variants.length === 0) {
         errors.push('At least one variant is required');
         hasErrors = true;
       }
-      
+
       // 5. Validate each variant
       this.form.variants.forEach((variant, variantIndex) => {
         // Color validation
@@ -672,40 +676,40 @@ export default {
           errors.push(`Variant ${variantIndex + 1}: Color is required`);
           hasErrors = true;
         }
-        
+
         // Sizes validation
         if (!variant.sizes || variant.sizes.length === 0) {
           errors.push(`Variant ${variantIndex + 1}: At least one size is required`);
           hasErrors = true;
         }
-        
+
         // Validate each size in the variant
         variant.sizes.forEach((size, sizeIndex) => {
           if (!size.size_id) {
             errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Size selection is required`);
             hasErrors = true;
           }
-          
+
           if (!size.price || size.price <= 0) {
             errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Valid price is required`);
             hasErrors = true;
           }
-          
+
           if (!size.sale_price || size.sale_price <= 0) {
             errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Valid sale price is required`);
             hasErrors = true;
           }
-          
+
           if (!size.stock || size.stock < 0) {
             errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Valid stock quantity is required`);
             hasErrors = true;
           }
-          
+
           // Sale price validation
           if (size.price && size.sale_price) {
             const price = parseFloat(size.price);
             const salePrice = parseFloat(size.sale_price);
-            
+
             if (salePrice >= price) {
               errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Sale price must be less than regular price`);
               hasErrors = true;
@@ -713,31 +717,31 @@ export default {
           }
         });
       });
-      
+
       // 6. Check for duplicate sizes within each variant
       this.form.variants.forEach((variant, variantIndex) => {
         const sizeIds = variant.sizes.map(size => size.size_id).filter(id => id);
         const uniqueSizeIds = [...new Set(sizeIds)];
-        
+
         if (sizeIds.length !== uniqueSizeIds.length) {
           errors.push(`Variant ${variantIndex + 1}: Duplicate sizes are not allowed`);
           hasErrors = true;
         }
       });
-      
+
       // 7. Check for duplicate colors across variants
       const colorIds = this.form.variants.map(variant => variant.color_id).filter(id => id);
       const uniqueColorIds = [...new Set(colorIds)];
-      
+
       if (colorIds.length !== uniqueColorIds.length) {
         errors.push('Duplicate colors are not allowed across variants');
         hasErrors = true;
       }
-      
+
       // If there are errors, show them and stop submission
       if (hasErrors) {
         const errorList = errors.map(error => `• ${error}`).join('<br>');
-        
+
         Swal.fire({
           title: 'Validation Errors',
           html: `<div style="text-align: left; max-height: 400px; overflow-y: auto;">
@@ -751,7 +755,7 @@ export default {
         });
         return;
       }
-      
+
       // All validations passed - show confirmation dialog
       Swal.fire({
         title: 'Confirm Submission',
@@ -769,7 +773,7 @@ export default {
         }
       });
     },
-    
+
     clearValidationErrors() {
       // Clear any previous validation errors
       this.form.variants.forEach(variant => {
@@ -780,14 +784,14 @@ export default {
         }
       });
     },
-    
+
     submitForm() {
       // Calculate default values from variants
       this.calculateDefaultValues();
-      
+
       // Create FormData for file uploads
       const formData = new FormData();
-      
+
       // Add basic form data
       formData.append('name', this.form.name);
       formData.append('sku', this.form.sku);
@@ -808,22 +812,22 @@ export default {
       formData.append('price', this.form.price);
       formData.append('stock_qty', this.form.stock_qty);
       formData.append('stock_status', this.form.stock_status);
-      
+
       // Add main image
       if (this.form.main_image) {
         formData.append('main_image', this.form.main_image);
       }
-      
+
       // Add gallery images
       if (this.form.gallery_images && this.form.gallery_images.length > 0) {
         this.form.gallery_images.forEach(image => {
           formData.append('gallery_images[]', image);
         });
       }
-      
+
       // Add variants data as JSON
       formData.append('variants', JSON.stringify(this.form.variants));
-      
+
       // Show loading state
       Swal.fire({
         title: 'Saving Product...',
@@ -835,10 +839,10 @@ export default {
           Swal.showLoading();
         }
       });
-      
+
       // Submit the form using axios
       console.log('Submitting form data...');
-      
+
       console.log(formData, 'formData');
       axios.post('/admin/inventory', formData, {
         headers: {

@@ -228,7 +228,7 @@
 
             function addProductRow(productId, name, image, price, qty, rowIndex = null, basePrice = 0) {
                 console.log(basePrice,'basePrice');
-                
+
                 const subtotal = (price * qty).toFixed(2);
                 const rowId = rowIndex !== null ? rowIndex : index;
 
@@ -281,12 +281,16 @@
                 const price = parseFloat(selected.data('price'));
                 const basePrice = parseFloat(selected.data('base_price')) || 0;
                 console.log(basePrice,'basePrice1');
-                
+
                 const image = selected.data('image');
                 const qty = parseInt($('#product-qty').val()) || 1;
 
                 if (!productId || isNaN(price)) {
-                    alert("Please select a valid product.");
+                    Swal.fire({
+                      icon: 'warning',
+                      title: 'Invalid Product',
+                      text: 'Please select a valid product.'
+                    });
                     return;
                 }
 

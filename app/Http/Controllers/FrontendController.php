@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Color;
+use App\Models\Inventory;
 
 class FrontendController extends Controller
 {
@@ -34,5 +36,26 @@ class FrontendController extends Controller
             ];
         })->values();
         return view('front.product-details', compact('product', 'variantData'));
+    }
+
+    public function categoryPage($slug, Request $request)
+    {
+        $category = Category::where('slug', $slug)->firstOrFail();
+        $query = Inventory::where('category_id', $category->id);
+        // Filters
+        if ($request->filled('color')) {
+            $query->where('color_id', $request->color);
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        $products = $query->paginate(12);
+        $colors = Color::all();
+        $minPrice = Inventory::min('price');
+        $maxPrice = Inventory::max('price');
+        return view('front.category', compact('category', 'products', 'colors', 'minPrice', 'maxPrice'));
     }
 }

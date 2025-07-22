@@ -425,7 +425,11 @@ export default {
       }
       const selectedSizeIds = variant.sizes.map((size) => size.size_id);
       if (!Array.isArray(this.sizes) || this.sizes.length === 0) {
-        alert('Sizes are not available. Please refresh the page.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Sizes Not Available',
+          text: 'Sizes are not available. Please refresh the page.'
+        });
         return;
       }
       const availableSize = this.sizes.find(sz => !selectedSizeIds.includes(sz.id));
@@ -437,7 +441,7 @@ export default {
           confirmButtonText: 'OK'
         });
         return;
-      } 
+      }
       variant.sizes.push({
         size_id: availableSize.id,
         price: '',

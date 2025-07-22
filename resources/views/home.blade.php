@@ -261,14 +261,26 @@
 					document.getElementById('cartCount').textContent = data.cart_count;
 
 					// Show success message
-					alert('Item added to cart successfully!');
+					Swal.fire({
+					  icon: 'success',
+					  title: 'Success',
+					  text: 'Item added to cart successfully!'
+					});
 				} else {
-					alert('Error: ' + data.message);
+					Swal.fire({
+					  icon: 'error',
+					  title: 'Error',
+					  text: data.message
+					});
 				}
 			})
 			.catch(error => {
 				console.error('Error:', error);
-				alert('Error adding item to cart');
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Error adding item to cart'
+				});
 			});
 		}
 	</script>

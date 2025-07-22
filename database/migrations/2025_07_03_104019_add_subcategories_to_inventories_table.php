@@ -13,12 +13,12 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->unsignedBigInteger('subcategory_id')->nullable()->after('category_id');
-            $table->unsignedBigInteger('subsubcategory_id')->nullable()->after('subcategory_id');
+            // $table->unsignedBigInteger('subcategory_id')->nullable()->after('category_id');
+            // $table->unsignedBigInteger('subsubcategory_id')->nullable()->after('subcategory_id');
 
-            // Add foreign keys
-            $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('set null');
-            $table->foreign('subsubcategory_id')->references('id')->on('categories')->onDelete('set null');
+            // // Add foreign keys
+            // $table->foreign('subcategory_id')->references('id')->on('categories')->onDelete('set null');
+            // $table->foreign('subsubcategory_id')->references('id')->on('categories')->onDelete('set null');
         });
     }
 
@@ -30,9 +30,9 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->dropForeign(['subcategory_id']);
-            $table->dropForeign(['subsubcategory_id']);
-            $table->dropColumn(['subcategory_id', 'subsubcategory_id']);
+            // $table->dropForeign(['subcategory_id']);
+            // $table->dropForeign(['subsubcategory_id']);
+            // $table->dropColumn(['subcategory_id', 'subsubcategory_id']);
         });
     }
 };

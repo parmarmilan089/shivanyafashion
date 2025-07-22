@@ -62,6 +62,7 @@ Route::middleware('auth:customer')->group(function () {
     });
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile'])->name('customer.profile');
     Route::get('/customer/orders', [CustomerAuthController::class, 'orders'])->name('customer.orders');
+    Route::get('/customer/orders/{id}', [CustomerAuthController::class, 'orderDetails'])->name('customer.order.details');
 });
 
 Route::get('/dashboard', function () {
@@ -136,5 +137,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::resource('banner', BannerController::class);
 });
+Route::get('/order/success', function () {
+    return view('front.order-success');
+})->name('order.success');
 require __DIR__.'/auth.php';
+
+// Admin Customer routes
+Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(function () {
+    Route::resource('customer', App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'destroy', 'show']);
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(function () {
+    Route::resource('marketplace-order', App\Http\Controllers\Admin\MarketplaceOrderController::class)->only(['index', 'show']);
+});
+
+Route::get('/category/{slug}', [\App\Http\Controllers\FrontendController::class, 'categoryPage'])->name('category.page');
 
