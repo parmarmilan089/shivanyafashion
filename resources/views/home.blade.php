@@ -25,6 +25,29 @@
 		</div>
 	</section>
 
+	<!-- Offer Marquee Swiper -->
+    <div class="offer-marquee-swiper w-100 py-2" style="background: #222121;">
+        <div class="marquee-content" style="white-space: nowrap; overflow: hidden; position: relative;">
+            <div style="
+                display: inline-block;
+                padding-left: 100%;
+                animation: marquee 36s linear infinite;
+                font-size: 1.2rem;
+                color: #ffffff;
+                font-weight: bold;
+                font-family: "Noto Serif Display", serif !important;
+            ">
+                🚀 Grand Launch Offer: Get 20% OFF on your first order! Use code <span style="color:#d35400;">WELCOME20</span> at checkout. | Free shipping on prepaid orders! | New arrivals every week!
+            </div>
+        </div>
+    </div>
+    <style>
+    @keyframes marquee {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+    </style>
+
 	<!-- Categories Section -->
 	<section class="categories-section pt-100-ct">
 		<div class="container-ct">
@@ -40,7 +63,9 @@
 						</div>
 						<!-- Category Name -->
 						<div class="p-3">
-							<h6 class="categories-name">{{ $category['name'] }}</h6>
+                            <a href="{{ route('category.page', $category['slug']) }}">
+                                <h6 class="categories-name">{{ $category['name'] }}</h6>
+                            </a>
 						</div>
 					</div>
 				@endforeach

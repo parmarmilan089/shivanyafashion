@@ -33,10 +33,10 @@
 					{{ Str::limit($product->short_description, 80) }}
 					</span>
                     <script>
-    window.productOptionsProps = @json([
-        'variants' => $variantData,
-    ]);
-</script>
+                        window.productOptionsProps = @json([
+                            'variants' => $variantData,
+                        ]);
+                    </script>
 					<div id="product-options">
                         <product-options :variants='@json($variantData)'></product-options>
                     </div>

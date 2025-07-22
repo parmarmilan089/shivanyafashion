@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import InventoryCreate from './components/InventoryCreate.vue';
 import InventoryEdit from './components/InventoryEdit.vue';
 import ProductOptions from './components/ProductOptions.vue';
+import CategoryProducts from './components/CategoryProducts.vue';
 
 console.log('Vue app loading...');
 // Helper to mount any component to a given DOM element
@@ -32,5 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const productOptions = document.querySelector('#product-options');
     if (productOptions) {
         mountComponent('#product-options', ProductOptions, window.productOptionsProps);
+    }
+    const categoryProducts = document.querySelector('#category-products');
+    if (categoryProducts && window.categoryProductsProps) {
+        mountComponent('#category-products', CategoryProducts, window.categoryProductsProps);
     }
 });

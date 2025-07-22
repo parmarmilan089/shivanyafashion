@@ -41,21 +41,29 @@ class FrontendController extends Controller
     public function categoryPage($slug, Request $request)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        $query = Inventory::where('category_id', $category->id);
-        // Filters
+        $query = Inventory::with(['variants'])->where('category_id', $category->id);
+        // Only filter by price if min_price or max_price is present
+        if ($request->filled('min_price') || $request->filled('max_price')) {
+            $query->whereHas('variants', function($q) use ($request) {
+                if ($request->filled('min_price')) {
+                    $q->where('price', '>=', $request->min_price);
+                }
+                if ($request->filled('max_price')) {
+                    $q->where('price', '<=', $request->max_price);
+                }
+            });
+        }
+
+        // Filter by color if present
         if ($request->filled('color')) {
-            $query->where('color_id', $request->color);
-        }
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            $query->whereHas('variants', function($q) use ($request) {
+                $q->where('color_id', $request->color);
+            });
         }
         $products = $query->paginate(12);
         $colors = Color::all();
-        $minPrice = Inventory::min('price');
-        $maxPrice = Inventory::max('price');
+        $minPrice = \App\Models\ProductVariant::where('inventory_id', $products->first()->id)->min('price');
+        $maxPrice = \App\Models\ProductVariant::where('inventory_id', $products->first()->id)->max('price');
         return view('front.category', compact('category', 'products', 'colors', 'minPrice', 'maxPrice'));
     }
 }

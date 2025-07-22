@@ -96,4 +96,26 @@ class CategoryController extends Controller
 
         return response()->json($subsubcategories);
     }
+
+    public function products($id, Request $request)
+    {
+        $query = \App\Models\Inventory::with(['variants'])
+            ->where('category_id', $id)
+            ->whereHas('variants', function($q) use ($request) {
+                if ($request->filled('min_price')) {
+                    $q->where('price', '>=', $request->min_price);
+                }
+                if ($request->filled('max_price')) {
+                    $q->where('price', '<=', $request->max_price);
+                }
+            });
+        if ($request->filled('color')) {
+            $query->whereHas('variants', function($q) use ($request) {
+                $q->where('color_id', $request->color);
+            });
+        }
+        $products = $query->paginate(12);
+        // Optionally, you can transform the products for the frontend
+        return response()->json($products);
+    }
 }
