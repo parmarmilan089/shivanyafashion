@@ -268,14 +268,13 @@
                   <div class="input-group input-group-outline my-2">
                     <input v-model="size.sale_end" type="date" class="form-control" @change="autoFillSaleEnd(vIndex, sizeIndex, $event.target.value)" />
                   </div>
-                  <button @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
+                  <button type="button" @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <button @click="addlog()" type="button" class="btn bg-gradient-dark text-white">Add Log</button>
 
         <div class="text-end mt-4">
           <button type="submit" class="btn bg-gradient-dark text-white">Save Product</button>

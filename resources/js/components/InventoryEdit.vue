@@ -133,9 +133,29 @@
               <div class="file-div">
                 <h6 class="file-title">Gallery Images</h6>
                 <input type="file" class="form-control file-input w-100" accept="image/*" multiple @change="handleGalleryImages" />
-                <div v-if="inventory.gallery_images">
-                  <div v-for="img in parsedGalleryImages" :key="img" style="display: inline-block; margin: 5px;">
+                                <div v-if="inventory.gallery_images">
+                  <div v-for="(img, index) in parsedGalleryImages" :key="img" style="display: inline-block; margin: 5px; position: relative;">
                     <img :src="'/storage/' + img" alt="Gallery Image" style="max-width: 80px;" />
+                    <button
+                      type="button"
+                      @click="removeGalleryImage(index)"
+                      class="btn btn-sm btn-danger gallery-remove-btn"
+                      title="Remove image">
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <!-- New Gallery Images Preview -->
+                <div v-if="newGalleryImages.length > 0">
+                  <div v-for="(img, index) in newGalleryImages" :key="img.id" style="display: inline-block; margin: 5px; position: relative;">
+                    <img :src="img.url" alt="New Gallery Image" style="max-width: 80px;" />
+                    <button
+                      type="button"
+                      @click="removeNewGalleryImage(index)"
+                      class="btn btn-sm btn-danger gallery-remove-btn"
+                      title="Remove image">
+                      ×
+                    </button>
                   </div>
                 </div>
               </div>
@@ -274,7 +294,7 @@
                   <div class="input-group input-group-outline my-2">
                     <input v-model="size.sale_end" type="date" class="form-control" @change="autoFillSaleEnd(vIndex, sizeIndex, $event.target.value)" />
                   </div>
-                  <button @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
+                  <button type="button" @click="removeSizeRow(vIndex, sizeIndex)" class="btn btn-sm btn-outline-danger">X</button>
                 </div>
               </div>
             </div>
@@ -329,7 +349,9 @@ export default {
       selectedCategoryId: '',
       selectedSubcategoryId: '',
       selectedSubsubcategoryId: '',
-      formLoaded: false
+      formLoaded: false,
+      currentGalleryImages: [],
+      newGalleryImages: []
     };
   },
   computed: {
@@ -344,6 +366,9 @@ export default {
         : [];
     },
     parsedGalleryImages() {
+      if (this.currentGalleryImages.length > 0) {
+        return this.currentGalleryImages;
+      }
       if (!this.inventory.gallery_images) return [];
       try {
         return JSON.parse(this.inventory.gallery_images);
@@ -394,6 +419,18 @@ export default {
       this.selectedCategoryId = inv.category_id ? String(inv.category_id) : '';
       this.selectedSubcategoryId = inv.subcategory_id ? String(inv.subcategory_id) : '';
       this.selectedSubsubcategoryId = inv.subsubcategory_id ? String(inv.subsubcategory_id) : '';
+
+      // Initialize current gallery images
+      if (inv.gallery_images) {
+        try {
+          this.currentGalleryImages = JSON.parse(inv.gallery_images);
+        } catch {
+          this.currentGalleryImages = [];
+        }
+      } else {
+        this.currentGalleryImages = [];
+      }
+
       this.formLoaded = true;
     },
     handleMainImage(e) {
@@ -401,6 +438,58 @@ export default {
     },
     handleGalleryImages(e) {
       this.form.gallery_images = [...e.target.files];
+
+      // Create preview URLs for new images
+      this.newGalleryImages = [];
+      Array.from(e.target.files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.newGalleryImages.push({
+            id: `new-${index}`,
+            url: e.target.result,
+            file: file
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    removeGalleryImage(index) {
+      Swal.fire({
+        title: 'Remove Image?',
+        text: 'Are you sure you want to remove this image?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Remove the image at the specified index from the reactive array
+          this.currentGalleryImages.splice(index, 1);
+          Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
+        }
+      });
+    },
+    removeNewGalleryImage(index) {
+      Swal.fire({
+        title: 'Remove Image?',
+        text: 'Are you sure you want to remove this image?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Remove the image from newGalleryImages array
+          this.newGalleryImages.splice(index, 1);
+          // Also remove from form.gallery_images
+          this.form.gallery_images.splice(index, 1);
+          Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
+        }
+      });
     },
     addVariant() {
       let newVariant = { color_id: '', sizes: [] };
@@ -582,11 +671,14 @@ export default {
       if (this.form.main_image) {
         formData.append('main_image', this.form.main_image);
       }
+      // Add new gallery images
       if (this.form.gallery_images && this.form.gallery_images.length > 0) {
         this.form.gallery_images.forEach(image => {
           formData.append('gallery_images[]', image);
         });
       }
+      // Add the updated gallery images from currentGalleryImages
+      formData.append('existing_gallery_images', JSON.stringify(this.currentGalleryImages));
       formData.append('variants', JSON.stringify(this.form.variants));
       Swal.fire({
         title: 'Updating...',
@@ -672,5 +764,20 @@ export default {
   z-index: 9;
   opacity: 0;
   height: 100%;
+}
+.gallery-remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 }
 </style>

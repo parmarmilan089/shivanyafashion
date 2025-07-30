@@ -3,84 +3,90 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h6>Marketplace Order Details</h6>
+        <div class="col-xl-10">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center py-3 rounded-top-4">
+                    <div>
+                        <h5 class="mb-0">Invoice</h5>
+                        <small>Order #{{ $marketplace_order->order_number }}</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-light text-dark me-2">Status: {{ ucfirst($marketplace_order->status) }}</span>
+                        <span class="badge bg-light text-dark">Payment: {{ ucfirst($marketplace_order->payment_status) }}</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered mb-4">
-                        <tr>
-                            <th>Order Number</th>
-                            <td>{{ $marketplace_order->order_number }}</td>
-                        </tr>
-                        <tr>
-                            <th>Customer</th>
-                            <td>{{ $marketplace_order->customer ? $marketplace_order->customer->name : '-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Status</th>
-                            <td>{{ $marketplace_order->status }}</td>
-                        </tr>
-                        <tr>
-                            <th>Total Amount</th>
-                            <td>{{ $marketplace_order->total_amount }}</td>
-                        </tr>
-                        <tr>
-                            <th>Payment Status</th>
-                            <td>{{ $marketplace_order->payment_status }}</td>
-                        </tr>
-                        <tr>
-                            <th>Payment Method</th>
-                            <td>{{ $marketplace_order->payment_method }}</td>
-                        </tr>
-                        <tr>
-                            <th>Billing Name</th>
-                            <td>{{ $marketplace_order->billing_name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Billing Phone</th>
-                            <td>{{ $marketplace_order->billing_phone }}</td>
-                        </tr>
-                        <tr>
-                            <th>Billing Email</th>
-                            <td>{{ $marketplace_order->billing_email }}</td>
-                        </tr>
-                        <tr>
-                            <th>Billing Address</th>
-                            <td>{{ $marketplace_order->billing_address }}</td>
-                        </tr>
-                        <tr>
-                            <th>Platform</th>
-                            <td>{{ $marketplace_order->platform }}</td>
-                        </tr>
-                    </table>
-                    <h6>Order Items</h6>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Product</th>
-                                <th>Variant</th>
-                                <th>Price</th>
-                                <th>Qty</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($marketplace_order->items as $item)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->inventory ? $item->inventory->name : $item->product_name }}</td>
-                                <td>{{ $item->variant ? $item->variant->id : '-' }}</td>
-                                <td>{{ $item->price }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ $item->subtotal }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <a href="{{ route('admin.marketplace-order.index') }}" class="btn btn-secondary">Back to Orders</a>
+
+                <div class="card-body px-5 py-4">
+                    {{-- Billing & Customer Details --}}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted mb-2">Billed To</h6>
+                            <div class="border rounded p-3 bg-light">
+                                <p class="mb-1"><strong>Name:</strong> {{ $marketplace_order->billing_name }}</p>
+                                <p class="mb-1"><strong>Phone:</strong> {{ $marketplace_order->billing_phone }}</p>
+                                <p class="mb-1"><strong>Email:</strong> {{ $marketplace_order->billing_email }}</p>
+                                <p class="mb-0"><strong>Address:</strong> {{ $marketplace_order->billing_address }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-4 mt-md-0">
+                            <h6 class="text-uppercase text-muted mb-2">Order Details</h6>
+                            <div class="border rounded p-3 bg-light">
+                                <p class="mb-1"><strong>Customer:</strong> {{ $marketplace_order->customer ? $marketplace_order->customer->name : '-' }}</p>
+                                <p class="mb-1"><strong>Platform:</strong> {{ ucfirst($marketplace_order->platform) }}</p>
+                                <p class="mb-1"><strong>Payment Method:</strong> {{ ucfirst($marketplace_order->payment_method) }}</p>
+                                <p class="mb-0"><strong>Order Total:</strong> ₹{{ number_format($marketplace_order->total_amount, 2) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Order Items --}}
+                    <h6 class="text-uppercase mb-3 mt-4">Order Items</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-center mb-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Variant</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($marketplace_order->items as $item)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $item->inventory ? $item->inventory->name : $item->product_name }}</td>
+                                    <td>{{ $item->variant ? $item->variant->id : '-' }}</td>
+                                    <td>₹{{ number_format($item->price, 2) }}</td>
+                                    <td>{{ $item->qty }}</td>
+                                    <td>₹{{ number_format($item->subtotal, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Grand Total --}}
+                    <div class="d-flex justify-content-end">
+                        <div class="border p-3 rounded bg-light w-50">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Grand Total</span>
+                                <span class="fw-bold">₹{{ number_format($marketplace_order->total_amount, 2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="d-flex justify-content-between mt-5">
+                        <a href="{{ route('admin.marketplace-order.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back
+                        </a>
+                        <button onclick="window.print()" class="btn btn-primary">
+                            <i class="fas fa-print me-1"></i> Print Invoice
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

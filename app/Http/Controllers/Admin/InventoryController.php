@@ -43,7 +43,7 @@ class InventoryController extends Controller
         $originalSlug = $slug;
         $count = 1;
 
-        while (\DB::table('inventories')->where('slug', $slug)->exists()) {
+        while (DB::table('inventories')->where('slug', $slug)->exists()) {
             $slug = $originalSlug . '-' . $count;
             $count++;
         }
@@ -106,7 +106,7 @@ class InventoryController extends Controller
             foreach ($variants as $variant) {
                 if (isset($variant['sizes']) && is_array($variant['sizes'])) {
                     foreach ($variant['sizes'] as $size) {
-                        \DB::table('product_variants')->insert([
+                        DB::table('product_variants')->insert([
                             'inventory_id' => $inventory->id,
                             'color_id' => $variant['color_id'],
                             'size_id' => $size['size_id'],
@@ -144,30 +144,6 @@ class InventoryController extends Controller
         // $inventory->status = $request->status ?? 'active';
         // $inventory->is_featured = $request->is_featured == 'active' ? 1 : 0;
         // $inventory->save();
-
-        // Store variants
-        $variants = json_decode($request->variants, true);
-
-        if (is_array($variants)) {
-            foreach ($variants as $variant) {
-                if (isset($variant['sizes']) && is_array($variant['sizes'])) {
-                    foreach ($variant['sizes'] as $size) {
-                        \DB::table('product_variants')->insert([
-                            'inventory_id' => $inventory->id,
-                            'color_id' => $variant['color_id'],
-                            'size_id' => $size['size_id'],
-                            'price' => $size['price'],
-                            'sale_price' => $size['sale_price'] === '' ? null : $size['sale_price'],
-                            'stock_qty' => $size['stock'],
-                            'sale_start' => empty($size['sale_start']) ? null : $size['sale_start'],
-                            'sale_end' => empty($size['sale_end']) ? null : $size['sale_end'],
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
-            }
-        }
 
         return redirect()->route('admin.inventory.index')->with('success', 'Product added successfully.');
     }
@@ -245,13 +221,26 @@ class InventoryController extends Controller
             $data['main_image'] = $request->file('main_image')->store('products', 'public');
         }
 
-        if ($request->hasFile('gallery_images')) {
-            $gallery = [];
-            foreach ($request->file('gallery_images') as $image) {
-                $gallery[] = $image->store('products/gallery', 'public');
+        // Handle gallery images
+        $galleryImages = [];
+
+        // Get existing gallery images that weren't removed
+        if ($request->has('existing_gallery_images')) {
+            $existingImages = json_decode($request->existing_gallery_images, true);
+            if (is_array($existingImages)) {
+                $galleryImages = $existingImages;
             }
-            $data['gallery_images'] = json_encode($gallery);
         }
+
+        // Add new gallery images if uploaded
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $image) {
+                $galleryImages[] = $image->store('products/gallery', 'public');
+            }
+        }
+
+        // Update gallery_images (even if empty to clear all images)
+        $data['gallery_images'] = json_encode($galleryImages);
 
         // Optionally update slug if name changed
         if ($inventory->name !== $data['name']) {
@@ -262,7 +251,7 @@ class InventoryController extends Controller
         $inventory->update($data);
 
         // Handle variants: remove old, insert new
-        \DB::table('product_variants')->where('inventory_id', $inventory->id)->delete();
+        DB::table('product_variants')->where('inventory_id', $inventory->id)->delete();
 
         $variants = json_decode($request->variants, true);
 
@@ -270,7 +259,7 @@ class InventoryController extends Controller
             foreach ($variants as $variant) {
                 if (isset($variant['sizes']) && is_array($variant['sizes'])) {
                     foreach ($variant['sizes'] as $size) {
-                        \DB::table('product_variants')->insert([
+                        DB::table('product_variants')->insert([
                             'inventory_id' => $inventory->id,
                             'color_id' => $variant['color_id'],
                             'size_id' => $size['size_id'],
