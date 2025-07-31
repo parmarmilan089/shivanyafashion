@@ -116,52 +116,7 @@
             </div>
           </div>
         </div>
-        <!-- Main Image & Gallery -->
 
-        <div class="card px-sm-4 px-3 py-3 my-3">
-          <div class="row">
-            <div class="col-md-6 my-2">
-              <div class="file-div">
-                <h6 class="file-title">Main Image</h6>
-                <input type="file" class="form-control file-input w-100" accept="image/*" @change="handleMainImage" />
-                <div v-if="inventory.main_image">
-                  <img :src="'/storage/' + inventory.main_image" alt="Current Main Image" style="max-width: 120px; margin-top: 10px;" />
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 my-2">
-              <div class="file-div">
-                <h6 class="file-title">Gallery Images</h6>
-                <input type="file" class="form-control file-input w-100" accept="image/*" multiple @change="handleGalleryImages" />
-                                <div v-if="inventory.gallery_images">
-                  <div v-for="(img, index) in parsedGalleryImages" :key="img" style="display: inline-block; margin: 5px; position: relative;">
-                    <img :src="'/storage/' + img" alt="Gallery Image" style="max-width: 80px;" />
-                    <button
-                      type="button"
-                      @click="removeGalleryImage(index)"
-                      class="btn btn-sm btn-danger gallery-remove-btn"
-                      title="Remove image">
-                      ×
-                    </button>
-                  </div>
-                </div>
-                <!-- New Gallery Images Preview -->
-                <div v-if="newGalleryImages.length > 0">
-                  <div v-for="(img, index) in newGalleryImages" :key="img.id" style="display: inline-block; margin: 5px; position: relative;">
-                    <img :src="img.url" alt="New Gallery Image" style="max-width: 80px;" />
-                    <button
-                      type="button"
-                      @click="removeNewGalleryImage(index)"
-                      class="btn btn-sm btn-danger gallery-remove-btn"
-                      title="Remove image">
-                      ×
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- SEO Fields -->
         <div class="card px-sm-4 px-3 py-3">
@@ -248,6 +203,51 @@
                 </button>
               </div>
             </div>
+
+            <!-- Variant Images -->
+            <div class="row mt-3">
+              <div class="col-md-6 my-2">
+                <div class="file-div">
+                  <h6 class="file-title">Variant Main Image</h6>
+                  <input type="file" class="form-control file-input w-100" accept="image/*" @change="handleVariantMainImage(vIndex, $event)" />
+                  <div v-if="variant.main_image">
+                    <img :src="'/storage/' + variant.main_image" alt="Current Variant Main Image" style="max-width: 120px; margin-top: 10px;" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 my-2">
+                <div class="file-div">
+                  <h6 class="file-title">Variant Gallery Images</h6>
+                  <input type="file" class="form-control file-input w-100" accept="image/*" multiple @change="handleVariantGalleryImages(vIndex, $event)" />
+                  <div v-if="variant.gallery_images && variant.gallery_images.length > 0">
+                    <div v-for="(img, index) in variant.gallery_images" :key="img" style="display: inline-block; margin: 5px; position: relative;">
+                      <img :src="'/storage/' + img" alt="Variant Gallery Image" style="max-width: 80px;" />
+                      <button
+                        type="button"
+                        @click="removeVariantGalleryImage(vIndex, index)"
+                        class="btn btn-sm btn-danger gallery-remove-btn"
+                        title="Remove image">
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                  <!-- New Variant Gallery Images Preview -->
+                  <div v-if="variant.newGalleryImages && variant.newGalleryImages.length > 0">
+                    <div v-for="(img, index) in variant.newGalleryImages" :key="img.id" style="display: inline-block; margin: 5px; position: relative;">
+                      <img :src="img.url" alt="New Variant Gallery Image" style="max-width: 80px;" />
+                      <button
+                        type="button"
+                        @click="removeNewVariantGalleryImage(vIndex, index)"
+                        class="btn btn-sm btn-danger gallery-remove-btn"
+                        title="Remove image">
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="mt-3">
               <div class="row fw-bold text-dark mb-2">
                 <div class="col-md-2">Size</div>
@@ -404,8 +404,7 @@ export default {
         pattern: inv.pattern || '',
         short_description: inv.short_description || '',
         full_description: inv.full_description || '',
-        main_image: null,
-        gallery_images: [],
+
         meta_title: inv.meta_title || '',
         meta_keywords: inv.meta_keywords || '',
         meta_description: inv.meta_description || '',
@@ -433,19 +432,23 @@ export default {
 
       this.formLoaded = true;
     },
-    handleMainImage(e) {
-      this.form.main_image = e.target.files[0];
+
+    handleVariantMainImage(variantIndex, event) {
+      this.form.variants[variantIndex].main_image = event.target.files[0];
     },
-    handleGalleryImages(e) {
-      this.form.gallery_images = [...e.target.files];
+    handleVariantGalleryImages(variantIndex, event) {
+      this.form.variants[variantIndex].gallery_images = [...event.target.files];
 
       // Create preview URLs for new images
-      this.newGalleryImages = [];
-      Array.from(e.target.files).forEach((file, index) => {
+      if (!this.form.variants[variantIndex].newGalleryImages) {
+        this.$set(this.form.variants[variantIndex], 'newGalleryImages', []);
+      }
+
+      Array.from(event.target.files).forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.newGalleryImages.push({
-            id: `new-${index}`,
+          this.form.variants[variantIndex].newGalleryImages.push({
+            id: `new-${variantIndex}-${index}`,
             url: e.target.result,
             file: file
           });
@@ -453,7 +456,7 @@ export default {
         reader.readAsDataURL(file);
       });
     },
-    removeGalleryImage(index) {
+    removeVariantGalleryImage(variantIndex, imageIndex) {
       Swal.fire({
         title: 'Remove Image?',
         text: 'Are you sure you want to remove this image?',
@@ -465,13 +468,12 @@ export default {
         cancelButtonText: 'Cancel'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Remove the image at the specified index from the reactive array
-          this.currentGalleryImages.splice(index, 1);
+          this.form.variants[variantIndex].gallery_images.splice(imageIndex, 1);
           Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
         }
       });
     },
-    removeNewGalleryImage(index) {
+    removeNewVariantGalleryImage(variantIndex, imageIndex) {
       Swal.fire({
         title: 'Remove Image?',
         text: 'Are you sure you want to remove this image?',
@@ -483,16 +485,14 @@ export default {
         cancelButtonText: 'Cancel'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Remove the image from newGalleryImages array
-          this.newGalleryImages.splice(index, 1);
-          // Also remove from form.gallery_images
-          this.form.gallery_images.splice(index, 1);
+          this.form.variants[variantIndex].newGalleryImages.splice(imageIndex, 1);
+          this.form.variants[variantIndex].gallery_images.splice(imageIndex, 1);
           Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
         }
       });
     },
     addVariant() {
-      let newVariant = { color_id: '', sizes: [] };
+      let newVariant = { color_id: '', main_image: null, gallery_images: [], newGalleryImages: [], sizes: [] };
       if (this.form.variants.length > 0 && this.form.variants[0].sizes.length > 0) {
         newVariant.sizes = this.form.variants[0].sizes.map(size => ({
           size_id: size.size_id,
@@ -646,7 +646,80 @@ export default {
         });
       }
     },
+    validateForm() {
+      let hasErrors = false;
+      const errors = [];
+
+      // Basic validation
+      if (!this.form.name || this.form.name.trim() === '') {
+        errors.push('Product name is required');
+        hasErrors = true;
+      }
+
+      if (!this.selectedCategoryId) {
+        errors.push('Please select a category');
+        hasErrors = true;
+      }
+
+      // Validate variants
+      this.form.variants.forEach((variant, variantIndex) => {
+        if (!variant.color_id) {
+          errors.push(`Variant ${variantIndex + 1}: Color is required`);
+          hasErrors = true;
+        }
+
+        // Check if variant has main image (either existing or new)
+        if (!variant.main_image) {
+          errors.push(`Variant ${variantIndex + 1}: Main image is required`);
+          hasErrors = true;
+        }
+
+        if (!variant.sizes || variant.sizes.length === 0) {
+          errors.push(`Variant ${variantIndex + 1}: At least one size is required`);
+          hasErrors = true;
+        }
+
+        // Validate each size
+        variant.sizes.forEach((size, sizeIndex) => {
+          if (!size.size_id) {
+            errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Size selection is required`);
+            hasErrors = true;
+          }
+
+          if (!size.price || size.price <= 0) {
+            errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Valid price is required`);
+            hasErrors = true;
+          }
+
+          if (!size.stock || size.stock < 0) {
+            errors.push(`Variant ${variantIndex + 1}, Size ${sizeIndex + 1}: Valid stock quantity is required`);
+            hasErrors = true;
+          }
+        });
+      });
+
+      if (hasErrors) {
+        const errorList = errors.map(error => `• ${error}`).join('<br>');
+        Swal.fire({
+          title: 'Validation Errors',
+          html: `<div style="text-align: left; max-height: 400px; overflow-y: auto;">
+            <p>Please fix the following errors:</p>
+            <div style="margin-top: 10px;">${errorList}</div>
+          </div>`,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#d33',
+          width: '600px'
+        });
+        return false;
+      }
+
+      return true;
+    },
     handleSubmit() {
+      if (!this.validateForm()) {
+        return;
+      }
       this.calculateDefaultValues();
       const formData = new FormData();
       formData.append('name', this.form.name);
@@ -668,17 +741,22 @@ export default {
       formData.append('price', this.form.price);
       formData.append('stock_qty', this.form.stock_qty);
       formData.append('stock_status', this.form.stock_status);
-      if (this.form.main_image) {
-        formData.append('main_image', this.form.main_image);
-      }
-      // Add new gallery images
-      if (this.form.gallery_images && this.form.gallery_images.length > 0) {
-        this.form.gallery_images.forEach(image => {
-          formData.append('gallery_images[]', image);
-        });
-      }
-      // Add the updated gallery images from currentGalleryImages
-      formData.append('existing_gallery_images', JSON.stringify(this.currentGalleryImages));
+
+      // Add variant images
+      this.form.variants.forEach((variant, variantIndex) => {
+        if (variant.main_image && variant.main_image instanceof File) {
+          formData.append(`variant_main_images[${variantIndex}]`, variant.main_image);
+        }
+        if (variant.gallery_images && variant.gallery_images.length > 0) {
+          variant.gallery_images.forEach((image, imageIndex) => {
+            // Only append if it's a File object (new upload)
+            if (image instanceof File) {
+              formData.append(`variant_gallery_images[${variantIndex}][${imageIndex}]`, image);
+            }
+          });
+        }
+      });
+
       formData.append('variants', JSON.stringify(this.form.variants));
       Swal.fire({
         title: 'Updating...',

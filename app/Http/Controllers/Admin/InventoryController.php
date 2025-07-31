@@ -70,40 +70,38 @@ class InventoryController extends Controller
             'meta_description' => 'nullable|string',
             'status' => 'required|in:active,inactive,draft',
             'featured' => 'required|in:active,inactive',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'variant_main_images.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'variant_gallery_images.*.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|json',
         ]);
 
-        // Upload main image
-        $mainImage = null;
-        if ($request->hasFile('main_image')) {
-            $mainImage = $request->file('main_image')->store('uploads/products/main', 'public');
-        }
-
-        // Upload gallery images
-        $galleryPaths = [];
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $image) {
-                $galleryPaths[] = $image->store('uploads/products/gallery', 'public');
-            }
-        }
-
         $data = $request->all();
-        $data['main_image'] = $mainImage;
-        $data['gallery_images'] = json_encode($galleryPaths);
         $data['status'] = $request->status ?? 'active';
         $data['is_featured'] = $request->is_featured == 'active' ? 1 : 0;
         $data['slug'] = $this->generateUniqueSlug($data['name']);
 
-        // Create the inventory and assign to $inventory
+        // Create the inventory
         $inventory = Inventory::create($data);
 
         // Decode variants JSON for storage
         $variants = json_decode($request->variants, true);
 
         if (is_array($variants)) {
-            foreach ($variants as $variant) {
+            foreach ($variants as $variantIndex => $variant) {
+                // Handle variant main image
+                $mainImage = null;
+                if ($request->hasFile("variant_main_images.{$variantIndex}")) {
+                    $mainImage = $request->file("variant_main_images.{$variantIndex}")->store('uploads/products/variants/main', 'public');
+                }
+
+                // Handle variant gallery images
+                $galleryPaths = [];
+                if ($request->hasFile("variant_gallery_images.{$variantIndex}")) {
+                    foreach ($request->file("variant_gallery_images.{$variantIndex}") as $image) {
+                        $galleryPaths[] = $image->store('uploads/products/variants/gallery', 'public');
+                    }
+                }
+
                 if (isset($variant['sizes']) && is_array($variant['sizes'])) {
                     foreach ($variant['sizes'] as $size) {
                         DB::table('product_variants')->insert([
@@ -115,6 +113,8 @@ class InventoryController extends Controller
                             'stock_qty' => $size['stock'],
                             'sale_start' => empty($size['sale_start']) ? null : $size['sale_start'],
                             'sale_end' => empty($size['sale_end']) ? null : $size['sale_end'],
+                            'main_image' => $mainImage,
+                            'gallery_images' => json_encode($galleryPaths),
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -122,28 +122,6 @@ class InventoryController extends Controller
                 }
             }
         }
-
-
-        // // Save Inventory
-        // $inventory = new Inventory();
-        // $inventory->name = $request->name;
-        // $inventory->slug = \Str::slug($request->name);
-        // $inventory->sku = $request->sku;
-        // $inventory->category_id = $request->category_id;
-        // $inventory->short_description = $request->short_description;
-        // $inventory->full_description = $request->full_description;
-        // $inventory->main_image = $mainImage;
-        // $inventory->gallery_images = json_encode($galleryPaths);
-        // $inventory->fabric = $request->fabric;
-        // $inventory->fit = $request->Fit;
-        // $inventory->pattern = $request->Pattern;
-        // $inventory->top_length = $request->top_length;
-        // $inventory->meta_title = $request->meta_title;
-        // $inventory->meta_description = $request->meta_description;
-        // $inventory->meta_keywords = $request->meta_keywords;
-        // $inventory->status = $request->status ?? 'active';
-        // $inventory->is_featured = $request->is_featured == 'active' ? 1 : 0;
-        // $inventory->save();
 
         return redirect()->route('admin.inventory.index')->with('success', 'Product added successfully.');
     }
@@ -164,6 +142,8 @@ class InventoryController extends Controller
             if (!isset($variants[$colorId])) {
                 $variants[$colorId] = [
                     'color_id' => $colorId,
+                    'main_image' => $row->main_image,
+                    'gallery_images' => json_decode($row->gallery_images, true) ?: [],
                     'sizes' => []
                 ];
             }
@@ -194,6 +174,8 @@ class InventoryController extends Controller
     {
         $inventory = Inventory::findOrFail($id);
 
+
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|unique:inventories,sku,' . $inventory->id,
@@ -211,36 +193,8 @@ class InventoryController extends Controller
             'meta_description' => 'nullable|string',
             'status' => 'required|in:active,inactive,draft',
             'featured' => 'required|in:active,inactive',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'variants' => 'required|json',
         ]);
-
-        // Handle Image Upload
-        if ($request->hasFile('main_image')) {
-            $data['main_image'] = $request->file('main_image')->store('products', 'public');
-        }
-
-        // Handle gallery images
-        $galleryImages = [];
-
-        // Get existing gallery images that weren't removed
-        if ($request->has('existing_gallery_images')) {
-            $existingImages = json_decode($request->existing_gallery_images, true);
-            if (is_array($existingImages)) {
-                $galleryImages = $existingImages;
-            }
-        }
-
-        // Add new gallery images if uploaded
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $image) {
-                $galleryImages[] = $image->store('products/gallery', 'public');
-            }
-        }
-
-        // Update gallery_images (even if empty to clear all images)
-        $data['gallery_images'] = json_encode($galleryImages);
 
         // Optionally update slug if name changed
         if ($inventory->name !== $data['name']) {
@@ -255,8 +209,51 @@ class InventoryController extends Controller
 
         $variants = json_decode($request->variants, true);
 
+        // Validate variant images if they are uploaded
         if (is_array($variants)) {
-            foreach ($variants as $variant) {
+            foreach ($variants as $variantIndex => $variant) {
+                // Validate main image if uploaded
+                if ($request->hasFile("variant_main_images.{$variantIndex}")) {
+                    $request->validate([
+                        "variant_main_images.{$variantIndex}" => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+                    ]);
+                }
+
+                // Validate gallery images if uploaded
+                if ($request->hasFile("variant_gallery_images.{$variantIndex}")) {
+                    foreach ($request->file("variant_gallery_images.{$variantIndex}") as $imageIndex => $image) {
+                        $request->validate([
+                            "variant_gallery_images.{$variantIndex}.{$imageIndex}" => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if (is_array($variants)) {
+            foreach ($variants as $variantIndex => $variant) {
+                // Handle variant main image
+                $mainImage = null;
+                if ($request->hasFile("variant_main_images.{$variantIndex}")) {
+                    $mainImage = $request->file("variant_main_images.{$variantIndex}")->store('uploads/products/variants/main', 'public');
+                } else {
+                    // Keep existing image if no new one uploaded
+                    $mainImage = $variant['main_image'] ?? null;
+                }
+
+                // Handle variant gallery images
+                $galleryPaths = [];
+                if ($request->hasFile("variant_gallery_images.{$variantIndex}")) {
+                    foreach ($request->file("variant_gallery_images.{$variantIndex}") as $image) {
+                        $galleryPaths[] = $image->store('uploads/products/variants/gallery', 'public');
+                    }
+                }
+
+                // Always include existing gallery images (they may have been modified by frontend)
+                if (isset($variant['gallery_images']) && is_array($variant['gallery_images'])) {
+                    $galleryPaths = array_merge($galleryPaths, $variant['gallery_images']);
+                }
+
                 if (isset($variant['sizes']) && is_array($variant['sizes'])) {
                     foreach ($variant['sizes'] as $size) {
                         DB::table('product_variants')->insert([
@@ -268,6 +265,8 @@ class InventoryController extends Controller
                             'stock_qty' => $size['stock'],
                             'sale_start' => empty($size['sale_start']) ? null : $size['sale_start'],
                             'sale_end' => empty($size['sale_end']) ? null : $size['sale_end'],
+                            'main_image' => $mainImage,
+                            'gallery_images' => json_encode($galleryPaths),
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
