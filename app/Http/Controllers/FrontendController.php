@@ -15,8 +15,25 @@ class FrontendController extends Controller
     {
         // here base on inventories
         $inventories = \App\Models\Inventory::with(['variants.color', 'variants.size'])->limit(20)->orderBy('id', 'desc')->get();
+        $featuredProducts = Inventory::with(['variants.color', 'variants.size'])->where('is_featured', 1)->get();
+        $variantData = $featuredProducts->flatMap(function($inventory) {
+            return $inventory->variants->map(function($v) use ($inventory) {
+                return [
+                    'variant_id' => $v->id,
+                    'inventory_id' => $v->inventory_id,
+                    'product_name' => $inventory->name,
+                    'color_id' => optional($v->color)->id,
+                    'color_name' => optional($v->color)->name,
+                    'color_code' => optional($v->color)->code,
+                    'size_id' => optional($v->size)->id,
+                    'size_name' => optional($v->size)->name,
+                    'price' => $v->price,
+                    'image' => $inventory->main_image ? asset('storage/' . $inventory->main_image) : null,
+                ];
+            });
+        })->values();
         $categorys = Category::where('category_type', 1)->get();
-        return view('home', compact('inventories', 'categorys'));
+        return view('home', compact('inventories', 'categorys', 'variantData'));
     }
 
     public function product($id)
@@ -29,10 +46,12 @@ class FrontendController extends Controller
                 'product_name' => $product->name,
                 'color_id' => optional($v->color)->id,
                 'color_name' => optional($v->color)->name,
+                'color_code' => optional($v->color)->code,
                 'size_id' => optional($v->size)->id,
                 'size_name' => optional($v->size)->name,
                 'price' => $v->price,
-                'image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
+                'gallery_images' => $v->gallery_images,
+                'main_image' => $v->main_image,
             ];
         })->values();
         return view('front.product-details', compact('product', 'variantData'));
