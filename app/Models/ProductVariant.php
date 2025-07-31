@@ -18,6 +18,12 @@ class ProductVariant extends Model
         'stock_qty',
         'sale_start',
         'sale_end',
+        'main_image',
+        'gallery_images',
+    ];
+
+    protected $casts = [
+        'gallery_images' => 'array',
     ];
 
     public function inventory()
@@ -34,4 +40,4 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Size::class, 'size_id');
     }
-} 
+}

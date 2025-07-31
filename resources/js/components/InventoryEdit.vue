@@ -210,6 +210,12 @@
                 <div class="file-div">
                   <h6 class="file-title">Variant Main Image</h6>
                   <input type="file" class="form-control file-input w-100" accept="image/*" @change="handleVariantMainImage(vIndex, $event)" />
+                  <div class="file-info mt-2">
+                    <small class="text-muted">
+                      <i class="material-icons" style="font-size: 14px;">info</i>
+                      Max file size: 2MB | Supported: JPEG, PNG, GIF, WebP
+                    </small>
+                  </div>
                   <div v-if="variant.main_image">
                     <img :src="'/storage/' + variant.main_image" alt="Current Variant Main Image" style="max-width: 120px; margin-top: 10px;" />
                   </div>
@@ -219,30 +225,28 @@
                 <div class="file-div">
                   <h6 class="file-title">Variant Gallery Images</h6>
                   <input type="file" class="form-control file-input w-100" accept="image/*" multiple @change="handleVariantGalleryImages(vIndex, $event)" />
-                  <div v-if="variant.gallery_images && variant.gallery_images.length > 0">
-                    <div v-for="(img, index) in variant.gallery_images" :key="img" style="display: inline-block; margin: 5px; position: relative;">
-                      <img :src="'/storage/' + img" alt="Variant Gallery Image" style="max-width: 80px;" />
+                  <div class="file-info mt-2">
+                    <small class="text-muted">
+                      <i class="material-icons" style="font-size: 14px;">info</i>
+                      Max file size: 2MB | Supported: JPEG, PNG, GIF, WebP
+                    </small>
+                  </div>
+                  <!-- Combined Gallery Images Display -->
+                  <div v-if="getCombinedGalleryImages(vIndex).length > 0" class="gallery-container">
+                    <div v-for="(img, index) in getCombinedGalleryImages(vIndex)" :key="img.id" style="display: inline-block; margin: 5px; position: relative;">
+                      <img :src="img.url" :alt="img.alt" style="max-width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
                       <button
                         type="button"
-                        @click="removeVariantGalleryImage(vIndex, index)"
+                        @click="removeGalleryImage(vIndex, index, img.type)"
                         class="btn btn-sm btn-danger gallery-remove-btn"
                         title="Remove image">
                         ×
                       </button>
+                      <div v-if="img.type === 'new'" class="new-image-badge">New</div>
                     </div>
                   </div>
-                  <!-- New Variant Gallery Images Preview -->
-                  <div v-if="variant.newGalleryImages && variant.newGalleryImages.length > 0">
-                    <div v-for="(img, index) in variant.newGalleryImages" :key="img.id" style="display: inline-block; margin: 5px; position: relative;">
-                      <img :src="img.url" alt="New Variant Gallery Image" style="max-width: 80px;" />
-                      <button
-                        type="button"
-                        @click="removeNewVariantGalleryImage(vIndex, index)"
-                        class="btn btn-sm btn-danger gallery-remove-btn"
-                        title="Remove image">
-                        ×
-                      </button>
-                    </div>
+                  <div v-else class="text-muted text-center mt-3">
+                    <small>No gallery images selected</small>
                   </div>
                 </div>
               </div>
@@ -413,7 +417,10 @@ export default {
         price: inv.price || '',
         stock_qty: inv.stock_qty || '',
         stock_status: inv.stock_status || 'in_stock',
-        variants: Array.isArray(variantsArr) ? variantsArr : []
+        variants: Array.isArray(variantsArr) ? variantsArr.map(variant => ({
+          ...variant,
+          newGalleryImages: variant.newGalleryImages || []
+        })) : []
       };
       this.selectedCategoryId = inv.category_id ? String(inv.category_id) : '';
       this.selectedSubcategoryId = inv.subcategory_id ? String(inv.subcategory_id) : '';
@@ -434,29 +441,141 @@ export default {
     },
 
     handleVariantMainImage(variantIndex, event) {
-      this.form.variants[variantIndex].main_image = event.target.files[0];
-    },
-    handleVariantGalleryImages(variantIndex, event) {
-      this.form.variants[variantIndex].gallery_images = [...event.target.files];
+      const file = event.target.files[0];
 
-      // Create preview URLs for new images
-      if (!this.form.variants[variantIndex].newGalleryImages) {
-        this.$set(this.form.variants[variantIndex], 'newGalleryImages', []);
+      if (!file) return;
+
+      const validation = this.validateImageFile(file);
+      if (!validation.valid) {
+        Swal.fire({
+          title: 'File Validation Error',
+          text: validation.message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        // Clear the file input
+        event.target.value = '';
+        return;
       }
 
-      Array.from(event.target.files).forEach((file, index) => {
+      this.form.variants[variantIndex].main_image = file;
+
+      // Show success message
+      Swal.fire({
+        title: 'Image Added',
+        text: 'Main image added successfully!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    },
+    handleVariantGalleryImages(variantIndex, event) {
+      const files = Array.from(event.target.files);
+      const invalidFiles = [];
+
+      // Validate all files
+      files.forEach(file => {
+        const validation = this.validateImageFile(file);
+        if (!validation.valid) {
+          invalidFiles.push({
+            name: file.name,
+            message: validation.message
+          });
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        const errorMessages = invalidFiles.map(file =>
+          `<strong>${file.name}</strong>: ${file.message}`
+        ).join('<br><br>');
+
+        Swal.fire({
+          title: 'File Validation Error',
+          html: `The following files have issues:<br><br>${errorMessages}<br><br>Please select valid files.`,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        // Clear the file input
+        event.target.value = '';
+        return;
+      }
+
+      // Initialize arrays if they don't exist
+      if (!this.form.variants[variantIndex].gallery_images) {
+        this.form.variants[variantIndex].gallery_images = [];
+      }
+      if (!this.form.variants[variantIndex].newGalleryImages) {
+        this.form.variants[variantIndex].newGalleryImages = [];
+      }
+
+      // Preserve existing string images (from database) and add new File objects
+      const existingImages = this.form.variants[variantIndex].gallery_images.filter(img => typeof img === 'string');
+      this.form.variants[variantIndex].gallery_images = [
+        ...existingImages,
+        ...files
+      ];
+
+      // Create preview URLs for new images
+      files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.form.variants[variantIndex].newGalleryImages.push({
-            id: `new-${variantIndex}-${index}`,
+            id: `new-${variantIndex}-${Date.now()}-${index}`,
             url: e.target.result,
-            file: file
+            file: file,
+            type: 'new'
           });
         };
         reader.readAsDataURL(file);
       });
+
+      // Show success message
+      if (files.length > 0) {
+        Swal.fire({
+          title: 'Images Added',
+          text: `${files.length} image(s) added successfully!`,
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
     },
-    removeVariantGalleryImage(variantIndex, imageIndex) {
+    getCombinedGalleryImages(variantIndex) {
+      const variant = this.form.variants[variantIndex];
+      const combinedImages = [];
+
+      // Add existing gallery images
+      if (variant.gallery_images && Array.isArray(variant.gallery_images)) {
+        variant.gallery_images.forEach((img, index) => {
+          if (typeof img === 'string') {
+            // Existing image from database
+            combinedImages.push({
+              id: `existing-${variantIndex}-${index}`,
+              url: `/storage/${img}`,
+              alt: `Variant Gallery Image ${index + 1}`,
+              type: 'existing',
+              originalIndex: index
+            });
+          }
+        });
+      }
+
+      // Add new gallery images
+      if (variant.newGalleryImages && Array.isArray(variant.newGalleryImages)) {
+        variant.newGalleryImages.forEach((img, index) => {
+          combinedImages.push({
+            id: img.id,
+            url: img.url,
+            alt: `New Variant Gallery Image ${index + 1}`,
+            type: 'new',
+            originalIndex: index
+          });
+        });
+      }
+
+      return combinedImages;
+    },
+    removeGalleryImage(variantIndex, displayIndex, imageType) {
       Swal.fire({
         title: 'Remove Image?',
         text: 'Are you sure you want to remove this image?',
@@ -468,31 +587,44 @@ export default {
         cancelButtonText: 'Cancel'
       }).then((result) => {
         if (result.isConfirmed) {
-          this.form.variants[variantIndex].gallery_images.splice(imageIndex, 1);
-          Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
-        }
-      });
-    },
-    removeNewVariantGalleryImage(variantIndex, imageIndex) {
-      Swal.fire({
-        title: 'Remove Image?',
-        text: 'Are you sure you want to remove this image?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, remove it!',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.form.variants[variantIndex].newGalleryImages.splice(imageIndex, 1);
-          this.form.variants[variantIndex].gallery_images.splice(imageIndex, 1);
+          const variant = this.form.variants[variantIndex];
+
+          if (imageType === 'existing') {
+            // Remove from existing gallery images (string paths)
+            if (variant.gallery_images && Array.isArray(variant.gallery_images)) {
+              const existingImages = variant.gallery_images.filter(img => typeof img === 'string');
+              const originalIndex = this.getCombinedGalleryImages(variantIndex)[displayIndex].originalIndex;
+              existingImages.splice(originalIndex, 1);
+
+              // Reconstruct gallery_images array with remaining existing images and new File objects
+              const newFileImages = variant.gallery_images.filter(img => img instanceof File);
+              variant.gallery_images = [...existingImages, ...newFileImages];
+            }
+          } else if (imageType === 'new') {
+            // Remove from new gallery images
+            if (variant.newGalleryImages && Array.isArray(variant.newGalleryImages)) {
+              const originalIndex = this.getCombinedGalleryImages(variantIndex)[displayIndex].originalIndex;
+              variant.newGalleryImages.splice(originalIndex, 1);
+
+              // Also remove from gallery_images array (File objects)
+              const existingImages = variant.gallery_images.filter(img => typeof img === 'string');
+              const newFileImages = variant.gallery_images.filter(img => img instanceof File);
+              newFileImages.splice(originalIndex, 1);
+              variant.gallery_images = [...existingImages, ...newFileImages];
+            }
+          }
           Swal.fire('Removed!', 'Image has been removed from gallery.', 'success');
         }
       });
     },
     addVariant() {
-      let newVariant = { color_id: '', main_image: null, gallery_images: [], newGalleryImages: [], sizes: [] };
+      let newVariant = {
+        color_id: '',
+        main_image: null,
+        gallery_images: [],
+        newGalleryImages: [],
+        sizes: []
+      };
       if (this.form.variants.length > 0 && this.form.variants[0].sizes.length > 0) {
         newVariant.sizes = this.form.variants[0].sizes.map(size => ({
           size_id: size.size_id,
@@ -796,6 +928,34 @@ export default {
       });
       this.form.price = lowestPrice ? lowestPrice.toString() : '';
       this.form.stock_qty = totalStock.toString();
+    },
+    formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+    validateImageFile(file) {
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        return {
+          valid: false,
+          message: `File type "${file.type}" is not supported. Please use JPEG, PNG, GIF, or WebP.`
+        };
+      }
+
+      // Check file size (2MB limit)
+      const maxSize = 2 * 1024 * 1024; // 2MB
+      if (file.size > maxSize) {
+        return {
+          valid: false,
+          message: `File "${file.name}" (${this.formatFileSize(file.size)}) exceeds the 2MB limit.`
+        };
+      }
+
+      return { valid: true };
     }
   }
 };
@@ -856,6 +1016,24 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+}
+.gallery-container {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.new-image-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: #28a745;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: bold;
   z-index: 10;
 }
 </style>

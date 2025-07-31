@@ -15,7 +15,10 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::latest()->get();
+        $inventories = Inventory::with(['category', 'variants' => function($query) {
+            $query->orderBy('id', 'asc');
+        }])->latest()->get();
+
         return view('admin.inventory.index', compact('inventories'));
     }
 
