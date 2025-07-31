@@ -3,45 +3,110 @@
     <div class="row">
 				<!-- Product Images Section -->
 				<div class="col-md-6 mb-md-0 mb-4">
-                    <div class="w-100">
-							<img
+                    <div class="product-image-slider">
+                        <!-- Main Image Display -->
+                        <div class="main-image-container">
+                            <img
                                 id="mainImage"
-                                :src="mainImage"
-                                class="w-70 m-auto object-cover"
+                                :src="currentMainImage"
+                                class="main-product-image"
                                 :alt="product.name"
                             >
-					</div>
-					<div class="product-items-grid">
-                        <div
-                            v-if="galleryImages && galleryImages.length"
-                            class="w-100 item-product"
-                            v-for="(img, idx) in galleryImages"
-                            :key="idx"
-                        >
-                            <img
-                                :src="'/storage/' + img"
-                                class="w-100 h-100 object-cover"
-                                @click="selectedImage = img"
+
+                            <!-- Navigation Arrows -->
+                            <button
+                                v-if="allImages.length > 1"
+                                @click="previousImage"
+                                class="slider-nav-btn slider-nav-prev"
+                                :disabled="currentImageIndex === 0"
                             >
-                        </div>
-                        <div v-else class="w-100 item-product">
-                            <img
-                                :src="'/storage/' + product.main_image"
-                                class="w-100 h-100 object-cover"
-                                @click="selectedImage = null"
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button
+                                v-if="allImages.length > 1"
+                                @click="nextImage"
+                                class="slider-nav-btn slider-nav-next"
+                                :disabled="currentImageIndex === allImages.length - 1"
                             >
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+
+                            <!-- Image Counter -->
+                            <div v-if="allImages.length > 1" class="image-counter">
+                                {{ currentImageIndex + 1 }} / {{ allImages.length }}
+                            </div>
                         </div>
-					</div>
+
+                        <!-- Thumbnail Navigation -->
+                        <div v-if="allImages.length > 1" class="thumbnail-container">
+                            <div
+                                v-for="(img, idx) in allImages"
+                                :key="idx"
+                                class="thumbnail-item"
+                                :class="{ 'active': idx === currentImageIndex }"
+                                @click="setCurrentImage(idx)"
+                            >
+                                <img
+                                    :src="img"
+                                    class="thumbnail-image"
+                                    :alt="`${product.name} - Image ${idx + 1}`"
+                                >
+                            </div>
+                        </div>
+                    </div>
 				</div>
 
 				<!-- Product Details Section -->
 				<div class="col-md-6 position-sticky top-0">
 					<!-- <p class="product-price mb-2">Category: {{ product.category.name ?? 'N/A' }}</p> -->
-					<p class="product-price mb-2">Category: Name</p>
+					<p class="product-price mb-2">Category: {{ product.category?.name ?? 'N/A' }}</p>
 					<h2 class="product-details-title mb-3">{{ product.name }}</h2>
-					<span class="product-description mb-3 d-block">
 
-					</span>
+					<!-- Short Description -->
+					<div v-if="product.short_description" class="product-short-description mb-3">
+						<p class="text-muted">{{ product.short_description }}</p>
+					</div>
+
+					<!-- Product Highlights -->
+					<div v-if="product.highlights" class="product-highlights mb-3">
+						<h6 class="fw-bold mb-2">Highlights:</h6>
+						<ul class="highlights-list">
+							<li v-for="(highlight, index) in highlightsList" :key="index">
+								{{ highlight }}
+							</li>
+						</ul>
+					</div>
+
+					<!-- Product Specifications -->
+					<div class="product-specifications mb-3">
+						<h6 class="fw-bold mb-2">Specifications:</h6>
+						<div class="specs-grid">
+							<div v-if="product.fabric" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('fabric') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.fabric) }}</span>
+							</div>
+							<div v-if="product.fit" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('fit') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.fit) }}</span>
+							</div>
+							<div v-if="product.pattern" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('pattern') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.pattern) }}</span>
+							</div>
+							<div v-if="product.neck_style" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('neck_style') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.neck_style) }}</span>
+							</div>
+							<div v-if="product.sleeve_type" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('sleeve_type') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.sleeve_type) }}</span>
+							</div>
+							<div v-if="product.top_length" class="spec-item">
+								<span class="spec-label">{{ capitalizeFirst('top_length') }}:</span>
+								<span class="spec-value">{{ capitalizeFirst(product.top_length) }}</span>
+							</div>
+						</div>
+					</div>
 					<div class="mb-3">
                         <label class="form-label d-block">Color:</label>
                         <div class="d-flex gap-3">
@@ -83,6 +148,29 @@
                         </span>
                         </div>
 
+                        <!-- Full Description Toggle -->
+                        <div v-if="product.full_description" class="product-full-description mb-3">
+                            <button
+                                @click="showFullDescription = !showFullDescription"
+                                class="btn btn-link p-0 text-decoration-none"
+                                type="button"
+                            >
+                                <span v-if="!showFullDescription">Show Full Description</span>
+                                <span v-else>Hide Full Description</span>
+                                <i :class="showFullDescription ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="ms-2"></i>
+                            </button>
+
+                            <div v-if="showFullDescription" class="full-description-content mt-2">
+                                <div v-html="product.full_description"></div>
+                            </div>
+                        </div>
+
+                        <!-- Care Instructions -->
+                        <div v-if="product.care_instructions" class="care-instructions mb-3">
+                            <h6 class="fw-bold mb-2">Care Instructions:</h6>
+                            <p class="text-muted small">{{ product.care_instructions }}</p>
+                        </div>
+
                         <div class="mb-sm-4 mb-3 d-flex align-items-center gap-3 flex-sm-row flex-column">
                         <div class="input-group-qut d-flex align-items-center gap-2 justify-content-between">
                             <button @click="updateQty(-1)" class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt">-</button>
@@ -119,49 +207,92 @@ export default {
       selectedSize: null,
       quantity: 1,
       selectedImage: null,
+      currentImageIndex: 0,
+      showFullDescription: false,
     };
   },
   computed: {
     colorOptions() {
-      const map = {};
-      this.variants.forEach(v => {
-        if (v.color_id && !map[v.color_id]) {
-          map[v.color_id] = { color_id: v.color_id, color_name: v.color_name, color_code: v.color_code };
-        }
-      });
-      return Object.values(map);
+      return this.variants.map(colorGroup => ({
+        color_id: colorGroup.color_id,
+        color_name: colorGroup.color_name,
+        color_code: colorGroup.color_code,
+        main_image: colorGroup.main_image,
+        gallery_images: colorGroup.gallery_images
+      }));
+    },
+    selectedColorGroup() {
+      return this.variants.find(colorGroup => colorGroup.color_id === this.selectedColor);
     },
     sizeOptions() {
-      return this.variants.filter(v => v.color_id === this.selectedColor);
+      return this.selectedColorGroup ? this.selectedColorGroup.variants : [];
     },
     selectedVariant() {
-      return this.variants.find(
-        v => v.color_id === this.selectedColor && v.size_id === this.selectedSize
-      );
+      if (!this.selectedColorGroup) return null;
+      return this.selectedColorGroup.variants.find(v => v.size_id === this.selectedSize);
     },
     totalPrice() {
       return this.selectedVariant ? (this.selectedVariant.price * this.quantity) : 0;
     },
     galleryImages() {
-      // Use product.gallery_images if available, else fallback to selectedVariant.images
-      console.log(this.variants,'this.variants');
-
-      if (this.variants.gallery_images) {
-        console.log(3445345);
-
+      if (this.selectedColorGroup && this.selectedColorGroup.gallery_images) {
         try {
-          const imgs = typeof this.variants.gallery_images === 'string' ? JSON.parse(this.variants.gallery_images) : this.variants.gallery_images;
+          const imgs = typeof this.selectedColorGroup.gallery_images === 'string'
+            ? JSON.parse(this.selectedColorGroup.gallery_images)
+            : this.selectedColorGroup.gallery_images;
           if (Array.isArray(imgs) && imgs.length) return imgs;
-        } catch {}
-      }
-      if (this.selectedVariant && this.selectedVariant.images && this.selectedVariant.images.length) {
-        return this.selectedVariant.images;
+        } catch (e) {
+          console.error('Error parsing gallery images:', e);
+        }
       }
       return [];
     },
-    mainImage() {
+    allImages() {
+      const images = [];
+
+      // Add main image first
+      if (this.selectedColorGroup && this.selectedColorGroup.main_image) {
+        images.push(this.selectedColorGroup.main_image);
+      } else if (this.product.main_image) {
+        images.push('/storage/' + this.product.main_image);
+      }
+
+      // Add gallery images
       if (this.galleryImages && this.galleryImages.length) {
-        return '/storage/' + (this.selectedImage || this.galleryImages[0]);
+        this.galleryImages.forEach(img => {
+          let imagePath;
+          if (img.startsWith('http')) {
+            imagePath = img;
+          } else if (img.startsWith('/storage/')) {
+            imagePath = img;
+          } else {
+            imagePath = '/storage/' + img;
+          }
+
+          if (!images.includes(imagePath)) {
+            images.push(imagePath);
+          }
+        });
+      }
+
+      return images;
+    },
+    currentMainImage() {
+      if (this.allImages.length > 0) {
+        return this.allImages[this.currentImageIndex];
+      }
+      return this.product.main_image ? '/storage/' + this.product.main_image : null;
+    },
+    highlightsList() {
+      if (!this.product.highlights) return [];
+
+      try {
+        if (typeof this.product.highlights === 'string') {
+          return this.product.highlights.split(',').map(h => h.trim()).filter(h => h);
+        }
+        return Array.isArray(this.product.highlights) ? this.product.highlights : [];
+      } catch (e) {
+        return [];
       }
     }
   },
@@ -170,9 +301,32 @@ export default {
       const sizes = this.sizeOptions;
       this.selectedSize = sizes.length ? sizes[0].size_id : null;
       this.selectedImage = null;
+      this.currentImageIndex = 0; // Reset to first image when color changes
     },
     onSizeChange() {
       this.selectedImage = null;
+    },
+    previousImage() {
+      if (this.currentImageIndex > 0) {
+        this.currentImageIndex--;
+      }
+    },
+    nextImage() {
+      if (this.currentImageIndex < this.allImages.length - 1) {
+        this.currentImageIndex++;
+      }
+    },
+    setCurrentImage(index) {
+      this.currentImageIndex = index;
+    },
+    capitalizeFirst(text) {
+      if (!text) return '';
+
+      // Handle snake_case to Title Case conversion
+      return text
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
     },
     updateQty(change) {
       this.quantity = Math.max(1, this.quantity + change);
@@ -188,15 +342,15 @@ export default {
       }
       const data = {
         variant_id: this.selectedVariant.variant_id,
-        inventory_id: this.selectedVariant.inventory_id,
-        product_name: this.selectedVariant.product_name,
-        color_id: this.selectedVariant.color_id,
-        color_name: this.selectedVariant.color_name,
+        inventory_id: this.selectedColorGroup.inventory_id,
+        product_name: this.selectedColorGroup.product_name,
+        color_id: this.selectedColorGroup.color_id,
+        color_name: this.selectedColorGroup.color_name,
         size_id: this.selectedVariant.size_id,
         size_name: this.selectedVariant.size_name,
         price: this.selectedVariant.price,
         quantity: this.quantity,
-        image: this.selectedVariant.image
+        image: this.selectedColorGroup.main_image
       };
       axios.post('/cart/add', data)
         .then(response => {
@@ -284,5 +438,248 @@ export default {
 /* Add to cart button hover effect for atc-dot */
 .border-btn:hover .atc-dot {
   background-color: white !important;
+}
+
+/* Product Image Slider Styles */
+.product-image-slider {
+  position: relative;
+}
+
+.main-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.main-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.main-product-image:hover {
+  transform: scale(1.05);
+}
+
+.slider-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.slider-nav-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.slider-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slider-nav-btn:disabled:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
+}
+
+.slider-nav-prev {
+  left: 10px;
+}
+
+.slider-nav-next {
+  right: 10px;
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.thumbnail-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.thumbnail-item {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.thumbnail-item:hover {
+  border-color: #222121;
+  transform: scale(1.05);
+}
+
+.thumbnail-item.active {
+  border-color: #222121;
+  box-shadow: 0 2px 8px rgba(34, 33, 33, 0.3);
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-image-container {
+    height: 300px;
+  }
+
+  .thumbnail-item {
+    width: 60px;
+    height: 60px;
+  }
+
+  .slider-nav-btn {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* Product Details Styles */
+.product-short-description {
+  border-left: 3px solid #222121;
+  padding-left: 15px;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 0 6px 6px 0;
+}
+
+.highlights-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.highlights-list li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.highlights-list li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.highlights-list li:last-child {
+  margin-bottom: 0;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border-left: 3px solid #222121;
+}
+
+.spec-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.spec-value {
+  color: #666;
+  font-size: 14px;
+  text-align: right;
+}
+
+.product-full-description button {
+  color: #222121;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.product-full-description button:hover {
+  color: #000;
+}
+
+.full-description-content {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #222121;
+  line-height: 1.6;
+}
+
+.care-instructions {
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+}
+
+.care-instructions h6 {
+  color: #856404;
+  margin-bottom: 8px;
+}
+
+.care-instructions p {
+  color: #856404;
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments for product details */
+@media (max-width: 768px) {
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .spec-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .spec-value {
+    text-align: left;
+  }
 }
 </style>
