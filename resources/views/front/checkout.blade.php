@@ -234,7 +234,50 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="w-100 flex-1 border-btn place-order">Place Order</button>
+                            <div class="card-border mb-4">
+                                <h5 class="mb-3">Payment Method</h5>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <div class="payment-option" onclick="selectPaymentMethod('cod')">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                                            <div class="payment-option-content">
+                                                <div class="payment-icon">
+                                                    <i class="material-symbols-rounded">local_shipping</i>
+                                                </div>
+                                                <div class="payment-details">
+                                                    <h6 class="mb-1">Cash on Delivery</h6>
+                                                    <small class="text-muted">Pay when you receive your order</small>
+                                                </div>
+                                                <div class="payment-check">
+                                                    <i class="material-symbols-rounded">check_circle</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="payment-option" onclick="selectPaymentMethod('razorpay')">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="razorpay" value="razorpay">
+                                            <div class="payment-option-content">
+                                                <div class="payment-icon">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="#0F4C81"/>
+                                                        <path d="M12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6ZM12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16Z" fill="white"/>
+                                                        <path d="M12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10Z" fill="white"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="payment-details">
+                                                    <h6 class="mb-1">Pay Online</h6>
+                                                    <small class="text-muted">Secure payment via Razorpay</small>
+                                                </div>
+                                                <div class="payment-check">
+                                                    <i class="material-symbols-rounded">check_circle</i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="w-100 flex-1 border-btn place-order" type="submit">Place Order</button>
                         </form>
                     </div>
                     <div class="col-lg-5 mt-4 mt-lg-0 ">
@@ -258,7 +301,7 @@
                                                 <div class="span-product_name">x {{ $item['quantity'] }}</div>
                                             </div>
                                         </div>
-                                       
+
                                     </li>
                                 @endforeach
                             </ul>
@@ -272,7 +315,7 @@
                     </div>
                 </div>
             @else
-               
+
                  <div class="cart-empty text-center py-5">
                     <i class="material-symbols-rounded text-muted" style="font-size: 48px;">shopping_cart</i>
                     <p class="text-muted mt-3">Your cart is empty</p>
@@ -282,6 +325,108 @@
     </main>
     @section('script')
         @parent
+        <style>
+            .payment-option {
+                border: 2px solid #e9ecef;
+                border-radius: 12px;
+                padding: 16px;
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: #fff;
+                position: relative;
+            }
+
+            .payment-option:hover {
+                border-color: #0F4C81;
+                box-shadow: 0 4px 12px rgba(15, 76, 129, 0.1);
+                transform: translateY(-2px);
+            }
+
+            .payment-option.selected {
+                border-color: #0F4C81;
+                background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+                box-shadow: 0 4px 16px rgba(15, 76, 129, 0.15);
+            }
+
+            .payment-option input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .payment-option-content {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .payment-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #0F4C81 0%, #1a5a9e 100%);
+                color: white;
+                flex-shrink: 0;
+            }
+
+            .payment-option:nth-child(2) .payment-icon {
+                background: linear-gradient(135deg, #0F4C81 0%, #1a5a9e 100%);
+            }
+
+            .payment-details {
+                flex-grow: 1;
+            }
+
+            .payment-details h6 {
+                color: #2c3e50;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            .payment-details small {
+                color: #6c757d;
+                font-size: 0.875rem;
+            }
+
+            .payment-check {
+                color: #0F4C81;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                transform: scale(0.8);
+            }
+
+            .payment-option.selected .payment-check {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            .payment-check i {
+                font-size: 24px;
+            }
+
+            @media (max-width: 768px) {
+                .payment-option-content {
+                    gap: 12px;
+                }
+
+                .payment-icon {
+                    width: 40px;
+                    height: 40px;
+                }
+
+                .payment-details h6 {
+                    font-size: 0.95rem;
+                }
+
+                .payment-details small {
+                    font-size: 0.8rem;
+                }
+            }
+        </style>
         <script>
             function copyBillingToShipping() {
                 const checkbox = document.getElementById('copyBilling');
@@ -364,6 +509,45 @@
 
             document.getElementById('billing_state').addEventListener('change', function () {
                 handleStateChange('billing_state', 'billing_city');
+            });
+
+            // Payment method selection handling
+            function selectPaymentMethod(method) {
+                // Remove selected class from all payment options
+                document.querySelectorAll('.payment-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                const selectedOption = event.currentTarget;
+                selectedOption.classList.add('selected');
+
+                // Check the radio button
+                const radio = selectedOption.querySelector('input[type="radio"]');
+                radio.checked = true;
+
+                // Update button text
+                updateButtonText();
+            }
+
+            function updateButtonText() {
+                const razorpayRadio = document.getElementById('razorpay');
+                const placeOrderBtn = document.querySelector('.place-order');
+
+                if (razorpayRadio.checked) {
+                    placeOrderBtn.textContent = 'Proceed to Payment';
+                } else {
+                    placeOrderBtn.textContent = 'Place Order';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize with COD selected
+                const codOption = document.querySelector('.payment-option');
+                codOption.classList.add('selected');
+
+                // Initialize button text
+                updateButtonText();
             });
         </script>
     @endsection
