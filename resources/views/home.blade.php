@@ -25,28 +25,26 @@
 		</div>
 	</section>
 
-	<!-- Categories Section -->
 	<section class="categories-section pt-100-ct">
-		<div class="container-ct">
-			<h3 class="main-title">Featured Categories</h3>
-			<div class="main-categories-card d-flex items-start gap-3 gap-lg-4	overflow-auto scroll-1">
-				@foreach ($categorys as $category)
-					<div class="categories-card overflow-hidden">
-						<!-- Category Image -->
-						<div class="categories-card-img w-90 overflow-hidden flex-1">
-							<!-- <img src="{{ asset($category['image']) }}" alt="{{ $category['name'] }}" class="w-100 h-100 object-cover"> -->
-							<img src="{{ asset($category['image']) }}"
-								class="w-100 h-100 object-cover">
-						</div>
-						<!-- Category Name -->
-						<div class="p-3">
-							<h6 class="categories-name">{{ $category['name'] }}</h6>
-						</div>
-					</div>
-				@endforeach
-			</div>
-		</div>
-	</section>
+        <div class="container-ct">
+            <h3 class="main-title">Featured Categories</h3>
+            <div class="main-categories-card d-flex items-start gap-3 gap-lg-4 overflow-auto scroll-1">
+                @foreach ($categorys as $category)
+                    <a href="{{ url('category/' . $category['slug']) }}" class="categories-card overflow-hidden text-decoration-none">
+                        <!-- Category Image -->
+                        <div class="categories-card-img w-90 overflow-hidden flex-1">
+                            <img src="{{ asset($category['image']) }}" class="w-100 h-100 object-cover" alt="{{ $category['name'] }}">
+                        </div>
+                        <!-- Category Name -->
+                        <div class="p-3">
+                            <h6 class="categories-name">{{ $category['name'] }}</h6>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
 
 	<!-- Featured Products Slider -->
 	<section class="w-100 container-fluid pt-140-ct featured-product-section px-xl-0">

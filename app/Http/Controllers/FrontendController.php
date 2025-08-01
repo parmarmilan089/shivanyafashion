@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Color;
 use App\Models\Inventory;
+use App\Models\ProductVariant;
 
 class FrontendController extends Controller
 {
@@ -14,7 +15,7 @@ class FrontendController extends Controller
     public function home()
     {
         // here base on inventories
-        $inventories = \App\Models\Inventory::with(['variants.color', 'variants.size'])->limit(20)->orderBy('id', 'desc')->get();
+        $inventories = Inventory::with(['variants.color', 'variants.size'])->limit(20)->orderBy('id', 'desc')->get();
         $featuredProducts = Inventory::with(['variants.color', 'variants.size'])->where('is_featured', 1)->get();
         $variantData = $featuredProducts->flatMap(function($inventory) {
             // Group variants by color_id
@@ -52,7 +53,7 @@ class FrontendController extends Controller
 
     public function product($id)
     {
-        $product = \App\Models\Inventory::with(['variants.color', 'variants.size'])->findOrFail($id);
+        $product = Inventory::with(['variants.color', 'variants.size'])->findOrFail($id);
         $variantData = $product->variants->groupBy('color_id')->map(function($colorVariants, $colorId) use ($product) {
             $firstVariant = $colorVariants->first();
             $color = $firstVariant->color;
@@ -80,7 +81,7 @@ class FrontendController extends Controller
         })->values();
 
         // Get related products based on category, pattern, type, color, fabric
-        $relatedProducts = \App\Models\Inventory::with(['variants.color', 'variants.size'])
+        $relatedProducts = Inventory::with(['variants.color', 'variants.size'])
             ->where('id', '!=', $product->id)
             ->where(function($query) use ($product) {
                 $query->where('category_id', $product->category_id)
@@ -99,25 +100,50 @@ class FrontendController extends Controller
     }
 
     public function categoryPage($slug, Request $request)
-    {
-        $category = Category::where('slug', $slug)->firstOrFail();
-        $query = Inventory::where('category_id', $category->id);
-        // Filters
+{
+    // Get the category by slug
+    $category = Category::where('slug', $slug)->firstOrFail();
+
+    // Query inventories that belong to this category
+    $query = Inventory::where('category_id', $category->id);
+
+    // Eager load variants with filters applied
+    $query->with(['variants' => function ($q) use ($request) {
         if ($request->filled('color')) {
-            $query->where('color_id', $request->color);
+            $q->where('color_id', $request->color);
         }
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
+            $q->where('price', '>=', $request->min_price);
         }
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            $q->where('price', '<=', $request->max_price);
         }
-        $products = $query->paginate(12);
-        $colors = Color::all();
-        $minPrice = Inventory::min('price');
-        $maxPrice = Inventory::max('price');
-        return view('front.category', compact('category', 'products', 'colors', 'minPrice', 'maxPrice'));
+    }]);
+
+    // Optionally filter inventories to include only those that have variants matching filters
+    if ($request->filled('color') || $request->filled('min_price') || $request->filled('max_price')) {
+        $query->whereHas('variants', function ($q) use ($request) {
+            if ($request->filled('color')) {
+                $q->where('color_id', $request->color);
+            }
+            if ($request->filled('min_price')) {
+                $q->where('price', '>=', $request->min_price);
+            }
+            if ($request->filled('max_price')) {
+                $q->where('price', '<=', $request->max_price);
+            }
+        });
     }
+
+    $inventories = $query->paginate(12);
+
+    $colors = Color::all();
+
+    $minPrice = ProductVariant::min('price');
+    $maxPrice = ProductVariant::max('price');
+
+    return view('front.category', compact('category', 'inventories', 'colors', 'minPrice', 'maxPrice'));
+}
 
     /**
      * Capitalize first letter and convert snake_case to Title Case
