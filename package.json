@@ -21,6 +21,7 @@
         "@ckeditor/ckeditor5-build-classic": "^39.0.2",
         "@ckeditor/ckeditor5-vue": "^7.3.0",
         "sweetalert2": "^11.6.13",
-        "vue": "^3.5.17"
+        "vue": "^3.5.17",
+        "vue-slider-component": "^3.2.24"
     }
 }

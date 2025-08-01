@@ -100,29 +100,15 @@ class FrontendController extends Controller
     }
 
     public function categoryPage($slug, Request $request)
-{
-    // Get the category by slug
-    $category = Category::where('slug', $slug)->firstOrFail();
+    {
+        // Get the category by slug
+        $category = Category::where('slug', $slug)->firstOrFail();
 
-    // Query inventories that belong to this category
-    $query = Inventory::where('category_id', $category->id);
+        // Query inventories that belong to this category
+        $query = Inventory::where('category_id', $category->id);
 
-    // Eager load variants with filters applied
-    $query->with(['variants' => function ($q) use ($request) {
-        if ($request->filled('color')) {
-            $q->where('color_id', $request->color);
-        }
-        if ($request->filled('min_price')) {
-            $q->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $q->where('price', '<=', $request->max_price);
-        }
-    }]);
-
-    // Optionally filter inventories to include only those that have variants matching filters
-    if ($request->filled('color') || $request->filled('min_price') || $request->filled('max_price')) {
-        $query->whereHas('variants', function ($q) use ($request) {
+        // Eager load variants with filters applied
+        $query->with(['variants' => function ($q) use ($request) {
             if ($request->filled('color')) {
                 $q->where('color_id', $request->color);
             }
@@ -132,18 +118,32 @@ class FrontendController extends Controller
             if ($request->filled('max_price')) {
                 $q->where('price', '<=', $request->max_price);
             }
-        });
+        }]);
+
+        // Optionally filter inventories to include only those that have variants matching filters
+        if ($request->filled('color') || $request->filled('min_price') || $request->filled('max_price')) {
+            $query->whereHas('variants', function ($q) use ($request) {
+                if ($request->filled('color')) {
+                    $q->where('color_id', $request->color);
+                }
+                if ($request->filled('min_price')) {
+                    $q->where('price', '>=', $request->min_price);
+                }
+                if ($request->filled('max_price')) {
+                    $q->where('price', '<=', $request->max_price);
+                }
+            });
+        }
+
+        $inventories = $query->paginate(12);
+
+        $colors = Color::all();
+
+        $minPrice = ProductVariant::min('price');
+        $maxPrice = ProductVariant::max('price');
+
+        return view('front.category', compact('category', 'inventories', 'colors', 'minPrice', 'maxPrice'));
     }
-
-    $inventories = $query->paginate(12);
-
-    $colors = Color::all();
-
-    $minPrice = ProductVariant::min('price');
-    $maxPrice = ProductVariant::max('price');
-
-    return view('front.category', compact('category', 'inventories', 'colors', 'minPrice', 'maxPrice'));
-}
 
     /**
      * Capitalize first letter and convert snake_case to Title Case
@@ -154,5 +154,50 @@ class FrontendController extends Controller
 
         // Handle snake_case to Title Case conversion
         return ucwords(str_replace('_', ' ', strtolower($text)));
+    }
+
+    public function products($categoryId, Request $request)
+    {
+        // Validate and cast input filters
+        $color = $request->input('color', null);
+        $minPrice = $request->input('min_price', null);
+        $maxPrice = $request->input('max_price', null);
+
+        // Query inventories that belong to this category
+        $query = Inventory::where('category_id', $categoryId);
+
+        // Eager load variants with filters if they exist
+        $query->with(['variants' => function ($q) use ($color, $minPrice, $maxPrice) {
+            if ($color !== null && $color !== '') {
+                $q->where('color_id', $color);
+            }
+            if ($minPrice !== null && is_numeric($minPrice)) {
+                $q->where('price', '>=', $minPrice);
+            }
+            if ($maxPrice !== null && is_numeric($maxPrice)) {
+                $q->where('price', '<=', $maxPrice);
+            }
+        }]);
+
+        // Filter inventories having variants matching the variant filters
+        if (($color !== null && $color !== '') || ($minPrice !== null) || ($maxPrice !== null)) {
+            $query->whereHas('variants', function ($q) use ($color, $minPrice, $maxPrice) {
+                if ($color !== null && $color !== '') {
+                    $q->where('color_id', $color);
+                }
+                if ($minPrice !== null && is_numeric($minPrice)) {
+                    $q->where('price', '>=', $minPrice);
+                }
+                if ($maxPrice !== null && is_numeric($maxPrice)) {
+                    $q->where('price', '<=', $maxPrice);
+                }
+            });
+        }
+
+        // Paginate results, 12 per page (same as categoryPage)
+        $inventories = $query->paginate(12);
+
+        // Return paginated data as JSON (you can customize which fields to include)
+        return response()->json($inventories);
     }
 }
