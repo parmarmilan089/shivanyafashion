@@ -78,7 +78,24 @@ class FrontendController extends Controller
                 })->values()
             ];
         })->values();
-        return view('front.product-details', compact('product', 'variantData'));
+
+        // Get related products based on category, pattern, type, color, fabric
+        $relatedProducts = \App\Models\Inventory::with(['variants.color', 'variants.size'])
+            ->where('id', '!=', $product->id)
+            ->where(function($query) use ($product) {
+                $query->where('category_id', $product->category_id)
+                      ->orWhere('subcategory_id', $product->subcategory_id)
+                      ->orWhere('subsubcategory_id', $product->subsubcategory_id)
+                      ->orWhere('pattern', $product->pattern)
+                      ->orWhere('fabric', $product->fabric)
+                      ->orWhere('fit', $product->fit)
+                      ->orWhere('neck_style', $product->neck_style)
+                      ->orWhere('sleeve_type', $product->sleeve_type);
+            })
+            ->limit(10)
+            ->get();
+
+        return view('front.product-details', compact('product', 'variantData', 'relatedProducts'));
     }
 
     public function categoryPage($slug, Request $request)

@@ -66,7 +66,8 @@
 						<div class="product-card ">
 							<div class="position-relative product-items-img">
                                 @php
-                                    $gallery = $product->gallery_images;
+                                    // Use first variant's gallery images if available, otherwise fall back to product's gallery
+                                    $gallery = $firstVariant && $firstVariant->gallery_images ? $firstVariant->gallery_images : $product->gallery_images;
                                     $hasGallery = is_array($gallery) && count($gallery) > 0;
                                 @endphp
                                 @if($hasGallery)
@@ -89,15 +90,17 @@
                                             </button>
                                         @endif
                                     </div>
+                                @elseif($firstVariant && $firstVariant->main_image)
+                                    <img src="{{ asset('storage/' . $firstVariant->main_image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product['name'] }}">
                                 @elseif($product->main_image)
                                     <img src="{{ asset('storage/' . $product->main_image) }}" class="w-100 h-100 object-fit-cover" alt="{{ $product['name'] }}">
                                 @endif
 							</div>
 							<div class="d-flex flex-column justify-content-between gap-3 p-4 text-center ">
 								<div>
-									<h6 class="product-title mb-3">{{ $product['name'] }}</h6>
+									<h6 class="product-title mb-3">{{ Str::limit($product['name'], 30) }}</h6>
                                     @if(!empty($product['short_description']))
-                                        <p class="product-short-description mb-2">{{ Str::limit($product['short_description'], 80) }}</p>
+                                        <p class="product-short-description mb-2">{{ Str::limit($product['short_description'], 30) }}</p>
                                     @endif
 									<p class="product-price mb-0">₹{{ $minPrice ?? 'N/A' }}</p>
 									<!-- @if($firstVariant)

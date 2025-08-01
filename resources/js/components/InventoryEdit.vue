@@ -26,6 +26,7 @@
                   <select v-model="form.fabric" class="form-control">
                     <option value="">Select fabric</option>
                     <option value="cotton">Cotton</option>
+                    <option value="heavy-real-georgette">Heavy Real Georgette</option>
                     <option value="rayon">Rayon</option>
                     <option value="silk">Silk</option>
                     <option value="georgette">Georgette</option>
