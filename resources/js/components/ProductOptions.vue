@@ -109,22 +109,21 @@
 					</div>
 					<div class="mb-3">
                         <label class="form-label d-block">Color:</label>
-                        <div class="d-flex gap-3">
-                            <label v-for="color in colorOptions" :key="color.color_id" class="form-check-label d-flex align-items-center gap-2">
-                            <input
-                                type="radio"
-                                class="form-check-input"
-                                :value="color.color_id"
-                                v-model="selectedColor"
-                                @change="onColorChange"
-                            >
-                            <span :style="{ display: 'inline-block', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: color.color_code, border: '1px solid #ccc' }"
+                        <div class="color-options d-flex gap-2 flex-wrap">
+                            <button
+                                v-for="color in colorOptions"
+                                :key="color.color_id"
+                                type="button"
+                                class="color-option"
+                                :class="{ 'active': selectedColor === color.color_id }"
+                                @click="selectColor(color.color_id)"
                                 :title="color.color_name"
-                            ></span>
-                            {{ color.color_name }}
-                            </label>
+                            >
+                                <span class="color-dot" :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
+                                <span class="color-name">{{ color.color_name }}</span>
+                            </button>
                         </div>
-                        </div>
+                    </div>
 
                         <div class="mb-3">
                         <label class="form-label d-block">Size:</label>
@@ -143,9 +142,14 @@
                         </div>
 
                         <div class="mb-4">
-                        <span class="product-title d-block">
-                            ₹{{ selectedVariant ? selectedVariant.price : 'N/A' }}
-                        </span>
+                            <div class="product-price-display">
+                                <span class="current-price product-title d-block">
+                                    ₹{{ currentPrice ? currentPrice.toLocaleString() : 'N/A' }}
+                                </span>
+                                <span v-if="isSaleActive && selectedVariant && selectedVariant.sale_price" class="original-price text-muted text-decoration-line-through ms-2">
+                                    ₹{{ originalPrice.toLocaleString() }}
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Full Description Toggle -->
@@ -231,8 +235,32 @@ export default {
       if (!this.selectedColorGroup) return null;
       return this.selectedColorGroup.variants.find(v => v.size_id === this.selectedSize);
     },
+    isSaleActive() {
+      if (!this.product.sale_start_date || !this.product.sale_end_date) {
+        return false;
+      }
+
+      const now = new Date();
+      const startDate = new Date(this.product.sale_start_date);
+      const endDate = new Date(this.product.sale_end_date);
+
+      return now >= startDate && now <= endDate;
+    },
+    currentPrice() {
+      if (!this.selectedVariant) return 0;
+
+      if (this.isSaleActive && this.selectedVariant.sale_price) {
+        return this.selectedVariant.sale_price;
+      }
+
+      return this.selectedVariant.price;
+    },
+    originalPrice() {
+      if (!this.selectedVariant) return 0;
+      return this.selectedVariant.price;
+    },
     totalPrice() {
-      return this.selectedVariant ? (this.selectedVariant.price * this.quantity) : 0;
+      return this.currentPrice * this.quantity;
     },
     galleryImages() {
       if (this.selectedColorGroup && this.selectedColorGroup.gallery_images) {
@@ -297,6 +325,10 @@ export default {
     }
   },
   methods: {
+    selectColor(colorId) {
+      this.selectedColor = colorId;
+      this.onColorChange();
+    },
     onColorChange() {
       const sizes = this.sizeOptions;
       this.selectedSize = sizes.length ? sizes[0].size_id : null;
@@ -348,7 +380,7 @@ export default {
         color_name: this.selectedColorGroup.color_name,
         size_id: this.selectedVariant.size_id,
         size_name: this.selectedVariant.size_name,
-        price: this.selectedVariant.price,
+        price: this.currentPrice,
         quantity: this.quantity,
         image: this.selectedColorGroup.main_image
       };
@@ -552,6 +584,70 @@ export default {
   object-fit: cover;
 }
 
+/* Price Display Styles */
+.product-price-display {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.current-price {
+  color: #222121;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.original-price {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Color Selection Styles */
+.color-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  min-width: fit-content;
+}
+
+.color-option:hover {
+  border-color: #222121;
+  transform: translateY(-1px);
+}
+
+.color-option.active {
+  border-color: #222121;
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.color-name {
+  font-weight: 500;
+  color: #333;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .main-image-container {
@@ -566,6 +662,16 @@ export default {
   .slider-nav-btn {
     width: 35px;
     height: 35px;
+  }
+
+  .color-option {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .color-dot {
+    width: 12px;
+    height: 12px;
   }
 }
 

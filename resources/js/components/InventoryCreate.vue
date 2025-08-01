@@ -387,13 +387,29 @@ export default {
   },
   methods: {
     addVariant() {
-      this.form.variants.push({
+      let newVariant = {
         color_id: '',
         main_image: null,
         main_image_preview: null,
         gallery_images: [],
-        sizes: [],
-      });
+        sizes: []
+      };
+
+      // Copy all size data from the first variant if it exists and has sizes
+      if (this.form.variants.length > 0 && this.form.variants[0].sizes.length > 0) {
+        newVariant.sizes = this.form.variants[0].sizes.map(size => ({
+          size_id: size.size_id,
+          price: size.price,
+          sale_price: size.sale_price,
+          stock: size.stock,
+          sale_start: size.sale_start,
+          sale_end: size.sale_end,
+          priceError: '',
+          salePriceError: ''
+        }));
+      }
+
+      this.form.variants.push(newVariant);
     },
     addSizeRow(variantIndex) {
       const variant = this.form.variants[variantIndex];

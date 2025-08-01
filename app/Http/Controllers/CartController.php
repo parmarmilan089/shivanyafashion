@@ -27,15 +27,15 @@ class CartController extends Controller
 
         // Check if enough stock is available
         if ($variant->stock_qty < $requestedQty) {
-            return response()->json(['error' => 'Only ' . $variant->stock . ' item(s) left in stock'], 400);
+            return response()->json(['error' => 'Only ' . $variant->stock_qty . ' item(s) left in stock'], 400);
         }
         // If product is already in cart, update quantity
         if (isset($cart[$variantId])) {
             $newQty = $cart[$variantId]['quantity'] + $requestedQty;
 
             // Check again if stock allows this new quantity
-            if ($newQty > $variant->stock) {
-                return response()->json(['error' => 'Only ' . $variant->stock . ' item(s) available'], 400);
+            if ($newQty > $variant->stock_qty) {
+                return response()->json(['error' => 'Only ' . $variant->stock_qty . ' item(s) available'], 400);
             }
 
             $cart[$variantId]['quantity'] = $newQty;
@@ -60,7 +60,11 @@ class CartController extends Controller
         // Store updated cart
         session()->put('cart', $cart);
 
-        return response()->json(['success' => 'Product added to cart']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to cart',
+            'cart_count' => count($cart)
+        ]);
     }
 
     public function checkout(Request $request)

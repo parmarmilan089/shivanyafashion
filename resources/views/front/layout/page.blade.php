@@ -41,6 +41,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body class="">
@@ -236,6 +238,8 @@
   <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
   <!-- Add before </body> -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -343,7 +347,7 @@
                             <input type="number" class="p-0 border-0 bg-transparent text-center" value="${item.quantity}"
                                 min="1" onchange="updateQuantity('${key}', this.value, true)">
                             <button class="d-flex align-items-center justify-content-center border-0 p-0 bg-transparent btn-qt" onclick="updateQuantity('${key}', 1)">+</button>
-                            
+
                       </div>
                    </div>
                    <button class="cart-item-remove" onclick="removeFromCart('${key}')">

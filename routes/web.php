@@ -54,7 +54,7 @@ Route::get('/checkout', function () {
     return view('front.checkout');
 })->name('checkout.page');
 
-Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout.process');
+Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout.process');
 
 Route::middleware('auth:customer')->group(function () {
     Route::get('/store', function () {
@@ -151,5 +151,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
     Route::resource('marketplace-order', App\Http\Controllers\Admin\MarketplaceOrderController::class)->only(['index', 'show']);
 });
 
-Route::get('/category/{slug}', [\App\Http\Controllers\FrontendController::class, 'categoryPage'])->name('category.page');
+Route::get('/category/{slug}', [FrontendController::class, 'categoryPage'])->name('category.page');
 
