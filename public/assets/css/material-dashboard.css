@@ -203,6 +203,19 @@
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.16);
 }
 
+    .product-attributes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.attribute-item {
+    background: #f1f3f4;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
+
 .atc-dot {
     background-color: #1f1f1f;
     width: 7px;

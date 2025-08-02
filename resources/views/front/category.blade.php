@@ -10,16 +10,11 @@
             colors: @json($colors),
             minPrice: {{ (float) $minPrice }},
             maxPrice: {{ (float) $maxPrice }},
-            initialProducts: @json($inventories->items())
+            initialProducts: @json($inventories->items()),
+            baseUrl : "{{ asset('') }}",
             };
         </script>
-  <category-products
-    :category-id="{{ $category->id }}"
-    :colors='@json($colors)'
-    :min-price="{{ $minPrice }}"
-    :max-price="{{ $maxPrice }}"
-    :initial-products='@json($inventories->items())'
-  ></category-products>
+  <category-products ></category-products>
   </div>
 </div>
 @endsection
