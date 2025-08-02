@@ -152,4 +152,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','admin'])->group(func
 });
 
 Route::get('/category/{slug}', [FrontendController::class, 'categoryPage'])->name('category.page');
+Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist.page');
 

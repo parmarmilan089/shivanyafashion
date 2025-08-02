@@ -129,7 +129,7 @@
 
             <!-- Wishlist -->
             <li class="nav-item">
-              <a href="" class="nav-link px-2">
+              <a href="{{route('wishlist.page')}}" class="nav-link px-2">
                 <i class="material-symbols-rounded" style="font-size: 26px;">favorite</i>
               </a>
             </li>

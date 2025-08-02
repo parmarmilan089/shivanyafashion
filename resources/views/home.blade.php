@@ -162,8 +162,7 @@
 
 
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('product', $product['id']) }}" class="border-btn flex-1">View
-                                        Product</a>
+                                    <a href="{{ route('product', $product['id']) }}" class="border-btn flex-1">View Details</a>
                                     {{--  @if ($firstVariant)
 										<button class="border-btn" onclick="quickAddToCart({{ $product['id'] }}, {{ $firstVariant->id }})">Add to Cart</button>
 									@endif  --}}

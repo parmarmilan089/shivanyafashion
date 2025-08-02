@@ -3,6 +3,7 @@
 use App\Http\Controllers\FrontendController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/category/{id}/products', [FrontendController::class, 'products']);
+
+Route::post('/wishlist-products', [FrontendController::class, 'wishlistProducts']);

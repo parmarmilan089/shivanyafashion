@@ -241,4 +241,56 @@ class FrontendController extends Controller
         // Handle snake_case to Title Case conversion
         return ucwords(str_replace('_', ' ', strtolower($text)));
     }
+
+    public function wishlist()
+    {
+        // You can fetch wishlist items from session, cookie, or database as needed.
+        // For now, just return the view.
+        return view('front.wishlist');
+    }
+
+    public function wishlistProducts(Request $request)
+    {
+        $inventories = Inventory::with(['variants.color', 'variants.size'])
+            ->whereIn('id', $request->ids)
+            ->limit(20)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $variantData = $inventories->flatMap(function ($inventory) {
+            return $inventory->variants->groupBy('color_id')->map(function ($colorVariants, $colorId) use ($inventory) {
+                $firstVariant = $colorVariants->first();
+                $color = $firstVariant->color;
+
+                return [
+                    'color_id' => $colorId,
+                    'color_name' => optional($color)->name,
+                    'color_code' => optional($color)->code,
+                    'inventory_id' => $inventory->id,
+                    'product_name' => $inventory->name,
+                    'main_image' => $firstVariant->main_image
+                        ? asset('storage/' . $firstVariant->main_image)
+                        : ($inventory->main_image ? asset('storage/' . $inventory->main_image) : null),
+                    'gallery_images' => $firstVariant->gallery_images,
+                    'variants' => $colorVariants->map(function ($v) {
+                        return [
+                            'variant_id' => $v->id,
+                            'size_id' => optional($v->size)->id,
+                            'size_name' => optional($v->size)->name,
+                            'price' => $v->price,
+                            'sale_price' => $v->sale_price,
+                            'stock_qty' => $v->stock_qty,
+                        ];
+                    })->values()
+                ];
+            })->values();
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Wishlist products fetched successfully',
+            'data' => $inventories,
+            'variantData' => $variantData
+        ]);
+    }
 }

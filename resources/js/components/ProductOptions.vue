@@ -150,6 +150,16 @@
                     </div>
                     <button class="w-100 flex-1 border-btn product-title" @click="addToCart">ADD TO CART <span
                             class="atc-dot"></span> ₹{{ totalPrice }}</button>
+                    <!-- Enquire Order Button -->
+                    <a
+                        :href="whatsappEnquiryUrl"
+                        target="_blank"
+                        rel="noopener"
+                        class="w-100 flex-1 border-btn product-title"
+                        style="text-align:center; margin-top:8px;"
+                    >
+                        ENQUIRE ORDER <span class="atc-dot"></span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -184,6 +194,27 @@ export default {
         };
     },
     computed: {
+       whatsappEnquiryUrl() {
+            const phone = '918460344324'; // Correct format: country code + number, no +, no spaces
+            let message = `Hello, I want to enquire about the product "${this.product.name}"`;
+            if (this.selectedColorGroup) {
+                message += `\nColor: ${this.selectedColorGroup.color_name}`;
+            }
+            if (this.selectedVariant) {
+                message += `\nSize: ${this.selectedVariant.size_name}`;
+            }
+            message += `\nPrice: ₹${this.currentPrice ? this.currentPrice.toLocaleString() : 'N/A'}`;
+            // Add product image URL
+            if (this.currentMainImage) {
+                message += `\nImage: ${window.location.origin}${this.currentMainImage}`;
+            }
+            // Add short description if available
+            if (this.product.short_description) {
+                message += `\nDescription: ${this.product.short_description}`;
+            }
+            message += `\nQuantity: ${this.quantity}`;
+            return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        },
         colorOptions() {
             return this.variants.map(colorGroup => ({
                 color_id: colorGroup.color_id,

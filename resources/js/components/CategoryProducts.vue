@@ -35,11 +35,40 @@
                 </button>
             </aside>
 
+            <div v-if="wishlistMessage" class="wishlist-toast">
+                <span class="wishlist-toast-icon">💖</span>
+                <span>{{ wishlistMessage }}</span>
+            </div>
             <!-- Products Grid -->
             <section class="col-md-9">
                 <div class="row g-4">
                     <div v-for="product in products" :key="product.inventory_id" class="col-sm-6 col-lg-4">
                         <div class="card h-100 shadow-sm product-card">
+                            <!-- Wishlist Heart Icon -->
+                            <button class="wishlist-btn" :class="{ active: isWishlisted(product.inventory_id) }"
+                                @click="toggleWishlist(product)" title="Add to Wishlist"
+                                style="position: absolute; top: 12px; right: 16px; background: black; border: none; z-index: 2;">
+
+                                <svg v-if="!isWishlisted(product.inventory_id)" xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+           2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+           C13.09 3.81 14.76 3 16.5 3
+           19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55
+           11.54L12 21.35z" fill="transparent" stroke="white" stroke-width="1.5" />
+                                </svg>
+
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+           2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09
+           C13.09 3.81 14.76 3 16.5 3
+           19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55
+           11.54L12 21.35z" fill="#f16757" stroke="white" stroke-width="1.5" />
+                                </svg>
+
+
+                            </button>
                             <!-- Image Slider -->
                             <div v-if="currentGallery(product).length > 0" :id="'carousel-' + product.inventory_id"
                                 class="carousel slide">
@@ -67,29 +96,21 @@
                             <div class="card-body d-flex flex-column pt-2">
                                 <div>
                                     <div class="color-options d-flex gap-2 flex-wrap justify-content-center">
-                                        <button
-                                            v-for="color in variantColor(product)"
-                                            :key="color.color_id"
-                                            type="button"
-                                            class="color-option"
+                                        <button v-for="color in variantColor(product)" :key="color.color_id"
+                                            type="button" class="color-option"
                                             :class="{ 'active': selectedColors[product.inventory_id] === color.color_id }"
-                                            @click="onColorChange(product, color.color_id)"
-                                            :title="color.color_name"
-                                        >
-                                            <span class="color-dot" :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
+                                            @click="onColorChange(product, color.color_id)" :title="color.color_name">
+                                            <span class="color-dot"
+                                                :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
                                         </button>
                                     </div>
                                 </div>
                                 <h5 class="product-title">{{ limitText(product.product_name, 20) }}</h5>
                                 <p class="card-text fw-bold fs-5 m-0">₹{{ variantPrice(product) }}</p>
-                                <a
-  :href="`/product/${product.inventory_id}`"
-  class="border-btn"
-  rel="noopener"
-  :title="`View details for ${limitText(product.product_name, 20)}`"
->
-  View Details
-</a>
+                                <a :href="`/product/${product.inventory_id}`" class="border-btn" rel="noopener"
+                                    :title="`View details for ${limitText(product.product_name, 20)}`">
+                                    View Details
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -139,11 +160,49 @@ export default {
                 min_price: this.minPrice,
                 max_price: this.maxPrice,
             },
+            wishlist: this.getWishlistFromCookie(),
+            wishlistMessage: "", // For showing the message
+            wishlistMessageTimeout: null,
             products: this.initialProducts,
             selectedColors: {}, // Track selected color per product
         };
     },
     methods: {
+        toggleWishlist(product) {
+            const id = product.inventory_id;
+            if (this.wishlist.includes(id)) {
+                this.wishlist = this.wishlist.filter(pid => pid !== id);
+                this.showWishlistMessage("Product removed from wishlist");
+            } else {
+                this.wishlist.push(id);
+                this.showWishlistMessage("Product added to wishlist");
+            }
+            this.setWishlistCookie();
+        },
+        showWishlistMessage(msg) {
+            this.wishlistMessage = msg;
+            if (this.wishlistMessageTimeout) clearTimeout(this.wishlistMessageTimeout);
+            this.wishlistMessageTimeout = setTimeout(() => {
+                this.wishlistMessage = "";
+            }, 2000); // Hide after 2 seconds
+        },
+        isWishlisted(id) {
+            return this.wishlist.includes(id);
+        },
+        setWishlistCookie() {
+            document.cookie = "wishlist=" + JSON.stringify(this.wishlist) + "; path=/; max-age=31536000";
+        },
+        getWishlistFromCookie() {
+            const match = document.cookie.match(/(?:^|; )wishlist=([^;]*)/);
+            if (match) {
+                try {
+                    return JSON.parse(decodeURIComponent(match[1]));
+                } catch {
+                    return [];
+                }
+            }
+            return [];
+        },
         fetchProducts(page = 1) {
             if (this.filters.min_price > this.filters.max_price) {
                 console.warn("Min price is greater than max price. Adjusting filters.");
@@ -284,5 +343,141 @@ export default {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 
+}
+
+/* Sidebar styles */
+aside.col-md-3 {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(34, 33, 33, 0.08);
+    padding: 24px 18px;
+    margin-bottom: 24px;
+}
+
+aside .mb-3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #222121;
+    margin-bottom: 18px;
+}
+
+.form-label.fw-semibold {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    font-size: 1rem;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    transition: border-color 0.2s;
+}
+
+.form-select:focus {
+    border-color: #222121;
+    box-shadow: 0 0 0 2px #22212122;
+}
+
+input[type="number"].form-control {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    font-size: 1rem;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    transition: border-color 0.2s;
+}
+
+input[type="number"].form-control:focus {
+    border-color: #222121;
+    box-shadow: 0 0 0 2px #22212122;
+}
+
+.btn-outline-secondary.w-100 {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 0;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    color: #222121;
+    transition: all 0.2s;
+    margin-top: 12px;
+}
+
+.btn-outline-secondary.w-100:hover:not(:disabled) {
+    background: #222121;
+    color: #fff;
+    border-color: #222121;
+}
+
+.btn-outline-secondary.w-100:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.d-flex.align-items-center.mb-2 {
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    aside.col-md-3 {
+        padding: 16px 8px;
+        margin-bottom: 16px;
+    }
+}
+
+.wishlist-btn {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.wishlist-btn.active svg {
+    fill: #f16757;
+    transform: scale(1.1);
+}
+
+.wishlist-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #f16757 0%, #ffb199 100%);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 24px;
+    box-shadow: 0 4px 24px rgba(241, 103, 87, 0.18);
+    font-size: 1rem;
+    font-weight: 600;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    min-width: unset;
+    max-width: 90vw;
+    animation: wishlist-fade-in 0.4s;
+}
+
+.wishlist-toast-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+@keyframes wishlist-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 </style>

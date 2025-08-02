@@ -1,7 +1,7 @@
 @extends('front.layout.page')
 
 @section('front-content')
-<div class="container my-5" >
+<div class="container my-5" style="margin-top: 100px !important;">
   <h2 class="mb-4">{{ $category->name }}</h2>
   <div id="category-products">
         <script>
