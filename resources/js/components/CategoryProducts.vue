@@ -38,24 +38,47 @@
             <!-- Products Grid -->
             <section class="col-md-9">
                 <div class="row g-4">
-                    <div v-for="product in products || []" :key="product.inventory_id" class="col-sm-6 col-lg-4">
+                    <div v-for="product in products" :key="product.inventory_id" class="col-sm-6 col-lg-4">
                         <div class="card h-100 shadow-sm product-card">
-                            <img :src="variantImage(product)" class="card-img-top" :alt="product.product_name"
-                                style="object-fit: cover; height: 300px; width: 100%;" />
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="product-title  ">{{ product.product_name }}</h5>
+                            <!-- Image Slider -->
+                            <div v-if="currentGallery(product).length > 0" :id="'carousel-' + product.inventory_id"
+                                class="carousel slide">
+                                <div class="carousel-inner">
+                                    <div v-for="(img, idx) in currentGallery(product)" :key="img"
+                                        :class="['carousel-item', { active: idx === 0 }]">
+                                        <img :src="baseUrl + '/' + img"
+                                            :alt="product.product_name"style="object-fit: contain; height: 300px; width: 100%;" />
+                                    </div>
+                                </div>
+                                <button v-if="currentGallery(product).length > 1" class="carousel-control-prev"
+                                    type="button" :data-bs-target="'#carousel-' + product.inventory_id"
+                                    data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button v-if="currentGallery(product).length > 1" class="carousel-control-next"
+                                    type="button" :data-bs-target="'#carousel-' + product.inventory_id"
+                                    data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+                            <img v-else :src="variantImage(product)" class="card-img-top" :alt="product.product_name"
+                                style="object-fit: contain; height: 300px; width: 100%;" />
 
-                                <p class="card-text fw-bold fs-5 ">₹{{ variantPrice(product) }}</p>
-                                <div class="">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="product-title">{{ product.product_name }}</h5>
+                                <p class="card-text fw-bold fs-5">₹{{ variantPrice(product) }}</p>
+                                <div>
                                     <label class="form-label d-block">Color:</label>
                                     <div class="color-options d-flex gap-2 flex-wrap">
-                                        <button v-for="color in variantColor(product)" :key="color.color_id" type="button"
-                                            class="color-option" :class="{ 'active': selectedColor === color.color_id }"
-                                            @click="selectColor(color.color_id)" :title="color.color_name">
+                                        <label v-for="color in variantColor(product)" :key="color.color_id"
+                                            class="color-radio">
+                                            <input type="radio" :name="'color-' + product.inventory_id"
+                                                :value="color.color_id" v-model="selectedColors[product.inventory_id]"
+                                                @change="onColorChange(product, color.color_id)" />
                                             <span class="color-dot"
                                                 :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
                                             <span class="color-name">{{ color.color_name }}</span>
-                                        </button>
+                                        </label>
                                     </div>
                                 </div>
                                 <a :href="`/product/${product.id}`" class="border-btn">View Details</a>
@@ -92,7 +115,6 @@
 
 <script>
 import axios from "axios";
-
 export default {
     props: {
         categoryId: { type: Number, required: true },
@@ -110,6 +132,7 @@ export default {
                 max_price: this.maxPrice,
             },
             products: this.initialProducts,
+            selectedColors: {}, // Track selected color per product
         };
     },
     methods: {
@@ -128,7 +151,16 @@ export default {
                     },
                 })
                 .then((res) => {
-                    this.products = res.data;
+                    this.products = Array.isArray(res.data) ? res.data : (res.data.data || []);
+
+                    this.$nextTick(() => {
+                        const productList = Array.isArray(this.products) ? this.products : (this.products.data || []);
+                        productList.forEach(product => {
+                            if (product && !this.selectedColors[product.inventory_id] && product.grouped_variants && product.grouped_variants.length > 0) {
+                                this.selectedColors[product.inventory_id] = product.grouped_variants[0].color_id;
+                            }
+                        });
+                    });
                 })
                 .catch((error) => {
                     console.error("Failed to fetch products:", error);
@@ -144,22 +176,47 @@ export default {
             this.filters.max_price = this.maxPrice;
             this.fetchProducts(1);
         },
+        variantColor(product) {
+            return product.grouped_variants || [];
+        },
+        onColorChange(product, colorId) {
+            this.selectedColors[product.inventory_id] = colorId;
+            this.$nextTick(() => {
+                const carousel = document.getElementById('carousel-' + product.inventory_id);
+                if (carousel && window.bootstrap) {
+                    const bsCarousel = window.bootstrap.Carousel.getInstance(carousel) || new window.bootstrap.Carousel(carousel);
+                    bsCarousel.to(0);
+                }
+            });
+        },
+        currentGallery(product) {
+            // Get gallery images for selected color, fallback to first color, else empty
+            const colorId = this.selectedColors[product.inventory_id];
+            let colorObj = (product.grouped_variants || []).find(c => c.color_id === colorId);
+
+            if (!colorObj && product.grouped_variants && product.grouped_variants.length > 0) {
+                colorObj = product.grouped_variants[0];
+            }
+            return colorObj && colorObj.gallery_images ? colorObj.gallery_images : [];
+        },
         variantImage(product) {
-            if (product.colors && product.colors.length > 0 && product.colors[0].main_image) {
-                return product.colors[0].main_image;
+            if (product.grouped_variants && product.grouped_variants.length > 0 && product.grouped_variants[0].main_image) {
+                return this.baseUrl + product.grouped_variants[0].main_image;
             }
             return this.baseUrl + 'images/default-product.png';
         },
-        variantColor(product) {
-            // console.log(product,'product');
-
-        },
         variantPrice(product) {
-            if (!product.colors || product.colors.length === 0) return 'N/A';
+            if (!product.grouped_variants || product.grouped_variants.length === 0) return 'N/A';
 
-            const variant = product.colors[0].variants[0];
-            console.log(variant,'variant');
+            // Get selected color id for this product
+            const selectedColorId = this.selectedColors[product.inventory_id];
+            // Find the selected color group
+            let colorGroup = (product.grouped_variants || []).find(c => c.color_id === selectedColorId);
+            if (!colorGroup) colorGroup = product.grouped_variants[0];
 
+            // Get the first variant for that color
+            const variant = colorGroup.variants && colorGroup.variants[0];
+            if (!variant) return 'N/A';
 
             // Fallback to price if no sale info
             if (!variant.sale_start_date || !variant.sale_end_date || !variant.sale_price) {
@@ -187,12 +244,11 @@ export default {
         },
     },
     mounted() {
-        console.log(this.products,'sdfsdf');
-
         this.fetchProducts();
-        // console.log(this.products,'sdfsdf afterrer');
-
     },
+    // beforeMount() {
+    //     this.fetchProducts();
+    // },
 };
 </script>
 
@@ -216,5 +272,75 @@ export default {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+
+}
+
+.color-radio {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.color-radio input[type="radio"] {
+    margin-right: 4px;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    margin-right: 4px;
+    border: 1px solid #ccc;
+}
+
+
+/* Color Selection Styles */
+.color-selection {
+    margin-top: 10px;
+}
+
+.color-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1px 1px;
+    border: 2px solid #e9ecef;
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+    min-width: fit-content;
+}
+
+.color-option:hover {
+    border-color: #222121;
+    transform: translateY(-1px);
+}
+
+.color-option.active {
+    border-color: #222121;
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.color-name {
+    font-weight: 500;
+    color: #333;
 }
 </style>

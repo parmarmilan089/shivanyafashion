@@ -11,7 +11,7 @@
             minPrice: {{ (float) $minPrice }},
             maxPrice: {{ (float) $maxPrice }},
             initialProducts: @json($inventories->items()),
-            baseUrl : "{{ asset('') }}",
+            baseUrl : "{{ asset('storage') }}",
             };
         </script>
   <category-products ></category-products>
