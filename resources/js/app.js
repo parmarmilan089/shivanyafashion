@@ -4,6 +4,7 @@ import InventoryEdit from './components/InventoryEdit.vue';
 import ProductOptions from './components/ProductOptions.vue';
 import CategoryProducts from './components/CategoryProducts.vue';
 
+
 // Helper to mount any component to a given DOM element
 function mountComponent(selector, component, props = {}) {
     const el = document.querySelector(selector);
