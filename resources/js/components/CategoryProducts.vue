@@ -46,8 +46,8 @@
                                 <div class="carousel-inner">
                                     <div v-for="(img, idx) in currentGallery(product)" :key="img"
                                         :class="['carousel-item', { active: idx === 0 }]">
-                                        <img :src="baseUrl + '/' + img"
-                                            :alt="product.product_name"style="object-fit: contain; height: 300px; width: 100%;" />
+                                        <img :src="baseUrl + '/' + img" :alt="product.product_name"
+                                            style="object-fit: contain; height: 300px; width: 100%;" />
                                     </div>
                                 </div>
                                 <button v-if="currentGallery(product).length > 1" class="carousel-control-prev"
@@ -64,24 +64,32 @@
                             <img v-else :src="variantImage(product)" class="card-img-top" :alt="product.product_name"
                                 style="object-fit: contain; height: 300px; width: 100%;" />
 
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="product-title">{{ product.product_name }}</h5>
-                                <p class="card-text fw-bold fs-5">₹{{ variantPrice(product) }}</p>
+                            <div class="card-body d-flex flex-column pt-2">
                                 <div>
-                                    <label class="form-label d-block">Color:</label>
-                                    <div class="color-options d-flex gap-2 flex-wrap">
-                                        <label v-for="color in variantColor(product)" :key="color.color_id"
-                                            class="color-radio">
-                                            <input type="radio" :name="'color-' + product.inventory_id"
-                                                :value="color.color_id" v-model="selectedColors[product.inventory_id]"
-                                                @change="onColorChange(product, color.color_id)" />
-                                            <span class="color-dot"
-                                                :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
-                                            <span class="color-name">{{ color.color_name }}</span>
-                                        </label>
+                                    <div class="color-options d-flex gap-2 flex-wrap justify-content-center">
+                                        <button
+                                            v-for="color in variantColor(product)"
+                                            :key="color.color_id"
+                                            type="button"
+                                            class="color-option"
+                                            :class="{ 'active': selectedColors[product.inventory_id] === color.color_id }"
+                                            @click="onColorChange(product, color.color_id)"
+                                            :title="color.color_name"
+                                        >
+                                            <span class="color-dot" :style="{ backgroundColor: color.color_code || '#ccc' }"></span>
+                                        </button>
                                     </div>
                                 </div>
-                                <a :href="`/product/${product.id}`" class="border-btn">View Details</a>
+                                <h5 class="product-title">{{ limitText(product.product_name, 20) }}</h5>
+                                <p class="card-text fw-bold fs-5 m-0">₹{{ variantPrice(product) }}</p>
+                                <a
+  :href="`/product/${product.inventory_id}`"
+  class="border-btn"
+  rel="noopener"
+  :title="`View details for ${limitText(product.product_name, 20)}`"
+>
+  View Details
+</a>
                             </div>
                         </div>
                     </div>
@@ -242,6 +250,10 @@ export default {
             if (this.filters.max_price > this.maxPrice) this.filters.max_price = this.maxPrice;
             this.fetchProducts(1);
         },
+        limitText(text, limit) {
+            if (!text) return '';
+            return text.length > limit ? text.slice(0, limit) + '...' : text;
+        },
     },
     mounted() {
         this.fetchProducts();
@@ -267,80 +279,10 @@ export default {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
-    height: 2.8rem;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 
-}
-
-.color-radio {
-    display: flex;
-    align-items: center;
-    margin-right: 8px;
-}
-
-.color-radio input[type="radio"] {
-    margin-right: 4px;
-}
-
-.color-dot {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    margin-right: 4px;
-    border: 1px solid #ccc;
-}
-
-
-/* Color Selection Styles */
-.color-selection {
-    margin-top: 10px;
-}
-
-.color-options {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.color-option {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 1px 1px;
-    border: 2px solid #e9ecef;
-    border-radius: 20px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.8rem;
-    min-width: fit-content;
-}
-
-.color-option:hover {
-    border-color: #222121;
-    transform: translateY(-1px);
-}
-
-.color-option.active {
-    border-color: #222121;
-    background: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.color-dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.color-name {
-    font-weight: 500;
-    color: #333;
 }
 </style>

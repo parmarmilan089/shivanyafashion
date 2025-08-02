@@ -46,7 +46,7 @@ class FrontendController extends Controller
                 ];
             });
         })->values();
-        $categorys = Category::where('category_type', 1)->get();
+        $categorys = Category::where('category_type', 0)->get();
         return view('home', compact('inventories', 'categorys', 'variantData'));
     }
 
@@ -223,6 +223,7 @@ class FrontendController extends Controller
 
             return [
                 'inventory_id' => $product->id,
+                'product_name' => $product->name,
                 'grouped_variants' => $grouped,
             ];
         });
