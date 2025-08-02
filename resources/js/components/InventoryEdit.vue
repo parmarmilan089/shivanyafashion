@@ -218,7 +218,11 @@
                     </small>
                   </div>
                   <div v-if="variant.main_image">
-                    <img :src="'/storage/' + variant.main_image" alt="Current Variant Main Image" style="max-width: 120px; margin-top: 10px;" />
+                    <img
+                      :src="variant.main_image_preview ? variant.main_image_preview : (typeof variant.main_image === 'string' ? '/storage/' + variant.main_image : '')"
+                      alt="Current Variant Main Image"
+                      style="max-width: 120px; margin-top: 10px;"
+                    />
                   </div>
                 </div>
               </div>
@@ -459,7 +463,9 @@ export default {
         return;
       }
 
+      // Assign file and preview URL
       this.form.variants[variantIndex].main_image = file;
+      this.form.variants[variantIndex].main_image_preview = URL.createObjectURL(file);
 
       // Show success message
       Swal.fire({

@@ -156,7 +156,7 @@
                         target="_blank"
                         rel="noopener"
                         class="w-100 flex-1 border-btn product-title"
-                        style="text-align:center; margin-top:8px;"
+                        style="text-align:center;"
                     >
                         ENQUIRE ORDER <span class="atc-dot"></span>
                     </a>
