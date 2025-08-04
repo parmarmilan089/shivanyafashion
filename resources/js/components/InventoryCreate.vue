@@ -395,6 +395,8 @@ export default {
             showCropper: false,
             cropperImage: null,
             cropperVariantIndex: null,
+            cropperType: null,
+            galleryCropQueue: [],
         };
     },
     computed: {
@@ -423,31 +425,55 @@ export default {
         }
     },
     methods: {
+        openCropper(file, variantIndex, type) {
+            this.cropperImage = URL.createObjectURL(file);
+            this.cropperVariantIndex = variantIndex;
+            this.cropperType = type;          // 'main' or 'gallery'
+            this.showCropper = true;
+        },
+
+        resetCrop() {
+            this.showCropper = false;
+            this.cropperImage = null;
+            this.cropperVariantIndex = null;
+            this.cropperType = null;
+            this.galleryCropQueue = [];
+        },
         cropImage() {
             const result = this.$refs.cropper.getResult();
             const originalCanvas = result?.canvas;
 
-            if (originalCanvas) {
-                const targetWidth = 720;
-                const targetHeight = 1012;
+            if (!originalCanvas) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Cropping failed.',
+                    icon: 'error',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                return;
+            }
 
-                // Resize the cropped canvas
-                const resizedCanvas = document.createElement('canvas');
-                resizedCanvas.width = targetWidth;
-                resizedCanvas.height = targetHeight;
+            const targetWidth = 720;
+            const targetHeight = 1012;
 
-                const ctx = resizedCanvas.getContext('2d');
-                ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
+            // Resize the cropped canvas
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = targetWidth;
+            resizedCanvas.height = targetHeight;
 
-                resizedCanvas.toBlob(blob => {
-                    const file = new File([blob], "cropped-image.png", { type: "image/png" });
-                    const variantIndex = this.cropperVariantIndex;
+            const ctx = resizedCanvas.getContext('2d');
+            ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
 
+            resizedCanvas.toBlob(blob => {
+                const file = new File([blob], "cropped-image.png", { type: "image/png" });
+                const variantIndex = this.cropperVariantIndex;
+                const previewUrl = URL.createObjectURL(file);
+
+                // Handle based on cropper type
+                if (this.cropperType === 'main') {
                     this.form.variants[variantIndex].main_image = file;
-                    this.form.variants[variantIndex].main_image_preview = URL.createObjectURL(file);
-                    this.showCropper = false;
-                    this.cropperImage = null;
-                    this.cropperVariantIndex = null;
+                    this.form.variants[variantIndex].main_image_preview = previewUrl;
 
                     Swal.fire({
                         title: 'Image Cropped',
@@ -456,21 +482,41 @@ export default {
                         timer: 1500,
                         showConfirmButton: false
                     });
-                }, "image/png");
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Cropping failed.',
-                    icon: 'error',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
+
+                    this.resetCrop();
+                } else if (this.cropperType === 'gallery') {
+                    if (!this.form.variants[variantIndex].gallery_images) {
+                        this.form.variants[variantIndex].gallery_images = [];
+                    }
+
+                    this.form.variants[variantIndex].gallery_images.push({
+                        file: file,
+                        preview: previewUrl
+                    });
+
+                    if (this.galleryCropQueue.length > 0) {
+                        // Crop next image in queue
+                        const nextFile = this.galleryCropQueue.shift();
+                        this.openCropper(nextFile, variantIndex, 'gallery');
+                    } else {
+                        Swal.fire({
+                            title: 'Gallery Images Added',
+                            text: 'All gallery images cropped and saved!',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        this.resetCrop();
+                    }
+                }
+            }, "image/png");
         },
         cancelCrop() {
             this.showCropper = false;
             this.cropperImage = null;
             this.cropperVariantIndex = null;
+            this.cropperType = null;
         },
         addVariant() {
             let newVariant = {
@@ -571,7 +617,6 @@ export default {
         },
         handleVariantMainImage(variantIndex, event) {
             const file = event.target.files[0];
-
             if (!file) return;
 
             const validation = this.validateImageFile(file);
@@ -582,55 +627,18 @@ export default {
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                // Clear the file input
-                event.target.value = '';
+                event.target.value = ''; // Reset file input
                 return;
             }
 
-            // Show cropper modal
-            this.cropperImage = URL.createObjectURL(file);
-            this.cropperVariantIndex = variantIndex;
-            this.showCropper = true;
-            // const file = event.target.files[0];
-
-            // if (!file) return;
-
-            // const validation = this.validateImageFile(file);
-            // if (!validation.valid) {
-            //     Swal.fire({
-            //         title: 'File Validation Error',
-            //         text: validation.message,
-            //         icon: 'error',
-            //         confirmButtonText: 'OK'
-            //     });
-            //     // Clear the file input
-            //     event.target.value = '';
-            //     return;
-            // }
-
-            // this.form.variants[variantIndex].main_image = file;
-
-            // // Create preview
-            // const reader = new FileReader();
-            // reader.onload = (e) => {
-            //     this.form.variants[variantIndex].main_image_preview = e.target.result;
-            // };
-            // reader.readAsDataURL(file);
-
-            // // Show success message
-            // Swal.fire({
-            //     title: 'Image Added',
-            //     text: 'Main image added successfully!',
-            //     icon: 'success',
-            //     timer: 1500,
-            //     showConfirmButton: false
-            // });
+            // Open cropper modal for main image
+            this.openCropper(file, variantIndex, 'main');
         },
         handleVariantGalleryImages(variantIndex, event) {
             const files = Array.from(event.target.files);
             const invalidFiles = [];
 
-            // Validate all files
+            // 🔍 Validate all files
             files.forEach(file => {
                 const validation = this.validateImageFile(file);
                 if (!validation.valid) {
@@ -652,37 +660,21 @@ export default {
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
+
                 // Clear the file input
                 event.target.value = '';
                 return;
             }
 
-            // Initialize arrays if they don't exist
+            // Initialize gallery_images array if not exists
             if (!this.form.variants[variantIndex].gallery_images) {
                 this.form.variants[variantIndex].gallery_images = [];
             }
 
-            // Add files with previews
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.form.variants[variantIndex].gallery_images.push({
-                        file: file,
-                        preview: e.target.result
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-
-            // Show success message
+            // 📸 Begin cropping files one by one
             if (files.length > 0) {
-                Swal.fire({
-                    title: 'Images Added',
-                    text: `${files.length} image(s) added successfully!`,
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                this.galleryCropQueue = files;                         // queue of files
+                this.openCropper(this.galleryCropQueue.shift(), variantIndex, 'gallery');  // open first crop
             }
         },
         removeGalleryImage(variantIndex, imageIndex) {
@@ -1058,6 +1050,7 @@ export default {
     flex-wrap: wrap;
     gap: 10px;
 }
+
 /*
 .cropper-modal {
     position: fixed;
