@@ -395,6 +395,8 @@ export default {
             showCropper: false,
             cropperImage: null,
             cropperVariantIndex: null,
+            galleryCropQueue: [],
+            cropperType: null, // 'main' or 'gallery'
         };
     },
     computed: {
@@ -480,7 +482,8 @@ export default {
         },
 
         handleVariantMainImage(variantIndex, event) {
-            const file = event.target.files[0];
+            const fileInput = event.target;
+            const file = fileInput.files[0];
 
             if (!file) return;
 
@@ -493,40 +496,72 @@ export default {
                     confirmButtonText: 'OK'
                 });
                 // Clear the file input
-                event.target.value = '';
+                fileInput.value = '';
                 return;
             }
 
             // Show cropper modal
             this.cropperImage = URL.createObjectURL(file);
             this.cropperVariantIndex = variantIndex;
+            this.cropperType = 'main'; // ✅ THIS IS REQUIRED
             this.showCropper = true;
+
+            // Store the input so we can reset it after cropping
+            this.lastUsedFileInput = fileInput;
+        },
+        cropAndSaveImage() {
+            const canvas = this.$refs.cropper.getResult();
+            if (!canvas) return;
+
+            const croppedImage = canvas.toDataURL('image/jpeg');
+            if (croppedImage) {
+                this.variants[this.cropperVariantIndex].main_image_preview = croppedImage;
+            }
+
+            // Hide modal and clear temp data
+            this.showCropper = false;
+            this.cropperImage = null;
+            this.cropperVariantIndex = null;
+
+            // Reset file input
+            if (this.lastUsedFileInput) {
+                this.lastUsedFileInput.value = '';
+                this.lastUsedFileInput = null;
+            }
         },
         cropImage() {
             const result = this.$refs.cropper.getResult();
             const originalCanvas = result?.canvas;
 
-            if (originalCanvas) {
-                const targetWidth = 720;
-                const targetHeight = 1012;
+            if (!originalCanvas) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Cropping failed.',
+                    icon: 'error',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                return;
+            }
 
-                // Resize the cropped canvas
-                const resizedCanvas = document.createElement('canvas');
-                resizedCanvas.width = targetWidth;
-                resizedCanvas.height = targetHeight;
+            const targetWidth = 720;
+            const targetHeight = 1012;
 
-                const ctx = resizedCanvas.getContext('2d');
-                ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = targetWidth;
+            resizedCanvas.height = targetHeight;
 
-                resizedCanvas.toBlob(blob => {
-                    const file = new File([blob], "cropped-image.png", { type: "image/png" });
-                    const variantIndex = this.cropperVariantIndex;
+            const ctx = resizedCanvas.getContext('2d');
+            ctx.drawImage(originalCanvas, 0, 0, targetWidth, targetHeight);
 
+            resizedCanvas.toBlob(blob => {
+                const file = new File([blob], "cropped-image.png", { type: "image/png" });
+                const variantIndex = this.cropperVariantIndex;
+                const previewUrl = URL.createObjectURL(file);
+
+                if (this.cropperType === 'main') {
                     this.form.variants[variantIndex].main_image = file;
-                    this.form.variants[variantIndex].main_image_preview = URL.createObjectURL(file);
-                    this.showCropper = false;
-                    this.cropperImage = null;
-                    this.cropperVariantIndex = null;
+                    this.form.variants[variantIndex].main_image_preview = previewUrl;
 
                     Swal.fire({
                         title: 'Image Cropped',
@@ -535,21 +570,52 @@ export default {
                         timer: 1500,
                         showConfirmButton: false
                     });
-                }, "image/png");
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Cropping failed.',
-                    icon: 'error',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
+
+                    this.resetCrop();
+                } else if (this.cropperType === 'gallery') {
+                    // Initialize arrays if needed
+                    if (!this.form.variants[variantIndex].gallery_images) {
+                        this.form.variants[variantIndex].gallery_images = [];
+                    }
+                    if (!this.form.variants[variantIndex].newGalleryImages) {
+                        this.form.variants[variantIndex].newGalleryImages = [];
+                    }
+
+                    // Push the cropped file and preview
+                    this.form.variants[variantIndex].gallery_images.push(file);
+                    this.form.variants[variantIndex].newGalleryImages.push({
+                        id: `new-${variantIndex}-${Date.now()}`,
+                        url: previewUrl,
+                        file: file,
+                        type: 'new'
+                    });
+
+                    if (this.galleryCropQueue.length > 0) {
+                        // Next image
+                        const nextFile = this.galleryCropQueue.shift();
+                        this.cropperImage = URL.createObjectURL(nextFile);
+                    } else {
+                        Swal.fire({
+                            title: 'Gallery Images Added',
+                            text: 'All gallery images cropped and saved!',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        this.resetCrop(); // ✅ close modal
+                    }
+                }
+            }, "image/png");
         },
-        cancelCrop() {
+        resetCrop() {
             this.showCropper = false;
             this.cropperImage = null;
             this.cropperVariantIndex = null;
+            this.cropperType = null;
+            this.galleryCropQueue = [];
+        },
+        cancelCrop() {
+            this.resetCrop();
         },
         handleVariantGalleryImages(variantIndex, event) {
             const files = Array.from(event.target.files);
@@ -577,50 +643,21 @@ export default {
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
-                // Clear the file input
                 event.target.value = '';
                 return;
             }
 
-            // Initialize arrays if they don't exist
-            if (!this.form.variants[variantIndex].gallery_images) {
-                this.form.variants[variantIndex].gallery_images = [];
-            }
-            if (!this.form.variants[variantIndex].newGalleryImages) {
-                this.form.variants[variantIndex].newGalleryImages = [];
-            }
+            if (files.length === 0) return;
 
-            // Preserve existing string images (from database) and add new File objects
-            const existingImages = this.form.variants[variantIndex].gallery_images.filter(img => typeof img === 'string');
-            this.form.variants[variantIndex].gallery_images = [
-                ...existingImages,
-                ...files
-            ];
+            // Store files in queue
+            this.galleryCropQueue = files;
+            this.cropperVariantIndex = variantIndex;
+            this.cropperType = 'gallery';
 
-            // Create preview URLs for new images
-            files.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.form.variants[variantIndex].newGalleryImages.push({
-                        id: `new-${variantIndex}-${Date.now()}-${index}`,
-                        url: e.target.result,
-                        file: file,
-                        type: 'new'
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-
-            // Show success message
-            if (files.length > 0) {
-                Swal.fire({
-                    title: 'Images Added',
-                    text: `${files.length} image(s) added successfully!`,
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
+            // Start with first file
+            const firstFile = this.galleryCropQueue.shift();
+            this.cropperImage = URL.createObjectURL(firstFile);
+            this.showCropper = true;
         },
         getCombinedGalleryImages(variantIndex) {
             const variant = this.form.variants[variantIndex];
